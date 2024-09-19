@@ -1,0 +1,14 @@
+version: '3.9'
+services:
+  db-container:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: emu_web
+      POSTGRES_TZ: Europe/Bucharest
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./initdb:/docker-entrypoint-initdb.d
+      - ./data:/var/lib/postgresql/data

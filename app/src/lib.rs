@@ -3,13 +3,14 @@ use crate::error_template::{AppError, ErrorTemplate};
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use emu_lib_ui::emulator::emu_z80;
+use emu_lib_ui::{emulator::emu_with,emu_lib::{emulator::Emulator, cpu::z80::Z80,memory::Memory}};
 pub mod error_template;
 
 #[component]
 pub fn App() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
+    let (emu_read, emu_write) = create_signal(Emulator::<Z80>::new_w_mem(Memory::new_full_ram()));
     view! {
         <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css"/>
 
@@ -26,8 +27,8 @@ pub fn App() -> impl IntoView {
         }>
             <main>
                 <Routes>
-                    <Route path="emulator/z80" view=emu_z80/>
-                    <Route path="/" view=HomePage/>
+                    <Route path="emulator/z80" view=move || emu_with(emu_read,emu_write)/>
+                    <Route path="" view=HomePage/>
                 </Routes>
             </main>
         </Router>
