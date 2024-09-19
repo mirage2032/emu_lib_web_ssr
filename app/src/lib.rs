@@ -14,7 +14,9 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css"/>
 
         // sets the document title
-        <Title text="Welcome to Leptos"/>
+        <Title text="Z80EMU"/>
+        <header>//TODO:Header
+        </header>
 
         // content for this welcome page
         <Router fallback=|| {
@@ -24,12 +26,13 @@ pub fn App() -> impl IntoView {
         }>
             <main>
                 <Routes>
-                    <Route path="z80" view=emu_z80/>
-                    <Route path="i8080" view=emu_z80/>
-                    <Route path="" view=HomePage/>
+                    <Route path="emulator/z80" view=emu_z80/>
+                    <Route path="/" view=HomePage/>
                 </Routes>
             </main>
         </Router>
+        <footer>//TODO:Footer
+        </footer>
     }
 }
 

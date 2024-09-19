@@ -3,7 +3,8 @@ use std::process::Command;
 use serde_json::Value;
 fn main() {
     let relative = "../style";
-    let style = fs::canonicalize(env::current_dir().unwrap().join(relative)).unwrap();
+    let mut style = fs::canonicalize(env::current_dir().unwrap().join(relative)).unwrap();
+    style.push("emu_lib_ui");
 
     let output = Command::new("cargo")
         .arg("metadata")
