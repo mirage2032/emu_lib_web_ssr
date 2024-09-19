@@ -1,0 +1,15 @@
+@use "stylance";
+@import "https://necolas.github.io/normalize.css/8.0.1/normalize.css";
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-family: 'Roboto', sans-serif;
+}
+
+th {
+	font-weight: 400;
+}
