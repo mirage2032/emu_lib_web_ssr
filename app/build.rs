@@ -30,10 +30,11 @@ fn main() {
                 let _output = Command::new("stylance")
                     .arg(".")
                     .arg("--output-dir")
-                    .arg(style)
+                    .arg(style.clone())
                     .current_dir(manifest_dir)
                     .output()
                     .expect("Failed to execute stylance");
+                println!("cargo:rerun-if-changed={}/stylance", style.to_str().unwrap());
                 break;
             }
         }

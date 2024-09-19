@@ -5,6 +5,7 @@ use leptos::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
 
 pub mod fileserv;
+mod api;
 
 #[tokio::main]
 async fn main() {
@@ -19,9 +20,9 @@ async fn main() {
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
-
     // build our application with a route
     let app = Router::new()
+        .nest("/api", api::api_routes())
         .leptos_routes(&leptos_options, routes, App)
         .fallback(file_and_error_handler)
         .with_state(leptos_options);
