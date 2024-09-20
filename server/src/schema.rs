@@ -1,7 +1,20 @@
 // @generated automatically by Diesel CLI.
 
 diesel::table! {
-    roms (id) {
+    saved_roms (id) {
+        id -> Int4,
+        user_id -> Nullable<Int4>,
+        #[max_length = 50]
+        name -> Varchar,
+        description -> Nullable<Text>,
+        data -> Bytea,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    saved_states (id) {
         id -> Int4,
         user_id -> Nullable<Int4>,
         #[max_length = 50]
@@ -16,17 +29,22 @@ diesel::table! {
 diesel::table! {
     users (id) {
         id -> Int4,
+        #[max_length = 50]
         username -> Varchar,
+        #[max_length = 254]
         email -> Varchar,
+        #[max_length = 150]
         password_hash -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
 }
 
-diesel::joinable!(roms -> users (user_id));
+diesel::joinable!(saved_roms -> users (user_id));
+diesel::joinable!(saved_states -> users (user_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    roms,
+    saved_roms,
+    saved_states,
     users,
 );

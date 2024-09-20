@@ -4,12 +4,19 @@ use axum::Router;
 use diesel::{r2d2, PgConnection};
 use diesel::r2d2::ConnectionManager;
 use leptos::LeptosOptions;
+use serde::{Deserialize, Serialize};
 use tower_http::add_extension::AddExtensionLayer;
 use user::user_routes;
 use emulator::emulator_routes;
 mod emulator;
 
 pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+
+#[derive(Serialize,Deserialize)]
+struct StatusMsgResponse {
+    success: bool,
+    message: String,
+}
 
 async fn establish_connection() -> DbPool {
     let manager = ConnectionManager::<PgConnection>::new("postgres://user:pass@localhost/emu_web");

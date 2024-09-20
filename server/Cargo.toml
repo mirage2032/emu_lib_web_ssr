@@ -8,10 +8,12 @@ edition = "2021"
 [dependencies]
 diesel = {version = "2.2.4", features = ["postgres", "r2d2"]}
 app = { path = "../app", default-features = false, features = ["ssr"] }
+serde = { version = "1.0.210", features = ["derive"] }
+axum-macros = "0.4.1"
+axum-extra = {version = "0.9.3", features = ["cookie"]}
+time = "0.3.36"
 leptos = { workspace = true, features = [ "ssr" ]}
 leptos_axum.workspace = true
-serde = { version = "1.0.210", features = ["derive"] }
-
 axum.workspace = true
 simple_logger.workspace = true
 tokio.workspace = true

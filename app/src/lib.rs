@@ -5,6 +5,7 @@ use leptos_meta::*;
 use leptos_router::*;
 use emu_lib_ui::{emulator::emu_with,emu_lib::{emulator::Emulator, cpu::z80::Z80,memory::Memory}};
 pub mod error_template;
+pub mod password;
 
 #[component]
 pub fn App() -> impl IntoView {
