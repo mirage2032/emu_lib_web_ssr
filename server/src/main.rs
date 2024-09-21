@@ -4,9 +4,11 @@ use fileserv::file_and_error_handler;
 use leptos::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
 
-pub mod fileserv;
 mod api;
+pub mod fileserv;
+mod middleware;
 mod models;
+mod password;
 mod schema;
 
 #[tokio::main]

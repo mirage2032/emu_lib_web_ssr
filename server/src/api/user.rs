@@ -1,4 +1,5 @@
 use crate::api::{DbPool, StatusMsgResponse};
+use crate::middleware::UserData;
 use crate::models::user::{NewUser, User, UserLogin};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
@@ -64,10 +65,11 @@ async fn login(
         true => UserLogin::new_with_email(body.login, body.password),
         false => UserLogin::new_with_username(body.login, body.password),
     };
-    match user.authenticate(&pool) {
-        Ok(user) => {
+    let duration = std::time::Duration::from_secs(3600 * 24);
+    match user.authenticate(&pool, duration) {
+        Ok((user, session)) => {
             let mut jar = CookieJar::new();
-            let cookie = Cookie::build(("session", format!("{}", user.id)))
+            let cookie = Cookie::build(("session_token", format!("{}", session.token)))
                 .http_only(true)
                 .build();
             jar = jar.add(cookie);
@@ -90,10 +92,19 @@ async fn login(
 
 #[debug_handler]
 async fn logout(
+    Extension(pool): Extension<DbPool>,
+    user_data: Option<Extension<UserData>>,
     // jar: CookieJar,
 ) -> impl IntoResponse {
+    if user_data.is_none() {
+        let response = StatusMsgResponse {
+            success: false,
+            message: "No user logged in!".to_string(),
+        };
+        return (StatusCode::OK, None, Json(response));
+    }
     let mut jar = CookieJar::new();
-    let cookie = Cookie::build(("session", ""))
+    let cookie = Cookie::build(("session_token", ""))
         .http_only(true)
         .expires(time::OffsetDateTime::now_utc() - time::Duration::days(1))
         .build();
@@ -102,7 +113,7 @@ async fn logout(
         success: true,
         message: "Logged out successfully!".to_string(),
     };
-    (StatusCode::OK, jar, Json(response))
+    (StatusCode::OK, Some(jar), Json(response))
 }
 pub fn user_routes() -> Router<LeptosOptions> {
     Router::new()

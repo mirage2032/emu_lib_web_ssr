@@ -1,10 +1,13 @@
-use std::time::SystemTime;
-use serde::{Deserialize, Serialize};
-use diesel::prelude::*;
 use crate::api::DbPool;
+use crate::models::session::{NewSession, Session};
+use crate::schema::users::dsl;
+use diesel::prelude::*;
 use diesel::Queryable;
+use serde::{Deserialize, Serialize};
+use std::error::Error;
+use std::time::{Duration, SystemTime};
 
-#[derive(Queryable)]
+#[derive(Debug, Queryable, Serialize, Deserialize, Clone)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -14,13 +17,13 @@ pub struct User {
     pub updated_at: SystemTime,
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum LoginOption {
     Username(String),
     Email(String),
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserLogin {
     pub username: LoginOption,
     pub password: String,
@@ -28,10 +31,7 @@ pub struct UserLogin {
 
 impl UserLogin {
     pub fn new(username: LoginOption, password: String) -> Self {
-        UserLogin {
-            username,
-            password,
-        }
+        UserLogin { username, password }
     }
 
     pub fn new_with_username(username: String, password: String) -> Self {
@@ -48,20 +48,21 @@ impl UserLogin {
         }
     }
 
-    pub fn authenticate(&self, pool: &DbPool) -> Result<User,String> {
+    pub fn authenticate(
+        &self,
+        pool: &DbPool,
+        duration: Duration,
+    ) -> Result<(User, Session), Box<dyn Error>> {
         let user = match &self.username {
-            LoginOption::Username(username) => {
-                User::get_by_username(username, pool).map_err(|e| e.to_string())?
-            }
-            LoginOption::Email(email) => {
-                User::get_by_email(email, pool).map_err(|e| e.to_string())?
-            }
+            LoginOption::Username(username) => User::get_by_username(username, pool)?,
+            LoginOption::Email(email) => User::get_by_email(email, pool)?,
         };
-        if app::password::verify_password(&self.password, &user.password_hash).is_ok() {
-            Ok(user)
-        } else {
-            Err("Invalid password".to_string())
+        if crate::password::verify_password(&self.password, &user.password_hash).is_err() {
+            return Err("Invalid password".into());
         }
+        let new_session = NewSession::new(user.id, duration);
+        let session = Session::create(new_session, pool)?;
+        Ok((user, session))
     }
 }
 
@@ -74,8 +75,9 @@ pub struct NewUser {
 }
 
 impl NewUser {
-    pub fn new(username: String, email: String, password: String) -> Result<Self,Box<dyn std::error::Error>> {
-        let password_hash = app::password::hash_password(&password).map_err(|e| "Couldn't hash password")?;
+    pub fn new(username: String, email: String, password: String) -> Result<Self, Box<dyn Error>> {
+        let password_hash =
+            crate::password::hash_password(&password).map_err(|_| "Couldn't hash password")?;
         Ok(NewUser {
             username,
             email,
@@ -85,30 +87,40 @@ impl NewUser {
 }
 
 impl User {
-    pub fn add_user(new_user: NewUser, pool: &DbPool) -> Result<User, diesel::result::Error> {
-        use crate::schema::users::dsl::*;
-        let mut conn = pool.get().unwrap();
-        let user = diesel::insert_into(users).values(&new_user).get_result(&mut conn).map_err(|e| e)?;
+    pub fn add_user(new_user: NewUser, pool: &DbPool) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = diesel::insert_into(dsl::users)
+            .values(&new_user)
+            .get_result(&mut conn)?;
         Ok(user)
     }
-    pub fn get_by_id(p_id: i32, pool: &DbPool ) -> Result<User, diesel::result::Error> {
-        use crate::schema::users::dsl::*;
-        let mut conn = pool.get().unwrap();
-        let user = users.filter(id.eq(p_id)).first(&mut conn).map_err(|e| e)?;
-        Ok(user)
-    }
-
-    pub fn get_by_username(p_username: &str, pool: &DbPool) -> Result<User, diesel::result::Error> {
-        use crate::schema::users::dsl::*;
-        let mut conn = pool.get().unwrap();
-        let user = users.filter(username.eq(p_username)).first(&mut conn).map_err(|e| e)?;
+    pub fn get_by_id(p_id: i32, pool: &DbPool) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = dsl::users
+            .filter(dsl::id.eq(p_id))
+            .first(&mut conn)
+            .map_err(|e| e)?;
         Ok(user)
     }
 
-    pub fn get_by_email(p_email: &str, pool: &DbPool) -> Result<User, diesel::result::Error> {
-        use crate::schema::users::dsl::*;
-        let mut conn = pool.get().unwrap();
-        let user = users.filter(email.eq(p_email)).first(&mut conn).map_err(|e| e)?;
+    pub fn get_by_username(p_username: &str, pool: &DbPool) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = dsl::users
+            .filter(dsl::username.eq(p_username))
+            .first(&mut conn)
+            .map_err(|e| e)?;
         Ok(user)
+    }
+
+    pub fn get_by_email(p_email: &str, pool: &DbPool) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = dsl::users.filter(dsl::email.eq(p_email)).first(&mut conn)?;
+        Ok(user)
+    }
+
+    pub fn delete(&self, pool: &DbPool) -> Result<(), Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        diesel::delete(dsl::users.find(self.id)).execute(&mut conn)?;
+        Ok(())
     }
 }

@@ -1,6 +1,6 @@
-use std::{env, fs};
-use std::process::Command;
 use serde_json::Value;
+use std::process::Command;
+use std::{env, fs};
 fn main() {
     let relative = "../style";
     let mut style = fs::canonicalize(env::current_dir().unwrap().join(relative)).unwrap();
@@ -17,7 +17,8 @@ fn main() {
     }
 
     // Convert the output to a string
-    let metadata_json = String::from_utf8(output.stdout).expect("Invalid UTF-8 in cargo metadata output");
+    let metadata_json =
+        String::from_utf8(output.stdout).expect("Invalid UTF-8 in cargo metadata output");
 
     // Parse the JSON
     let metadata: Value = serde_json::from_str(&metadata_json).expect("Failed to parse JSON");
@@ -35,7 +36,10 @@ fn main() {
                     .current_dir(manifest_dir)
                     .output()
                     .expect("Failed to execute stylance");
-                println!("cargo:rerun-if-changed={}/stylance", style.to_str().unwrap());
+                println!(
+                    "cargo:rerun-if-changed={}/stylance",
+                    style.to_str().unwrap()
+                );
                 break;
             }
         }

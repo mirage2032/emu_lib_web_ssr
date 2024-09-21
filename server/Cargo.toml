@@ -12,6 +12,9 @@ serde = { version = "1.0.210", features = ["derive"] }
 axum-macros = "0.4.1"
 axum-extra = {version = "0.9.3", features = ["cookie"]}
 time = "0.3.36"
+uuid = { version = "1.10.0", features = ["v4"] }
+argon2 = { version="0.6.0-pre.1", features = ["std"] }
+
 leptos = { workspace = true, features = [ "ssr" ]}
 leptos_axum.workspace = true
 axum.workspace = true

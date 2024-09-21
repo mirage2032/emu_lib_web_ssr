@@ -27,6 +27,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    sessions (id) {
+        id -> Int4,
+        user_id -> Int4,
+        #[max_length = 150]
+        token -> Varchar,
+        created_at -> Timestamp,
+        expires_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     users (id) {
         id -> Int4,
         #[max_length = 50]
@@ -42,9 +53,6 @@ diesel::table! {
 
 diesel::joinable!(saved_roms -> users (user_id));
 diesel::joinable!(saved_states -> users (user_id));
+diesel::joinable!(sessions -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    saved_roms,
-    saved_states,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(saved_roms, saved_states, sessions, users,);
