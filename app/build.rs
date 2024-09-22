@@ -3,8 +3,12 @@ use std::process::Command;
 use std::{env, fs};
 fn main() {
     let relative = "../style";
-    let mut style = fs::canonicalize(env::current_dir().unwrap().join(relative)).unwrap();
-    style.push("emu_lib_ui");
+    let style = fs::canonicalize(env::current_dir().unwrap().join(relative)).unwrap();
+    let mut dep_style = style.clone();
+    dep_style.push("emu_lib_ui");
+    if !dep_style.exists() {
+        fs::create_dir_all(&dep_style).unwrap();
+    }
 
     let output = Command::new("cargo")
         .arg("metadata")
@@ -32,16 +36,28 @@ fn main() {
                 let _output = Command::new("stylance")
                     .arg(".")
                     .arg("--output-dir")
-                    .arg(style.clone())
+                    .arg(dep_style.clone())
                     .current_dir(manifest_dir)
                     .output()
                     .expect("Failed to execute stylance");
-                println!(
-                    "cargo:rerun-if-changed={}/stylance",
-                    style.to_str().unwrap()
-                );
+                // println!(
+                //     "cargo:rerun-if-changed={}/stylance",
+                //     dep_style.to_str().unwrap()
+                // );
                 break;
             }
         }
     }
+
+    let _output = Command::new("stylance")
+        .arg(".")
+        .arg("--output-dir")
+        .arg(style.clone())
+        .current_dir(env::var("CARGO_MANIFEST_DIR").unwrap())
+        .output()
+        .expect("Failed to execute stylance");
+    // println!(
+    //     "cargo:rerun-if-changed={}/stylance",
+    //     style.to_str().unwrap()
+    // );
 }

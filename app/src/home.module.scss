@@ -1,0 +1,42 @@
+@use "../../style/colors" as *;
+
+.maincontainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: $color-bg;
+
+  h1 {
+    color: $color-2;
+    font-size: 6rem;
+    span {
+      color: $color-3;
+    }
+  }
+}
+
+.buttoncontainer {
+    display: flex;
+    justify-content: center;
+
+    a {
+        background-color: $color-3;
+        color: $color-bg;
+        font-size: 1.5rem;
+        padding: 0.5rem 1rem;
+        margin: 0 1rem;
+        border: none;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-weight: 700;
+        text-decoration: none;
+
+        &:hover {
+        background-color: $color-4;
+        }
+    }
+}

@@ -1,7 +1,9 @@
-@use "emu_lib_ui/stylance";
+@use "emu_lib_ui/stylance" as emu_lib_ui;
+@use "stylance";
 @import "https://necolas.github.io/normalize.css/8.0.1/normalize.css";
 
 * {
+	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
 }

@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 emu_lib_ui = { git = "https://github.com/mirage2032/rs_emu_lib_ui.git", default-features = false }
-
+stylance = "0.5.1"
 leptos.workspace = true
 leptos_meta.workspace = true
 leptos_router.workspace = true
