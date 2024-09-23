@@ -1,5 +1,3 @@
-use crate::error_template::{AppError, ErrorTemplate};
-
 use emu_lib_ui::{
     emu_lib::{cpu::z80::Z80, emulator::Emulator, memory::Memory},
     emulator::emu_with,
@@ -7,10 +5,11 @@ use emu_lib_ui::{
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use crate::error::AppError;
 use crate::home::HomePage;
 
-pub mod error_template;
 mod home;
+mod error;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -27,9 +26,7 @@ pub fn App() -> impl IntoView {
 
         // content for this welcome page
         <Router fallback=|| {
-            let mut outside_errors = Errors::default();
-            outside_errors.insert_with_default_key(AppError::NotFound);
-            view! { <ErrorTemplate outside_errors /> }.into_view()
+            AppError::NotFound.into_view()
         }>
             <main>
                 <Routes>

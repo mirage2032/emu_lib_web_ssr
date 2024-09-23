@@ -4,11 +4,55 @@
   background-color: $color-bg;
   width: 100vw;
   height: 100vh;
-  h1 {
-    background-color: $color-2;
-    color: $color-bg;
+  display: flex;
+  flex-direction: column;
+  header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: center;
+    color: $color-2;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    margin: 0 1rem;
+    border: none;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: 700;
+    a {
+      color: inherit;
+      text-decoration: none;
+      &:hover {
+        color: $color-4;
+      }
+    }
+    h1 {
+      color: $color-2;
+      font-size: 1em;
+      span {
+        color: $color-3;
+      }
+    }
   }
-  section {
+  main {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
 
+    span {
+      color: $color-2;
+      font-size: 2rem;
+    }
+
+    h2 {
+      color: $color-3;
+      font-size: 2rem;
+    }
+  }
+  footer {
+    text-align: center;
+    color: $color-2;
   }
 }
