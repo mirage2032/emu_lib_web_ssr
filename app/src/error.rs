@@ -2,6 +2,7 @@ use leptos::{component, view, IntoView, View};
 use leptos_meta::{provide_meta_context, Title};
 use leptos_router::A;
 use thiserror::Error;
+use crate::header::SimpleHeader;
 
 stylance::import_style!(style,"./error.module.scss");
 
@@ -31,12 +32,8 @@ pub fn Error(
     view! {
         <Title text="Error" />
         <div class=style::errorcontainer>
-            <header>
-                <A href="/">"Home"</A>
-                <h1>"ERROR"</h1>
-                <div></div>
-            </header>
-            <main>
+            <SimpleHeader title="Error".to_string()/>
+            <div class=style::errormain>
                 <h2>
                     {match code {
                         Some(code) => {
@@ -50,7 +47,7 @@ pub fn Error(
                         None => None,
                     }} {message}
                 </h2>
-            </main>
+            </div>
         </div>
     }
 }

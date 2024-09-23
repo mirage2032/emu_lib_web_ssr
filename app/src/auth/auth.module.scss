@@ -1,48 +1,13 @@
-@use "../../style/colors" as *;
+@use "../colors" as *;
 
 .authcontainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  height: 100%;
   width: 100vw;
   background-color: $color-bg;
-
-  header {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    text-align: center;
-    color: $color-2;
-    font-size: 1.5rem;
-    padding: 1rem 1rem;
-    margin: 0 1rem;
-    width: 100%;
-    border: none;
-    border-radius: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-weight: 700;
-
-    a {
-      color: inherit;
-      text-decoration: none;
-
-      &:hover {
-        color: $color-4;
-      }
-    }
-
-    h1 {
-      color: $color-2;
-      font-size: 1em;
-
-      span {
-        color: $color-3;
-      }
-    }
-  }
 
   main {
     flex: 1;
@@ -78,8 +43,36 @@
           border: none;
           border-radius: 1rem;
           font-size: 1rem;
-        }
+          &:global(.valid) {
+            background-color: #30bd1a;
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus,
+            &:-webkit-autofill:active {
+              -webkit-box-shadow: 0 0 0 30px #30bd1a inset !important;
+            }
+          }
 
+          &:global(.warning) {
+            background-color: #c8c514;
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus,
+            &:-webkit-autofill:active {
+              -webkit-box-shadow: 0 0 0 30px #c8c514 inset !important;
+            }
+          }
+
+          &:global(.invalid) {
+            background-color: #ca3f25;
+            &:-webkit-autofill,
+            &:-webkit-autofill:hover,
+            &:-webkit-autofill:focus,
+            &:-webkit-autofill:active {
+              -webkit-box-shadow: 0 0 0 30px #ca3f25 inset !important;
+            }
+          }
+        }
       }
 
       input[type="submit"] {
@@ -94,9 +87,9 @@
         transition: background-color 0.3s;
         font-weight: 700;
 
-        &:hover {
-          background-color: $color-4;
-        }
+        //&:hover {
+        //  background-color: $color-4;
+        //}
       }
     }
   }

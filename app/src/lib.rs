@@ -6,6 +6,7 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 use crate::error::AppError;
+use crate::footer::Footer;
 use crate::home::HomePage;
 
 mod home;
@@ -13,6 +14,10 @@ mod error;
 mod auth;
 //only if not wasm
 pub mod db;
+#[cfg(not(target_arch = "wasm32"))]
+mod server;
+mod header;
+mod footer;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -25,17 +30,16 @@ pub fn App() -> impl IntoView {
         // sets the document title
         <Title formatter=|text| format!("Z80Emu - {}", text) />
 
+        <main>
         <Router fallback=|| { AppError::NotFound.into_view() }>
-            <main>
                 <Routes>
                     <Route path="emulator/z80" view=move || emu_with(emu_read, emu_write) />
                     <Route path="login" view=auth::login::Login />
-                    // <Route path="register" view=auth::register::Register />
+                    <Route path="register" view=auth::register::Register />
                     <Route path="" view=HomePage />
                 </Routes>
-            </main>
         </Router>
-        // TODO:Footer
-        <footer></footer>
+        </main>
+        <Footer/>
     }
 }

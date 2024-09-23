@@ -1,11 +1,10 @@
+use axum::middleware::from_fn_with_state;
 use app::*;
 use axum::Router;
 use fileserv::file_and_error_handler;
 use leptos::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
-use tower_http::add_extension::AddExtensionLayer;
-use app::db::{establish_connection, AppContext};
-// use crate::api::DbPool;
+use app::db::{establish_connection, AppState};
 
 // mod api;
 pub mod fileserv;
@@ -26,14 +25,16 @@ async fn main() {
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
     // build our application with a route
+    let state = AppState {leptos_options:leptos_options.clone(), pool: pool.clone() };
+    let state_clone = state.clone();
     let app = Router::new()
-        // .nest("/api", api::api_routes().await)
-        // .layer(AddExtensionLayer::new(pool))
         // .leptos_routes(&leptos_options, routes, App)
-        .leptos_routes_with_context(&leptos_options, routes,
-                                    move  || provide_context(AppContext { pool: pool.clone() })
-                                    , App)
+        .leptos_routes_with_context(&leptos_options,
+                                    routes,
+                                    move || provide_context(state_clone.clone()),
+                                    App)
         .fallback(file_and_error_handler)
+        .layer(from_fn_with_state(state.clone(),middleware::auth_middleware))
         .with_state(leptos_options);
 
     // run our app with hyper

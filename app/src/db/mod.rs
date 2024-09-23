@@ -1,3 +1,4 @@
+use std::sync::Arc;
 #[cfg(not(target_arch = "wasm32"))]
 use diesel::{r2d2, PgConnection};
 #[cfg(not(target_arch = "wasm32"))]
@@ -17,8 +18,11 @@ pub async fn establish_connection() -> DbPool {
         .expect("Failed to create pool.")
 }
 
+use leptos::LeptosOptions;
+
 #[cfg(not(target_arch = "wasm32"))]
-#[derive(Debug, Clone)]
-pub struct AppContext {
+#[derive(Clone)]
+pub struct AppState {
+    pub leptos_options: LeptosOptions,
     pub pool: DbPool,
 }

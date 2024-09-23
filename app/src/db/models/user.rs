@@ -35,6 +35,22 @@ pub struct UserLogin {
     pub password: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UserData {
+    pub id: i32,
+    pub username: String,
+    pub email: String,
+}
+
+impl From<User> for UserData {
+    fn from(user: User) -> Self {
+        UserData {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+        }
+    }
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 impl UserLogin {
@@ -124,6 +140,17 @@ impl User {
     pub fn get_by_email(p_email: &str, pool: &DbPool) -> Result<User, Box<dyn Error>> {
         let mut conn = pool.get()?;
         let user = dsl::users.filter(dsl::email.eq(p_email)).first(&mut conn)?;
+        Ok(user)
+    }
+
+    pub fn get_by_login(login: &str, pool: &DbPool) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = dsl::users
+            .filter(
+                dsl::username.eq(login)
+                    .or(
+                        dsl::email.eq(login)
+                    )).first(&mut conn)?;
         Ok(user)
     }
 

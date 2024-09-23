@@ -1,8 +1,8 @@
 CREATE TABLE users
 (
     id            SERIAL PRIMARY KEY,
-    username      VARCHAR(50)                         NOT NULL UNIQUE CHECK (LENGTH(username) >= 5),
-    email         VARCHAR(254)                        NOT NULL UNIQUE,
+    username      VARCHAR(50)                         NOT NULL UNIQUE CHECK (LENGTH(username) >= 5 AND username !~ '[@!#\$%&*]'),
+    email         VARCHAR(254)                        NOT NULL UNIQUE CHECK(email ~ '^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$'),
     password_hash VARCHAR(150)                        NOT NULL,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
