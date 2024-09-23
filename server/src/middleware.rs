@@ -1,11 +1,11 @@
-use crate::api::DbPool;
-use crate::models::session::Session;
-use crate::models::user::User;
 use axum::extract::Request;
 use axum::http::StatusCode;
 use axum::middleware::Next;
 use axum::response::Response;
 use axum_extra::extract::CookieJar;
+use app::db::DbPool;
+use app::db::models::session::Session;
+use app::db::models::user::User;
 
 pub type UserData = (Session, User);
 pub async fn auth_middleware(mut req: Request, next: Next) -> Result<Response, StatusCode> {

@@ -1,5 +1,5 @@
 use leptos::{component, view, IntoView, View};
-use leptos::html::A;
+use leptos_meta::{provide_meta_context, Title};
 use leptos_router::A;
 use thiserror::Error;
 
@@ -27,8 +27,9 @@ pub fn Error(
     code: Option<i32>,
     message: String,
 ) -> impl IntoView {
-    code.unwrap_or(500);
+    provide_meta_context();
     view! {
+        <Title text="Error" />
         <div class=style::errorcontainer>
             <header>
                 <A href="/">"Home"</A>
@@ -37,13 +38,17 @@ pub fn Error(
             </header>
             <main>
                 <h2>
-                    {
-                        match code {
-                            Some(code) => Some(view! { <span>{code}</span>" " }),
-                            None => None
+                    {match code {
+                        Some(code) => {
+                            Some(
+                                view! {
+                                    <span>{code}</span>
+                                    " "
+                                },
+                            )
                         }
-                    }
-                    {message}
+                        None => None,
+                    }} {message}
                 </h2>
             </main>
         </div>

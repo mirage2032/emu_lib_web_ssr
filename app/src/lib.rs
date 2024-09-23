@@ -10,6 +10,10 @@ use crate::home::HomePage;
 
 mod home;
 mod error;
+mod auth;
+//only if not wasm
+#[cfg(not(target_arch = "wasm32"))]
+pub mod db;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -20,17 +24,14 @@ pub fn App() -> impl IntoView {
         <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css" />
 
         // sets the document title
-        <Title text="Z80EMU" />
-        // TODO:Header
-        <header></header>
+        <Title formatter=|text| format!("Z80Emu - {}", text) />
 
-        // content for this welcome page
-        <Router fallback=|| {
-            AppError::NotFound.into_view()
-        }>
+        <Router fallback=|| { AppError::NotFound.into_view() }>
             <main>
                 <Routes>
                     <Route path="emulator/z80" view=move || emu_with(emu_read, emu_write) />
+                    <Route path="login" view=auth::login::Login />
+                    // <Route path="register" view=auth::register::Register />
                     <Route path="" view=HomePage />
                 </Routes>
             </main>

@@ -1,10 +1,10 @@
-use super::super::schema::sessions::dsl;
-use crate::api::DbPool;
+use crate::db::schema::sessions::dsl;
 use diesel::prelude::*;
 use diesel::{Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::{Duration, SystemTime};
+use crate::db::DbPool;
 
 #[derive(Debug, Queryable, Serialize, Deserialize, Clone)]
 pub struct Session {

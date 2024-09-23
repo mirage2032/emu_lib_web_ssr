@@ -1,11 +1,11 @@
-use crate::api::DbPool;
-use crate::models::session::{NewSession, Session};
-use crate::schema::users::dsl;
 use diesel::prelude::*;
 use diesel::Queryable;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::{Duration, SystemTime};
+use crate::db::{password, DbPool};
+use crate::db::models::session::{NewSession, Session};
+use crate::db::schema::users::dsl;
 
 #[derive(Debug, Queryable, Serialize, Deserialize, Clone)]
 pub struct User {
@@ -57,7 +57,7 @@ impl UserLogin {
             LoginOption::Username(username) => User::get_by_username(username, pool)?,
             LoginOption::Email(email) => User::get_by_email(email, pool)?,
         };
-        if crate::password::verify_password(&self.password, &user.password_hash).is_err() {
+        if password::verify_password(&self.password, &user.password_hash).is_err() {
             return Err("Invalid password".into());
         }
         let new_session = NewSession::new(user.id, duration);
@@ -77,7 +77,7 @@ pub struct NewUser {
 impl NewUser {
     pub fn new(username: String, email: String, password: String) -> Result<Self, Box<dyn Error>> {
         let password_hash =
-            crate::password::hash_password(&password).map_err(|_| "Couldn't hash password")?;
+            password::hash_password(&password).map_err(|_| "Couldn't hash password")?;
         Ok(NewUser {
             username,
             email,
