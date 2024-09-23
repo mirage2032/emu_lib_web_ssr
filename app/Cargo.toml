@@ -10,7 +10,6 @@ emu_lib_ui = { git = "https://github.com/mirage2032/rs_emu_lib_ui.git", default-
 stylance = "0.5.1"
 uuid = { version = "1.10.0", features = ["v4"] }
 argon2 = { version="0.6.0-pre.1", features = ["std"] }
-diesel = {version = "2.2.4", features = ["postgres", "r2d2"]}
 time = "0.3.36"
 serde = { version = "1.0.210", features = ["derive"] }
 leptos.workspace = true
@@ -23,6 +22,9 @@ codee = "0.2.0"
 http.workspace = true
 cfg-if.workspace = true
 thiserror.workspace = true
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+diesel = {version = "2.2.4", features = ["postgres", "r2d2"]}
 
 [build-dependencies]
 emu_lib_ui = { git = "https://github.com/mirage2032/rs_emu_lib_ui.git", default-features = false }

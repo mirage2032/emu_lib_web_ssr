@@ -1,12 +1,17 @@
-use crate::db::schema::sessions::dsl;
-use diesel::prelude::*;
-use diesel::{Insertable, QueryDsl, Queryable, RunQueryDsl};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::{Duration, SystemTime};
+#[cfg(not(target_arch = "wasm32"))]
 use crate::db::DbPool;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::db::models::schema::sessions::dsl;
+#[cfg(not(target_arch = "wasm32"))]
+use diesel::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
+use diesel::{ QueryDsl,  RunQueryDsl,Insertable,Queryable};
 
-#[derive(Debug, Queryable, Serialize, Deserialize, Clone)]
+#[cfg_attr(not(target_arch = "wasm32"), derive(Queryable))]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Session {
     pub id: i32,
     pub user_id: i32,
@@ -15,14 +20,14 @@ pub struct Session {
     pub expires_at: SystemTime,
 }
 
-#[derive(Debug, Insertable, Serialize, Deserialize, Clone)]
-#[diesel (table_name = super::super::schema::sessions)]
+#[cfg_attr(not(target_arch = "wasm32"), derive(Insertable))]
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[cfg_attr(not(target_arch = "wasm32"), diesel (table_name = super::schema::sessions))]
 pub struct NewSession {
     pub user_id: i32,
     pub token: String,
     pub expires_at: SystemTime,
 }
-
 impl NewSession {
     pub fn new(user_id: i32, duration: Duration) -> Self {
         let token = uuid::Uuid::new_v4().to_string();
@@ -35,6 +40,8 @@ impl NewSession {
     }
 }
 
+
+#[cfg(not(target_arch = "wasm32"))]
 impl Session {
     pub fn create(new_session: NewSession, pool: &DbPool) -> Result<Session, Box<dyn Error>> {
         let mut conn = pool.get().map_err(|e| e.to_string())?;

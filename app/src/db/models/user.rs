@@ -1,13 +1,19 @@
+#[cfg(not(target_arch = "wasm32"))]
 use diesel::prelude::*;
-use diesel::Queryable;
+#[cfg(not(target_arch = "wasm32"))]
+use diesel::{Queryable,Insertable};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::{Duration, SystemTime};
-use crate::db::{password, DbPool};
-use crate::db::models::session::{NewSession, Session};
-use crate::db::schema::users::dsl;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::db::DbPool;
+use crate::db::password;
+use crate::db::models::session::*;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::db::models::schema::users::dsl;
 
-#[derive(Debug, Queryable, Serialize, Deserialize, Clone)]
+#[cfg_attr(not(target_arch = "wasm32"), derive(Queryable))]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -29,6 +35,8 @@ pub struct UserLogin {
     pub password: String,
 }
 
+
+#[cfg(not(target_arch = "wasm32"))]
 impl UserLogin {
     pub fn new(username: LoginOption, password: String) -> Self {
         UserLogin { username, password }
@@ -66,14 +74,14 @@ impl UserLogin {
     }
 }
 
-#[derive(Insertable, Deserialize)]
-#[diesel (table_name = super::super::schema::users)]
+#[cfg_attr(not(target_arch = "wasm32"), derive(Insertable))]
+#[derive(Debug,Serialize,Deserialize,Clone)]
+#[cfg_attr(not(target_arch = "wasm32"), diesel (table_name = super::schema::users))]
 pub struct NewUser {
     pub username: String,
     pub email: String,
     pub password_hash: String,
 }
-
 impl NewUser {
     pub fn new(username: String, email: String, password: String) -> Result<Self, Box<dyn Error>> {
         let password_hash =
@@ -86,6 +94,7 @@ impl NewUser {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl User {
     pub fn add_user(new_user: NewUser, pool: &DbPool) -> Result<User, Box<dyn Error>> {
         let mut conn = pool.get()?;

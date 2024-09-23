@@ -12,7 +12,6 @@ mod home;
 mod error;
 mod auth;
 //only if not wasm
-#[cfg(not(target_arch = "wasm32"))]
 pub mod db;
 
 #[component]
