@@ -11,9 +11,6 @@ mod server_imports {
     pub use http::StatusCode;
     pub use leptos::{expect_context};
     pub use crate::db::models::user::{UserLogin,User,NewUser};
-    pub use axum::Extension;
-    pub use crate::db::models::user::UserData;
-    pub use leptos_axum::extract;
 }
 #[server(LoginApi, "/api/login")]
 pub async fn login(login: String, password: String) -> Result<(),ServerFnError> {
@@ -22,11 +19,8 @@ pub async fn login(login: String, password: String) -> Result<(),ServerFnError> 
     let state = expect_context::<AppState>();
     let pool = state.pool;
     let duration: Duration = Duration::from_secs(3600 * 24);
-    let user = match login.contains('@') {
-        true => UserLogin::new_with_email(login, password),
-        false => UserLogin::new_with_username(login, password),
-    };
-    match user.authenticate(&pool, duration){
+    let user_login = UserLogin::new(login, password);
+    match user_login.authenticate(&pool, duration){
         Ok((_, session)) => {
             let cookie = Cookie::new_app_cookie("session_token",
                                                 &session.token,

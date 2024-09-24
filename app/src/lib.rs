@@ -31,15 +31,15 @@ pub fn App() -> impl IntoView {
         <Title formatter=|text| format!("Z80Emu - {}", text) />
 
         <main>
-        <Router fallback=|| { AppError::NotFound.into_view() }>
+            <Router fallback=|| { AppError::NotFound.into_view() }>
                 <Routes>
                     <Route path="emulator/z80" view=move || emu_with(emu_read, emu_write) />
                     <Route path="login" view=auth::login::Login />
                     <Route path="register" view=auth::register::Register />
                     <Route path="" view=HomePage />
                 </Routes>
-        </Router>
+            </Router>
         </main>
-        <Footer/>
+        <Footer />
     }
 }

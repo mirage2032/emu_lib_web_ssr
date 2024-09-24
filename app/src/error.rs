@@ -1,6 +1,5 @@
 use leptos::{component, view, IntoView, View};
 use leptos_meta::{provide_meta_context, Title};
-use leptos_router::A;
 use thiserror::Error;
 use crate::header::SimpleHeader;
 
@@ -11,14 +10,17 @@ pub enum AppError {
     #[error("404 - Not Found")]
     NotFound,
     #[error("Error! code: {0}, message: {1}")]
-    Custom(i32,String),
+    CustomCodeMsg(i32, String),
+    #[error("Error! message: {0}")]
+    CustomMsg(String),
 }
 
 impl IntoView for AppError {
     fn into_view(self) -> View {
         match self {
             AppError::NotFound => view! { <Error code=404 message="Not Found".to_string() /> },
-            AppError::Custom(code,message) => view! { <Error code=code message=message /> }
+            AppError::CustomCodeMsg(code, message) => view! { <Error code=code message=message /> },
+            AppError::CustomMsg(message) => view! { <Error message=message /> }
         }
     }
 }
@@ -32,7 +34,7 @@ pub fn Error(
     view! {
         <Title text="Error" />
         <div class=style::errorcontainer>
-            <SimpleHeader title="Error".to_string()/>
+            <SimpleHeader title="Error".to_string() />
             <div class=style::errormain>
                 <h2>
                     {match code {

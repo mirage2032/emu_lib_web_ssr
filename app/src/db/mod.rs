@@ -1,4 +1,3 @@
-use std::sync::Arc;
 #[cfg(not(target_arch = "wasm32"))]
 use diesel::{r2d2, PgConnection};
 #[cfg(not(target_arch = "wasm32"))]

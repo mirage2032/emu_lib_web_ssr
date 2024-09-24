@@ -9,10 +9,10 @@ lto = true
 opt-level = 'z'
 
 [workspace.dependencies]
-leptos = { version = "0.6", features = ["nightly"] }
+leptos = { version = "0.6", features = ["nightly","experimental-islands"] }
 leptos_meta = { version = "0.6", features = ["nightly"] }
 leptos_router = { version = "0.6", features = ["nightly"] }
-leptos_axum = { version = "0.6" }
+leptos_axum = { version = "0.6",features = ["experimental-islands"] }
 
 axum = { version="0.7",features=["macros"] }
 cfg-if = "1"

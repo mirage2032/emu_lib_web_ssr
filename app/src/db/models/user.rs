@@ -22,16 +22,9 @@ pub struct User {
     pub created_at: SystemTime,
     pub updated_at: SystemTime,
 }
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum LoginOption {
-    Username(String),
-    Email(String),
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserLogin {
-    pub username: LoginOption,
+    pub login: String,
     pub password: String,
 }
 
@@ -54,22 +47,8 @@ impl From<User> for UserData {
 
 #[cfg(not(target_arch = "wasm32"))]
 impl UserLogin {
-    pub fn new(username: LoginOption, password: String) -> Self {
-        UserLogin { username, password }
-    }
-
-    pub fn new_with_username(username: String, password: String) -> Self {
-        UserLogin {
-            username: LoginOption::Username(username),
-            password,
-        }
-    }
-
-    pub fn new_with_email(email: String, password: String) -> Self {
-        UserLogin {
-            username: LoginOption::Email(email),
-            password,
-        }
+    pub fn new(login: String, password: String) -> Self {
+        UserLogin { login, password }
     }
 
     pub fn authenticate(
@@ -77,10 +56,7 @@ impl UserLogin {
         pool: &DbPool,
         duration: Duration,
     ) -> Result<(User, Session), Box<dyn Error>> {
-        let user = match &self.username {
-            LoginOption::Username(username) => User::get_by_username(username, pool)?,
-            LoginOption::Email(email) => User::get_by_email(email, pool)?,
-        };
+        let user = User::get_by_login(&self.login, pool)?;
         if password::verify_password(&self.password, &user.password_hash).is_err() {
             return Err("Invalid password".into());
         }
