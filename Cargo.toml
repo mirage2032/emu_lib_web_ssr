@@ -9,10 +9,10 @@ lto = true
 opt-level = 'z'
 
 [workspace.dependencies]
-leptos = { version = "0.6", features = ["nightly","experimental-islands"] }
-leptos_meta = { version = "0.6", features = ["nightly"] }
-leptos_router = { version = "0.6", features = ["nightly"] }
-leptos_axum = { version = "0.6",features = ["experimental-islands"] }
+leptos = { version = "0.7.0-beta5", features = ["nightly","experimental-islands"] }
+leptos_meta = { version = "0.7.0-beta5" }
+leptos_router = { version = "0.7.0-beta5", features = ["nightly"] }
+leptos_axum = { version = "0.7.0-beta5" }
 
 axum = { version="0.7",features=["macros"] }
 cfg-if = "1"
@@ -31,7 +31,7 @@ axum-extra = {version = "0.9.3", features = ["cookie"]}
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 
 # A leptos project defines which workspace members
-# that are used together frontend (lib) & server (bin)
+            # that are used together frontend (lib) & server (bin)
 [[workspace.metadata.leptos]]
 # this name is used for the wasm, js and css file names
 name = "start-axum-workspace"

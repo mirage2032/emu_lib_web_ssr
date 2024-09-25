@@ -1,6 +1,6 @@
-use leptos::{component, view, IntoView};
+use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
-use leptos_router::A;
+use leptos_router::components::A;
 
 stylance::import_style!(style,"./home.module.scss");
 #[component]
@@ -8,7 +8,9 @@ pub fn HomePage() -> impl IntoView {
     provide_meta_context();
 
     view! {
-        <Title text="Home" />
+        <head>
+            <Title text="Home" />
+        </head>
         <div class=style::maincontainer>
             <h1>"Z80 "<span>"Emulator"</span></h1>
             <div class=style::buttoncontainer>

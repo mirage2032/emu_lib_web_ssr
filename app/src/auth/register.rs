@@ -1,20 +1,19 @@
-use leptos::{component, create_server_action, create_signal, island, view, IntoView};
+use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
-use leptos_router::{ActionForm};
 use super::auth_style;
-use leptos::event_target_value;
+use leptos::prelude::*;
 use regex::Regex;
 use crate::header::SimpleHeader;
 use super::api::{RegisterApi};
 
 #[island]
 pub fn register_form() -> impl IntoView {
-    let login = create_server_action::<RegisterApi>();
+    let login = ServerAction::<RegisterApi>::new();
 
-    let (username_read, username_write) = create_signal(String::new());
-    let (email_read, email_write) = create_signal(String::new());
-    let (password_read, password_write) = create_signal(String::new());
-    let (verif_password_read, verif_password_write) = create_signal(String::new());
+    let (username_read, username_write) = signal(String::new());
+    let (email_read, email_write) = signal(String::new());
+    let (password_read, password_write) = signal(String::new());
+    let (verif_password_read, verif_password_write) = signal(String::new());
 
     // let user_valid_resource = create_local_resource(
     //     (username_read, email_read),
@@ -105,7 +104,6 @@ pub fn register_form() -> impl IntoView {
 
 #[component]
 pub fn register() -> impl IntoView {
-    provide_meta_context();
     view! {
         <Title text="Register" />
         <div class=auth_style::authcontainer>

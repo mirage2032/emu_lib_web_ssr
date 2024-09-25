@@ -1,38 +1,58 @@
-use leptos::{component, create_local_resource, create_server_action, create_signal, island, view, IntoView, SignalWith};
 use leptos_meta::{Title};
-use leptos_router::{ActionForm};
 use super::auth_style;
-use leptos::event_target_value;
+use leptos::prelude::*;
+use leptos::server_fn::ServerFn;
+use leptos_router::components::Redirect;
 use crate::header::SimpleHeader;
 use super::api::{LoginApi, login_exists};
 
 #[island]
-pub fn login_form() -> impl IntoView {
-    let login = create_server_action::<LoginApi>();
-    let (login_read, login_write) = create_signal(String::new());
-    let (password_read, password_write) = create_signal(String::new());
-    let login_valid_resource = create_local_resource(
+    pub fn LoginForm() -> impl IntoView {
+    let login = ServerAction::<LoginApi>::new();
+    let login_value = login.value();
+    // let navigation = use_navigation();
+    // Effect::new(move || {
+    //     login.value().with(|val| {
+    //         match val {
+    //             Some(val) => {
+    //                 match val {
+    //                     Ok(()) => {
+    //                         log!("login success");
+    //                     }
+    //                     Err(_) => {
+    //                         warn!("login failed");
+    //                     }
+    //                 }
+    //             }
+    //             None => {}
+    //         }
+    //     })
+    // });
+    let (login_read, login_write) = signal(String::new());
+    let (password_read, password_write) = signal(String::new());
+    let login_valid_resource:Resource<Result<bool,_>> = Resource::new_with_options(
         login_read,
         move |val| async move {
-            login_exists(val).await
-        }
+            let exists = login_exists(val).await;
+               exists
+        },
+        false
     );
-    let login_valid_class = move || {
-        login_valid_resource.with(|val| {
-            match val {
-                Some(val) => match val {
-                    Ok(true) => "valid",
-                    Ok(false) => "invalid",
-                    Err(_) => "warning",
-                },
-                None => "warning",
-            }
-        })
-    };
+        let login_valid_class = move || {
+            login_valid_resource.with(|val| {
+                match val {
+                    Some(val) => match val {
+                        Ok(true) => "valid",
+                        Ok(false) => "invalid",
+                        Err(_) => "warning",
+                    },
+                    None => "warning",
+                }
+            })
+        };
 
     view! {
         <ActionForm action=login>
-
             <div>
                 <label for="login">"Login"</label>
                 <input
@@ -58,12 +78,27 @@ pub fn login_form() -> impl IntoView {
                 />
             </div>
             <input type="submit" value="Login" />
+                <Show when=move || {
+                    let val = login_value.get();
+                    match val {
+                        Some(val) => {
+                            match val {
+                                Ok(()) => true,
+                                Err(_) => false,
+                            }
+                        }
+                        None => false,
+                    }
+                }>
+                // <Show when=move ||  true>
+                <Redirect path="/" />
+            </Show>
         </ActionForm>
     }
 }
 
 #[component]
-pub fn login() -> impl IntoView {
+pub fn Login() -> impl IntoView {
     view! {
         <Title text="Login" />
         <div class=auth_style::authcontainer>

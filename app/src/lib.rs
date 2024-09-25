@@ -1,42 +1,68 @@
-use emu_lib_ui::{
-    emu_lib::{cpu::z80::Z80, emulator::Emulator, memory::Memory},
-    emulator::emu_with,
-};
-use leptos::*;
+use std::path::Path;
+use emu_lib_ui::emulator;
+
+use leptos::prelude::*;
+use leptos::svg::view;
 use leptos_meta::*;
 use leptos_router::*;
-use crate::error::AppError;
+use leptos_router::components::{FlatRoutes, ParentRoute, Route, Router, Routes};
+use leptos_router::nested_router::Outlet;
 use crate::footer::Footer;
+// use crate::error::AppError;
+// use crate::footer::Footer;
 use crate::home::HomePage;
 
 mod home;
 mod error;
 mod auth;
-//only if not wasm
 pub mod db;
 #[cfg(not(target_arch = "wasm32"))]
 mod server;
 mod header;
 mod footer;
 
+pub fn shell(options: LeptosOptions) -> impl IntoView {
+    view! {
+        <!DOCTYPE html> 
+        <html lang="en">
+            <head>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <AutoReload options=options.clone() />
+                <HydrationScripts options=options islands=true />
+                <MetaTags />
+            </head>
+            <body>
+                <App />
+            </body>
+        </html>
+    }
+}
+
 #[component]
 pub fn App() -> impl IntoView {
-    // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
-    let (emu_read, emu_write) = create_signal(Emulator::<Z80>::new_w_mem(Memory::new_full_ram()));
     view! {
-        <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css" />
-
-        // sets the document title
-        <Title formatter=|text| format!("Z80Emu - {}", text) />
-
+        <head>
+            <Title formatter=|text| format!("Z80Emu - {}", text) />
+            <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css" />
+        // <Stylesheet id="app" href="/pkg/app.css" />
+        </head>
         <main>
-            <Router fallback=|| { AppError::NotFound.into_view() }>
-                <Routes>
-                    <Route path="emulator/z80" view=move || emu_with(emu_read, emu_write) />
-                    <Route path="login" view=auth::login::Login />
-                    <Route path="register" view=auth::register::Register />
-                    <Route path="" view=HomePage />
+            <Router>
+                <Routes fallback=|| error::AppError::NotFound.into_view()>
+                    <ParentRoute
+                        path=StaticSegment("emulator")
+                        view=|| {
+                            view! { <Outlet /> }
+                        }
+                    >
+                        <Route path=StaticSegment("z80") view=emulator::Emulator />
+                    </ParentRoute>
+                    // <Route path=StaticSegment("emulator/z80") view=emulator::Emulator />
+                    <Route path=StaticSegment("login") view=auth::login::Login />
+                    <Route path=StaticSegment("register") view=auth::register::Register />
+                    <Route path=StaticSegment("") view=HomePage />
                 </Routes>
             </Router>
         </main>

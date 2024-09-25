@@ -1,9 +1,13 @@
 use serde_json::Value;
 use std::process::Command;
 use std::{env, fs};
+use std::env::join_paths;
+use std::path::Path;
+
 fn main() {
     let relative = "../style";
-    let style = fs::canonicalize(env::current_dir().unwrap().join(relative)).unwrap();
+    let stylepath = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join(relative);
+    let style = fs::canonicalize(stylepath).unwrap();
     let mut dep_style = style.clone();
     dep_style.push("emu_lib_ui");
     if !dep_style.exists() {

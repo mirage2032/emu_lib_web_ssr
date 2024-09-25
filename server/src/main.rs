@@ -2,8 +2,11 @@ use axum::middleware::from_fn_with_state;
 use app::*;
 use axum::Router;
 use fileserv::file_and_error_handler;
-use leptos::*;
+use leptos::prelude::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
+use tower_http::compression::{CompressionLayer, Predicate};
+use tower_http::compression::predicate::{NotForContentType, SizeAbove};
+use tower_http::CompressionLevel;
 use app::db::{establish_connection, AppState};
 
 // mod api;
@@ -14,13 +17,19 @@ mod middleware;
 async fn main() {
     simple_logger::init_with_level(log::Level::Debug).expect("couldn't initialize logging");
     let pool = establish_connection().await;
-
+    let predicate = SizeAbove::new(1500) // files smaller than 1501 bytes are not compressed, since the MTU (Maximum Transmission Unit) of a TCP packet is 1500 bytes
+        .and(NotForContentType::GRPC)
+        .and(NotForContentType::IMAGES)
+        // prevent compressing assets that are already statically compressed
+        .and(NotForContentType::const_new("application/javascript"))
+        .and(NotForContentType::const_new("application/wasm"))
+        .and(NotForContentType::const_new("text/css"));
     // Setting get_configuration(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
     // <https://github.com/leptos-rs/start-axum#executing-a-server-on-a-remote-machine-without-the-toolchain>
     // Alternately a file can be specified such as Some("Cargo.toml")
     // The file would need to be included with the executable when moved to deployment
-    let conf = get_configuration(None).await.unwrap();
+    let conf = get_configuration(None).unwrap();
     let leptos_options = conf.leptos_options;
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
@@ -32,8 +41,12 @@ async fn main() {
         .leptos_routes_with_context(&leptos_options,
                                     routes,
                                     move || provide_context(state_clone.clone()),
-                                    App)
+                                    {
+                                        let leptos_options = leptos_options.clone();
+                                        move || shell(leptos_options.clone())
+                                    })
         .fallback(file_and_error_handler)
+        .layer(CompressionLayer::new().quality(CompressionLevel::Fastest).compress_when(predicate))
         .layer(from_fn_with_state(state.clone(),middleware::auth_middleware))
         .with_state(leptos_options);
 

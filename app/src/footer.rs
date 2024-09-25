@@ -1,5 +1,5 @@
-use leptos::{component, view, IntoView};
-use leptos_router::A;
+use leptos::prelude::*;
+use leptos_router::components::A;
 
 stylance::import_style!(style,"./footer.module.scss");
 #[component]

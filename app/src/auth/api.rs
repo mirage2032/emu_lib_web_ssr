@@ -1,4 +1,4 @@
-use leptos::{server, ServerFnError};
+use leptos::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
@@ -9,10 +9,9 @@ mod server_imports {
     pub use http::header::SET_COOKIE;
     pub use crate::db::AppState;
     pub use http::StatusCode;
-    pub use leptos::{expect_context};
     pub use crate::db::models::user::{UserLogin,User,NewUser};
 }
-#[server(LoginApi, "/api/login")]
+#[server(LoginApi, endpoint="/login")]
 pub async fn login(login: String, password: String) -> Result<(),ServerFnError> {
     use server_imports::*;
     let response = expect_context::<ResponseOptions>();
@@ -42,7 +41,7 @@ pub async fn login(login: String, password: String) -> Result<(),ServerFnError> 
     }
 }
 
-#[server(UserExistsApi, "/api/username_exists")]
+#[server(UserExistsApi, endpoint="/username_exists")]
 pub async fn user_exists(username: String) -> Result<bool,ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
@@ -55,7 +54,7 @@ pub async fn user_exists(username: String) -> Result<bool,ServerFnError> {
     }
 }
 
-#[server(EmailExistsApi, "/api/email_exists")]
+#[server(EmailExistsApi, endpoint="/email_exists")]
 pub async fn email_exists(email: String) -> Result<bool,ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
@@ -68,7 +67,7 @@ pub async fn email_exists(email: String) -> Result<bool,ServerFnError> {
     }
 }
 
-#[server(LoginExistsApi, "/api/login_exists")]
+#[server(LoginExistsApi, endpoint="/login_exists")]
 pub async fn login_exists(login: String) -> Result<bool,ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
@@ -82,7 +81,7 @@ pub async fn login_exists(login: String) -> Result<bool,ServerFnError> {
     }
 }
 
-#[server(RegisterApi, "/api/register")]
+#[server(RegisterApi, endpoint= "/register")]
 pub async fn register(username:String,email:String,password:String) -> Result<(),ServerFnError> {
     use server_imports::*;
     let response = expect_context::<ResponseOptions>();

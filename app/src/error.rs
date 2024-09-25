@@ -1,4 +1,4 @@
-use leptos::{component, view, IntoView, View};
+use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
 use thiserror::Error;
 use crate::header::SimpleHeader;
@@ -15,8 +15,8 @@ pub enum AppError {
     CustomMsg(String),
 }
 
-impl IntoView for AppError {
-    fn into_view(self) -> View {
+impl AppError {
+    pub fn into_view(self) -> impl IntoView {
         match self {
             AppError::NotFound => view! { <Error code=404 message="Not Found".to_string() /> },
             AppError::CustomCodeMsg(code, message) => view! { <Error code=code message=message /> },

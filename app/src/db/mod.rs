@@ -17,7 +17,7 @@ pub async fn establish_connection() -> DbPool {
         .expect("Failed to create pool.")
 }
 
-use leptos::LeptosOptions;
+use leptos::prelude::LeptosOptions;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[derive(Clone)]
