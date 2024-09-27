@@ -1,7 +1,5 @@
 #[cfg(not(target_arch = "wasm32"))]
-use diesel::{r2d2, PgConnection};
-#[cfg(not(target_arch = "wasm32"))]
-use diesel::r2d2::ConnectionManager;
+use diesel::{r2d2::{self,ConnectionManager}, PgConnection};
 pub mod models;
 pub mod password;
 

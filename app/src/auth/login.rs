@@ -1,8 +1,6 @@
-use leptos_meta::{Title};
+use leptos_meta::Title;
 use super::auth_style;
 use leptos::prelude::*;
-use leptos::server_fn::ServerFn;
-use leptos_router::components::Redirect;
 use crate::header::SimpleHeader;
 use super::api::{LoginApi, login_exists};
 
@@ -78,21 +76,6 @@ use super::api::{LoginApi, login_exists};
                 />
             </div>
             <input type="submit" value="Login" />
-                <Show when=move || {
-                    let val = login_value.get();
-                    match val {
-                        Some(val) => {
-                            match val {
-                                Ok(()) => true,
-                                Err(_) => false,
-                            }
-                        }
-                        None => false,
-                    }
-                }>
-                // <Show when=move ||  true>
-                <Redirect path="/" />
-            </Show>
         </ActionForm>
     }
 }

@@ -1,7 +1,6 @@
 use serde_json::Value;
 use std::process::Command;
 use std::{env, fs};
-use std::env::join_paths;
 use std::path::Path;
 
 fn main() {

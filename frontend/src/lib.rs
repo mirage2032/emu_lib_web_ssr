@@ -1,8 +1,6 @@
 use app::*;
-use leptos::*;
-use leptos::config::LeptosOptions;
+use leptos::*;  
 use leptos::prelude::*;
-use leptos_meta::MetaTags;
 use wasm_bindgen::prelude::wasm_bindgen;
 #[wasm_bindgen]
 pub fn hydrate() {

@@ -27,6 +27,7 @@ pub async fn login(login: String, password: String) -> Result<(),ServerFnError> 
             response.append_header(SET_COOKIE,
                                    cookie.into_header_value()?
             );
+            leptos_axum::redirect("/");
             Ok(())
         }
         Err(e) => {

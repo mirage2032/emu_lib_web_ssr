@@ -1,11 +1,9 @@
-use std::path::Path;
-use emu_lib_ui::emulator;
+// use emu_lib_ui::emulator;
 
 use leptos::prelude::*;
-use leptos::svg::view;
 use leptos_meta::*;
 use leptos_router::*;
-use leptos_router::components::{FlatRoutes, ParentRoute, Route, Router, Routes};
+use leptos_router::components::{ParentRoute, Route,FlatRoutes, Router, Routes};
 use leptos_router::nested_router::Outlet;
 use crate::footer::Footer;
 // use crate::error::AppError;
@@ -51,18 +49,18 @@ pub fn App() -> impl IntoView {
         <main>
             <Router>
                 <Routes fallback=|| error::AppError::NotFound.into_view()>
-                    <ParentRoute
-                        path=StaticSegment("emulator")
-                        view=|| {
-                            view! { <Outlet /> }
-                        }
-                    >
-                        <Route path=StaticSegment("z80") view=emulator::Emulator />
-                    </ParentRoute>
+                    // <ParentRoute
+                    //     path=StaticSegment("emulator")
+                    //     view=|| {
+                    //         view! { <Outlet /> }
+                    //     }
+                    // >
+                    //     <Route path=StaticSegment("z80") view=emulator::Emulator />
+                    // </ParentRoute>
                     // <Route path=StaticSegment("emulator/z80") view=emulator::Emulator />
-                    <Route path=StaticSegment("login") view=auth::login::Login />
-                    <Route path=StaticSegment("register") view=auth::register::Register />
-                    <Route path=StaticSegment("") view=HomePage />
+                    <Route path=path!("login") view=auth::login::Login />
+                    <Route path=path!("register") view=auth::register::Register />
+                    <Route path=path!("") view=HomePage />
                 </Routes>
             </Router>
         </main>

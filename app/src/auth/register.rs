@@ -1,14 +1,22 @@
 use leptos::prelude::*;
-use leptos_meta::{provide_meta_context, Title};
+use leptos_meta::Title;
 use super::auth_style;
-use leptos::prelude::*;
 use regex::Regex;
+use crate::auth::login::LoginForm;
 use crate::header::SimpleHeader;
 use super::api::{RegisterApi};
 
 #[island]
 pub fn register_form() -> impl IntoView {
     let login = ServerAction::<RegisterApi>::new();
+    // let registered = expect_context::<RwSignal<bool>>();
+    // Effect::new(move|| {
+    //     login.value().with(|val| {
+    //         if let Some(Ok(())) = val {
+    //             registered.set(true);
+    //         }
+    //     })
+    // });
 
     let (username_read, username_write) = signal(String::new());
     let (email_read, email_write) = signal(String::new());
@@ -102,15 +110,23 @@ pub fn register_form() -> impl IntoView {
     }
 }
 
-#[component]
+#[island]
 pub fn register() -> impl IntoView {
+    let registered = RwSignal::new(false);
+    // provide_context(registered.clone());
+    let form = move || -> _ {
+        match registered.get() {
+            true => {
+                view! { <input /> }.into_any() },
+            false => { view! { <textarea/> }.into_any() }
+        }
+    };
     view! {
-        <Title text="Register" />
+        // <Title text="Register" />
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Register".to_string() />
-            <main>
-                <RegisterForm />
-            </main>
+        
+            <main>{move || form()}</main>
         </div>
     }
 }

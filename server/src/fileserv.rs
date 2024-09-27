@@ -7,7 +7,7 @@ use axum::{
     response::IntoResponse,
 };
 use leptos::*;
-use tower::ServiceExt;
+use tower::util::ServiceExt;
 use tower_http::services::ServeDir;
 use leptos::prelude::*;
 
@@ -23,7 +23,7 @@ pub async fn file_and_error_handler(
         res.into_response()
     } else {
         let handler =
-            leptos_axum::render_app_to_stream(move || view! { <App/> });
+            leptos_axum::render_app_to_stream(move || view! { <App /> });
         handler(req).await.into_response()
     }
 }
