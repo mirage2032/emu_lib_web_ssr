@@ -1,4 +1,3 @@
-use std::thread::sleep;
 use leptos::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -70,7 +69,6 @@ pub async fn email_exists(email: String) -> Result<bool, ServerFnError> {
 pub async fn login_exists(login: String) -> Result<bool, ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
-    sleep(Duration::from_secs(1));
     // let user : Result<Extension<UserData>,_> = extract().await;
     let pool = &state.pool;
     match User::get_by_login(&login, &pool) {

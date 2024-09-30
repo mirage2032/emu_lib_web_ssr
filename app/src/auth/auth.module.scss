@@ -40,9 +40,14 @@
           width: 100%;
           padding: 0.5rem;
           margin: 0.5rem;
-          border: none;
+          border: 2px solid $color-bg;
           border-radius: 1rem;
           font-size: 1rem;
+          transition: background-color 0.5s;
+          &:focus {
+            outline:none;
+
+          }
           &:global(.valid) {
             background-color: #30bd1a;
             &:-webkit-autofill,
@@ -87,9 +92,9 @@
         transition: background-color 0.3s;
         font-weight: 700;
 
-        //&:hover {
-        //  background-color: $color-4;
-        //}
+        &:hover {
+          background-color: $color-4;
+        }
       }
     }
   }
