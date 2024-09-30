@@ -1,26 +1,28 @@
 // @generated automatically by Diesel CLI.
 
+pub mod sql_types {
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "usertype"))]
+    pub struct Usertype;
+}
+
 diesel::table! {
-    saved_roms (id) {
+    challenges (id) {
         id -> Int4,
-        user_id -> Nullable<Int4>,
-        #[max_length = 50]
-        name -> Varchar,
-        description -> Nullable<Text>,
-        data -> Bytea,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        owner_id -> Nullable<Int4>,
+        requirements -> Nullable<Bytea>,
     }
 }
 
 diesel::table! {
-    saved_states (id) {
+    programs (id) {
         id -> Int4,
-        user_id -> Nullable<Int4>,
+        owner_id -> Nullable<Int4>,
         #[max_length = 50]
         name -> Varchar,
         description -> Nullable<Text>,
-        data -> Bytea,
+        data -> Text,
+        compiles -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -38,6 +40,33 @@ diesel::table! {
 }
 
 diesel::table! {
+    solutions (id) {
+        id -> Int4,
+        solver_id -> Nullable<Int4>,
+        challenge_id -> Nullable<Int4>,
+        program_id -> Nullable<Int4>,
+        pass_requirements -> Bool,
+        grade -> Nullable<Int2>,
+    }
+}
+
+diesel::table! {
+    states (id) {
+        id -> Int4,
+        owner_id -> Nullable<Int4>,
+        #[max_length = 50]
+        name -> Varchar,
+        description -> Nullable<Text>,
+        data -> Bytea,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::Usertype;
+
     users (id) {
         id -> Int4,
         #[max_length = 50]
@@ -48,11 +77,18 @@ diesel::table! {
         password_hash -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        user_type -> Usertype,
     }
 }
 
-diesel::joinable!(saved_roms -> users (user_id));
-diesel::joinable!(saved_states -> users (user_id));
+diesel::joinable!(challenges -> users (owner_id));
+diesel::joinable!(programs -> users (owner_id));
 diesel::joinable!(sessions -> users (user_id));
+diesel::joinable!(solutions -> challenges (challenge_id));
+diesel::joinable!(solutions -> programs (program_id));
+diesel::joinable!(solutions -> users (solver_id));
+diesel::joinable!(states -> users (owner_id));
 
-diesel::allow_tables_to_appear_in_same_query!(saved_roms, saved_states, sessions, users,);
+diesel::allow_tables_to_appear_in_same_query!(
+    challenges, programs, sessions, solutions, states, users,
+);

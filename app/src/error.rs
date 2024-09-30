@@ -1,11 +1,11 @@
+use crate::header::SimpleHeader;
 use leptos::prelude::*;
 use leptos_meta::{provide_meta_context, Title};
 use thiserror::Error;
-use crate::header::SimpleHeader;
 
-stylance::import_style!(style,"./error.module.scss");
+stylance::import_style!(style, "./error.module.scss");
 
-#[derive(Clone, Debug,Error)]
+#[derive(Clone, Debug, Error)]
 pub enum AppError {
     #[error("404 - Not Found")]
     NotFound,
@@ -20,16 +20,12 @@ impl AppError {
         match self {
             AppError::NotFound => view! { <Error code=404 message="Not Found".to_string() /> },
             AppError::CustomCodeMsg(code, message) => view! { <Error code=code message=message /> },
-            AppError::CustomMsg(message) => view! { <Error message=message /> }
+            AppError::CustomMsg(message) => view! { <Error message=message /> },
         }
     }
 }
 #[component]
-pub fn Error(
-    #[prop(optional)]
-    code: Option<i32>,
-    message: String,
-) -> impl IntoView {
+pub fn Error(#[prop(optional)] code: Option<i32>, message: String) -> impl IntoView {
     provide_meta_context();
     view! {
         <Title text="Error" />

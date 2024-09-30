@@ -1,24 +1,25 @@
-CREATE TABLE saved_roms
+CREATE TABLE programs
 (
     id          SERIAL PRIMARY KEY,
-    user_id     INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    owner_id    INTEGER REFERENCES users (id),
     name        VARCHAR(50)                         NOT NULL,
     description TEXT,
-    data        BYTEA                               NOT NULL CHECK (LENGTH(data) < 65536),
+    data        TEXT                                NOT NULL,
+    compiles    BOOLEAN                             NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE TRIGGER roms_update_trigger
     BEFORE INSERT
-    ON saved_roms
+    ON programs
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TABLE saved_states
+CREATE TABLE states
 (
     id          SERIAL PRIMARY KEY,
-    user_id     INTEGER REFERENCES users (id) ON DELETE CASCADE,
+    owner_id    INTEGER REFERENCES users (id),
     name        VARCHAR(50)                         NOT NULL,
     description TEXT,
     data        BYTEA                               NOT NULL,
@@ -28,6 +29,6 @@ CREATE TABLE saved_states
 
 CREATE TRIGGER roms_update_trigger
     BEFORE INSERT
-    ON saved_states
+    ON states
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();

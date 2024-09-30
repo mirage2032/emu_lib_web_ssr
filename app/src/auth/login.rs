@@ -1,53 +1,36 @@
-use leptos_meta::Title;
+use super::api::{login_exists, LoginApi};
 use super::auth_style;
-use leptos::prelude::*;
 use crate::header::SimpleHeader;
-use super::api::{LoginApi, login_exists};
+use leptos::prelude::*;
+use leptos_meta::Title;
 
 #[island]
-    pub fn LoginForm() -> impl IntoView {
+pub fn LoginForm() -> impl IntoView {
     let login = ServerAction::<LoginApi>::new();
-    let login_value = login.value();
-    // let navigation = use_navigation();
-    // Effect::new(move || {
-    //     login.value().with(|val| {
-    //         match val {
-    //             Some(val) => {
-    //                 match val {
-    //                     Ok(()) => {
-    //                         log!("login success");
-    //                     }
-    //                     Err(_) => {
-    //                         warn!("login failed");
-    //                     }
-    //                 }
-    //             }
-    //             None => {}
-    //         }
-    //     })
-    // });
+    let login_val = login.value();
+
+    Effect::new(move || {
+        if let Some(Ok(())) = login.value().get() {
+            let _ = window().location().set_href("/");
+        }
+    });
+
     let (login_read, login_write) = signal(String::new());
     let (password_read, password_write) = signal(String::new());
-    let login_valid_resource:Resource<Result<bool,_>> = Resource::new_with_options(
-        login_read,
-        move |val| async move {
-            let exists = login_exists(val).await;
-               exists
-        },
-        false
-    );
-        let login_valid_class = move || {
-            login_valid_resource.with(|val| {
-                match val {
-                    Some(val) => match val {
-                        Ok(true) => "valid",
-                        Ok(false) => "invalid",
-                        Err(_) => "warning",
-                    },
-                    None => "warning",
-                }
-            })
-        };
+    let login_valid_resource: Resource<Result<bool, _>> =
+        Resource::new(login_read, move |val| async move {
+            login_exists(val).await
+        });
+    let login_valid_class = move || {
+        login_valid_resource.with(|val| match val {
+            Some(val) => match val {
+                Ok(true) => "valid",
+                Ok(false) => "invalid",
+                Err(_) => "warning",
+            },
+            None => "warning",
+        })
+    };
 
     view! {
         <ActionForm action=login>
@@ -76,6 +59,15 @@ use super::api::{LoginApi, login_exists};
                 />
             </div>
             <input type="submit" value="Login" />
+        // <Show when=move || {
+        // if let Some(Ok(())) = login.value().get() {
+        // true
+        // } else{
+        // false
+        // }
+        // }>
+        // <Redirect path="/"/>
+        // </Show>
         </ActionForm>
     }
 }

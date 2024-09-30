@@ -1,33 +1,38 @@
 // use emu_lib_ui::emulator;
 
+use crate::footer::Footer;
 use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::*;
-use leptos_router::components::{ParentRoute, Route,FlatRoutes, Router, Routes};
+use leptos_router::components::{FlatRoutes, ParentRoute, Route, Router, Routes};
 use leptos_router::nested_router::Outlet;
-use crate::footer::Footer;
+use leptos_router::*;
 // use crate::error::AppError;
 // use crate::footer::Footer;
 use crate::home::HomePage;
+use crate::utils::icons::IconsCDN;
 
-mod home;
-mod error;
 mod auth;
+mod dashboard;
 pub mod db;
+mod error;
+mod footer;
+mod header;
+mod home;
 #[cfg(not(target_arch = "wasm32"))]
 mod server;
-mod header;
-mod footer;
+mod utils;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         <html lang="en">
             <head>
                 <meta charset="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <AutoReload options=options.clone() />
+                <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css" />
                 <HydrationScripts options=options islands=true />
+                <IconsCDN />
                 <MetaTags />
             </head>
             <body>
@@ -43,23 +48,23 @@ pub fn App() -> impl IntoView {
     view! {
         <head>
             <Title formatter=|text| format!("Z80Emu - {}", text) />
-            <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css" />
         // <Stylesheet id="app" href="/pkg/app.css" />
         </head>
         <main>
             <Router>
                 <Routes fallback=|| error::AppError::NotFound.into_view()>
                     // <ParentRoute
-                    //     path=StaticSegment("emulator")
-                    //     view=|| {
-                    //         view! { <Outlet /> }
-                    //     }
+                    // path=StaticSegment("emulator")
+                    // view=|| {
+                    // view! { <Outlet /> }
+                    // }
                     // >
-                    //     <Route path=StaticSegment("z80") view=emulator::Emulator />
+                    // <Route path=StaticSegment("z80") view=emulator::Emulator />
                     // </ParentRoute>
                     // <Route path=StaticSegment("emulator/z80") view=emulator::Emulator />
                     <Route path=path!("login") view=auth::login::Login />
                     <Route path=path!("register") view=auth::register::Register />
+                    <Route path=path!("dashboard") view=dashboard::Dashboard />
                     <Route path=path!("") view=HomePage />
                 </Routes>
             </Router>

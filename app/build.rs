@@ -1,11 +1,11 @@
 use serde_json::Value;
+use std::path::Path;
 use std::process::Command;
 use std::{env, fs};
-use std::path::Path;
+use walkdir::WalkDir;
 
 fn main() {
-    let relative = "../style";
-    let stylepath = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join(relative);
+    let stylepath = Path::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("../style");
     let style = fs::canonicalize(stylepath).unwrap();
     let mut dep_style = style.clone();
     dep_style.push("emu_lib_ui");
@@ -59,8 +59,17 @@ fn main() {
         .current_dir(env::var("CARGO_MANIFEST_DIR").unwrap())
         .output()
         .expect("Failed to execute stylance");
-    // println!(
-    //     "cargo:rerun-if-changed={}/stylance",
-    //     style.to_str().unwrap()
-    // );
+
+    let project_root = env::var("CARGO_MANIFEST_DIR").unwrap();
+
+    for entry in WalkDir::new(project_root)
+        .into_iter()
+        .filter_map(Result::ok)
+    {
+        if entry.path().to_string_lossy().ends_with(".module.scss") {
+            println!("cargo:rerun-if-changed={}", entry.path().display());
+        }
+    }
+
+    println!("cargo:rerun-if-changed=build.rs");
 }

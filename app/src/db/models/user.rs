@@ -1,19 +1,30 @@
 #[cfg(not(target_arch = "wasm32"))]
+use crate::db::models::schema::users::dsl;
+use crate::db::models::session::*;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::db::models::user::dsl::users;
+use crate::db::password;
+#[cfg(not(target_arch = "wasm32"))]
+use crate::db::DbPool;
+#[cfg(not(target_arch = "wasm32"))]
 use diesel::prelude::*;
 #[cfg(not(target_arch = "wasm32"))]
-use diesel::{Queryable,Insertable};
+use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::{Duration, SystemTime};
-#[cfg(not(target_arch = "wasm32"))]
-use crate::db::DbPool;
-use crate::db::password;
-use crate::db::models::session::*;
-#[cfg(not(target_arch = "wasm32"))]
-use crate::db::models::schema::users::dsl;
-
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[cfg_attr(not(target_arch = "wasm32"), derive(diesel_derive_enum::DbEnum))]
+#[cfg_attr(
+    not(target_arch = "wasm32"),
+    ExistingTypePath = "crate::db::models::schema::sql_types::Usertype"
+)] // Specify the underlying SQL type
+pub enum UserType {
+    User,
+    Admin,
+}
 #[cfg_attr(not(target_arch = "wasm32"), derive(Queryable))]
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -21,6 +32,7 @@ pub struct User {
     pub password_hash: String,
     pub created_at: SystemTime,
     pub updated_at: SystemTime,
+    pub user_type: UserType,
 }
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserLogin {
@@ -33,6 +45,7 @@ pub struct UserData {
     pub id: i32,
     pub username: String,
     pub email: String,
+    pub user_type: UserType,
 }
 
 impl From<User> for UserData {
@@ -41,6 +54,7 @@ impl From<User> for UserData {
             id: user.id,
             username: user.username,
             email: user.email,
+            user_type: user.user_type,
         }
     }
 }
@@ -66,8 +80,8 @@ impl UserLogin {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[cfg_attr(not(target_arch = "wasm32"), derive(Insertable))]
-#[derive(Debug,Serialize,Deserialize,Clone)]
 #[cfg_attr(not(target_arch = "wasm32"), diesel (table_name = super::schema::users))]
 pub struct NewUser {
     pub username: String,
@@ -122,11 +136,8 @@ impl User {
     pub fn get_by_login(login: &str, pool: &DbPool) -> Result<User, Box<dyn Error>> {
         let mut conn = pool.get()?;
         let user = dsl::users
-            .filter(
-                dsl::username.eq(login)
-                    .or(
-                        dsl::email.eq(login)
-                    )).first(&mut conn)?;
+            .filter(dsl::username.eq(login).or(dsl::email.eq(login)))
+            .first(&mut conn)?;
         Ok(user)
     }
 

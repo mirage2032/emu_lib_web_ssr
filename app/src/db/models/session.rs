@@ -1,14 +1,14 @@
-use serde::{Deserialize, Serialize};
-use std::error::Error;
-use std::time::{Duration, SystemTime};
-#[cfg(not(target_arch = "wasm32"))]
-use crate::db::DbPool;
 #[cfg(not(target_arch = "wasm32"))]
 use crate::db::models::schema::sessions::dsl;
 #[cfg(not(target_arch = "wasm32"))]
+use crate::db::DbPool;
+#[cfg(not(target_arch = "wasm32"))]
 use diesel::prelude::*;
 #[cfg(not(target_arch = "wasm32"))]
-use diesel::{ QueryDsl,  RunQueryDsl,Insertable,Queryable};
+use diesel::{Insertable, QueryDsl, Queryable, RunQueryDsl};
+use serde::{Deserialize, Serialize};
+use std::error::Error;
+use std::time::{Duration, SystemTime};
 
 #[cfg_attr(not(target_arch = "wasm32"), derive(Queryable))]
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -39,7 +39,6 @@ impl NewSession {
         }
     }
 }
-
 
 #[cfg(not(target_arch = "wasm32"))]
 impl Session {

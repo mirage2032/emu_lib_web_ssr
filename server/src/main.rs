@@ -1,13 +1,13 @@
-use axum::middleware::from_fn_with_state;
+use app::db::{establish_connection, AppState};
 use app::*;
+use axum::middleware::from_fn_with_state;
 use axum::Router;
 use fileserv::file_and_error_handler;
 use leptos::prelude::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
-use tower_http::compression::{CompressionLayer, Predicate};
 use tower_http::compression::predicate::{NotForContentType, SizeAbove};
+use tower_http::compression::{CompressionLayer, Predicate};
 use tower_http::CompressionLevel;
-use app::db::{establish_connection, AppState};
 
 // mod api;
 pub mod fileserv;
@@ -34,20 +34,32 @@ async fn main() {
     let addr = leptos_options.site_addr;
     let routes = generate_route_list(App);
     // build our application with a route
-    let state = AppState {leptos_options:leptos_options.clone(), pool: pool.clone() };
+    let state = AppState {
+        leptos_options: leptos_options.clone(),
+        pool: pool.clone(),
+    };
     let state_clone = state.clone();
     let app = Router::new()
         // .leptos_routes(&leptos_options, routes, App)
-        .leptos_routes_with_context(&leptos_options,
-                                    routes,
-                                    move || provide_context(state_clone.clone()),
-                                    {
-                                        let leptos_options = leptos_options.clone();
-                                        move || shell(leptos_options.clone())
-                                    })
+        .leptos_routes_with_context(
+            &leptos_options,
+            routes,
+            move || provide_context(state_clone.clone()),
+            {
+                let leptos_options = leptos_options.clone();
+                move || shell(leptos_options.clone())
+            },
+        )
         .fallback(file_and_error_handler)
-        .layer(CompressionLayer::new().quality(CompressionLevel::Fastest).compress_when(predicate))
-        .layer(from_fn_with_state(state.clone(),middleware::auth_middleware))
+        .layer(from_fn_with_state(
+            state.clone(),
+            middleware::auth_middleware,
+        ))
+        .layer(
+            CompressionLayer::new()
+                .quality(CompressionLevel::Fastest)
+                .compress_when(predicate),
+        )
         .with_state(leptos_options);
 
     // run our app with hyper

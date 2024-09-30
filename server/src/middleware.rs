@@ -1,17 +1,17 @@
-use
-axum::extract::{Request, State};
+use app::db::models::session::Session;
+use app::db::models::user::{User, UserData};
+use app::db::AppState;
+use axum::extract::{Request, State};
 use axum::http::StatusCode;
 use axum::middleware::Next;
 use axum::response::Response;
 use axum_extra::extract::CookieJar;
-use app::db::{AppState};
-use app::db::models::session::Session;
-use app::db::models::user::{User, UserData};
 
 pub async fn auth_middleware(
     State(app_state): State<AppState>,
     mut req: Request,
-    next: Next) -> Result<Response, StatusCode> {
+    next: Next,
+) -> Result<Response, StatusCode> {
     let pool = app_state.pool;
     let jar = CookieJar::from_headers(req.headers());
     if let Some(cookie) = jar.get("session_token") {

@@ -28,11 +28,13 @@ thiserror.workspace = true
 axum.workspace = true
 axum-extra.workspace = true
 diesel = {version = "2.2.4", features = ["postgres", "r2d2"]}
+diesel-derive-enum = {version="2.1.0", features = ["postgres"] }
 
 [build-dependencies]
 emu_lib_ui = { git = "https://github.com/mirage2032/rs_emu_lib_ui.git", default-features = false }
 pkg-config = "0.3.30"
 serde_json = "1.0.128"
+walkdir = "2.5.0"
 
 [features]
 default = []

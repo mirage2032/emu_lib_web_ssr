@@ -75,7 +75,7 @@ browserquery = "defaults"
 
 # Set by cargo-leptos watch when building with that tool. Controls whether autoreload JS will be included in the head
 watch = false
-watch-additional-files = ["style", "app/src/**/*.scss"]
+watch-additional-files = ["style", "app/src"]
 
 # The environment Leptos will run in, usually either "DEV" or "PROD"
 env = "DEV"
