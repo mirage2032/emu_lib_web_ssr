@@ -10,7 +10,7 @@ pub fn LoginForm() -> impl IntoView {
 
     Effect::new(move || {
         if let Some(Ok(())) = login.value().get() {
-            let _ = window().location().set_href("/");
+            let _ = window().location().set_href("/dashboard");
         }
     });
 

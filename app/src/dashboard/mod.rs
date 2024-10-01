@@ -52,7 +52,12 @@ pub fn dashboard() -> impl IntoView {
                     url="/".to_string()
                 />
                 <NavButtonOnclick
-                    icon="ri-home-fill".to_string()
+                    icon="ri-logout-box-fill".to_string()
+                    name="Home".to_string()
+                    callback_index=0
+                />
+                <NavButtonOnclick
+                    icon="ri-cpu-line".to_string()
                     name="Home".to_string()
                     callback_index=0
                 />
