@@ -1,5 +1,6 @@
 @use "emu_lib_ui/stylance" as emu_lib_ui;
 @use "stylance";
+@use "colors" as *;
 @import "https://necolas.github.io/normalize.css/8.0.1/normalize.css";
 
 * {
@@ -16,6 +17,7 @@ body {
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
+	background-color: $color-bg;
 	main {
 		flex: 1;
 		//height: 100%;

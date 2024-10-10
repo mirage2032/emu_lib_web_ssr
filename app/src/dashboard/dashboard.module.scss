@@ -1,38 +1,55 @@
 @use "../colors" as *;
 
-.dashboardcontainer {
-  background-color: $color-bg;
+.maincontainer {
   height: 100%;
   display: flex;
   flex-direction: row;
+}
+
+.fullheight {
+  flex: 1;
+}
+
+.navcontainer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: solid $color-2 1px ;
+  width:4rem;
   nav {
-    width:4rem;
-    border-right: solid $color-2 1px ;
+    height:100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    //align-content: center;
-    :global(.nav-button) {
-      text-align: center;
-      transition: padding 0.5s,font-size 0.5s, color 0.5s;
-      padding: 0.5rem 0;
-      color: $color-2;
-      font-size: 2rem;
-      &:hover {
-        padding: 1rem 0;
-        color: $color-4;
-        font-size: 3rem;
-      }
-      a {
-        color:inherit;
-        text-decoration: none;
-      }
-      i {
-        cursor: pointer;
-      }
+  }
+}
+
+.navgroup {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  //align-content: center;
+  :global(.nav-button) {
+    text-align: center;
+    transition: padding 0.5s,font-size 0.5s, color 0.5s;
+    padding: 0.5rem 0;
+    color: $color-2;
+    font-size: 2rem;
+    &:hover {
+      padding: 1rem 0;
+      color: $color-4;
+      font-size: 3rem;
+    }
+    a {
+      color:inherit;
+      text-decoration: none;
+    }
+    i {
+      cursor: pointer;
     }
   }
-  div {
+}
 
-  }
+.nobottompadding:hover {
+  padding-bottom: 0.5rem !important;
 }
