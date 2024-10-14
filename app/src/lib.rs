@@ -21,6 +21,7 @@ mod home;
 #[cfg(not(target_arch = "wasm32"))]
 mod server;
 mod utils;
+mod author;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -65,6 +66,7 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("login") view=auth::login::Login />
                     <Route path=path!("register") view=auth::register::Register />
                     <Route path=path!("dashboard") view=dashboard::Dashboard />
+                    <Route path=path!("author") view=author::Author />
                     <Route path=path!("") view=HomePage />
                 </Routes>
             </Router>

@@ -5,6 +5,7 @@ use axum::Router;
 use fileserv::file_and_error_handler;
 use leptos::prelude::*;
 use leptos_axum::{generate_route_list, LeptosRoutes};
+use reqwest::Client;
 use tower_http::compression::predicate::{NotForContentType, SizeAbove};
 use tower_http::compression::{CompressionLayer, Predicate};
 use tower_http::CompressionLevel;
@@ -24,7 +25,7 @@ async fn main() {
         .and(NotForContentType::const_new("application/javascript"))
         .and(NotForContentType::const_new("application/wasm"))
         .and(NotForContentType::const_new("text/css"));
-    // Setting get_configuration(None) means we'll be using cargo-leptos's env values
+    // Setting R(None) means we'll be using cargo-leptos's env values
     // For deployment these variables are:
     // <https://github.com/leptos-rs/start-axum#executing-a-server-on-a-remote-machine-without-the-toolchain>
     // Alternately a file can be specified such as Some("Cargo.toml")
@@ -37,6 +38,7 @@ async fn main() {
     let state = AppState {
         leptos_options: leptos_options.clone(),
         pool: pool.clone(),
+        reqwest_client: Client::builder().build().expect("Could not create reqwest client")
     };
     let state_clone = state.clone();
     let app = Router::new()

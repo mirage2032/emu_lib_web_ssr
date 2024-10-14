@@ -8,7 +8,7 @@ pub fn footer() -> impl IntoView {
         <footer class=style::footerclass>
             <div class=style::footercontainer>
                 <p>Z80 Emulator</p>
-                <p>Built by <A href="https://github.com/mirage2032">Popescu Ionut Alexandru</A></p>
+                <p>Built by <A href="/author">Popescu Ionut Alexandru</A></p>
             </div>
         </footer>
     }
