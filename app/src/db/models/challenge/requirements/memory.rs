@@ -1,6 +1,6 @@
 use emu_lib_ui::emu_lib::memory::Memory;
-use serde::{Deserialize, Serialize};
 use emu_lib_ui::emu_lib::memory::MemoryDevice;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum MemoryConditionNumOperator {

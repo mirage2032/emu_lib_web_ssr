@@ -1,10 +1,21 @@
-use super::api::{email_exists, user_exists, LoginExistsApi, RegisterApi};
+use super::api::{EmailExistsApi, RegisterApi, UserExistsApi};
 use super::auth_style;
 use crate::auth::login::LoginForm;
 use crate::header::SimpleHeader;
 use leptos::prelude::*;
 use leptos_meta::Title;
 use regex::Regex;
+
+fn response_to_class(response:Option<Result<bool,ServerFnError>>)->&'static str{
+    match response {
+        Some(val) => match val {
+            Ok(true) => "invalid",
+            Ok(false) => "valid",
+            Err(_) => "warning", //error while checking
+        },
+        None => "", //not checked yet
+    }
+}
 
 #[island]
 pub fn register_form() -> impl IntoView {
@@ -20,44 +31,43 @@ pub fn register_form() -> impl IntoView {
     }
 
     let (username_read, username_write) = signal(String::new());
-    let username_exists_resource: Resource<Result<bool, _>> = Resource::new(
-        username_read,
-        move |val| async move { user_exists(val).await },
-    );
-
+    let username_exists_action = ServerAction::<UserExistsApi>::new();
+    let username_invalid = move || {
+        if username_read().len() < 5{
+            return Some(Ok(true));
+        }
+        return username_exists_action.value().get();
+    };
+    let username_class = move || {
+        if username_exists_action.pending().get() {
+            return "warning";
+        }
+        if username_read.with(|username| username.is_empty()) {
+            return "";
+        }
+        response_to_class(username_invalid())
+    };
     let (email_read, email_write) = signal(String::new());
-    let email_exists_resource: Resource<Result<bool, _>> = Resource::new(
-        email_read,
-        move |val| async move { email_exists(val).await },
-    );
+    let email_exists_action = ServerAction::<EmailExistsApi>::new();
+    let email_invalid = move || {
+        let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
+        if !email_regex.is_match(&email_read()){
+            return Some(Ok(true));
+        }
+        return email_exists_action.value().get();
+    };
+    let email_class = move || {
+        if email_exists_action.pending().get() {
+            return "warning";
+        }
+        if email_read.with(|email| email.is_empty()) {
+            return "";
+        }
+        response_to_class(email_invalid())
+    };
 
     let (password_read, password_write) = signal(String::new());
     let (verif_password_read, verif_password_write) = signal(String::new());
-
-    let username_valid = move || username_read().len() >= 5;
-
-    let username_class = move || match username_valid() {
-        true => match username_exists_resource.get() {
-            Some(Ok(true)) => "invalid",
-            Some(Ok(false)) => "valid",
-            _ => "warning",
-        },
-        false => "invalid",
-    };
-
-    let email_valid = move || {
-        let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
-        email_regex.is_match(&email_read())
-    };
-
-    let email_class = move || match email_valid() {
-        true => match email_exists_resource.get() {
-            Some(Ok(true)) => "invalid",
-            Some(Ok(false)) => "valid",
-            _ => "warning",
-        },
-        false => "invalid",
-    };
 
     let password_valid = move || password_read().len() > 6;
     let verif_password = move || {
@@ -66,13 +76,15 @@ pub fn register_form() -> impl IntoView {
     };
 
     let allow_submit = move || {
-        if let (Some(Ok(false)), Some(Ok(false))) =
-            (username_exists_resource.get(), email_exists_resource.get())
-        {
+        if let (Some(Ok(false)), Some(Ok(false)), true) = (
+            username_invalid(),
+            email_exists_action.value().get(),
+            verif_password(),
+        ) {
+            true
         } else {
-            return false;
+            false
         }
-        username_valid() && email_valid() && password_valid() && verif_password()
     };
 
     view! {
@@ -83,9 +95,10 @@ pub fn register_form() -> impl IntoView {
                     type="text"
                     name="username"
                     class=username_class
-                    prop:value=username_read
                     on:input=move |event| {
-                        username_write(event_target_value(&event));
+                        let val = event_target_value(&event);
+                        username_write(val.clone());
+                        username_exists_action.dispatch(UserExistsApi { username: val });
                     }
                 />
             </div>
@@ -96,9 +109,10 @@ pub fn register_form() -> impl IntoView {
                     type="email"
                     name="email"
                     class=email_class
-                    prop:value=email_read
                     on:input=move |event| {
-                        email_write(event_target_value(&event));
+                        let val = event_target_value(&event);
+                        email_write(val.clone());
+                        email_exists_action.dispatch(EmailExistsApi { email: val });
                     }
                 />
             </div>
@@ -108,7 +122,15 @@ pub fn register_form() -> impl IntoView {
                 <input
                     type="password"
                     name="password"
-                    class=move || if password_valid() { "valid" } else { "invalid" }
+                    class=move || {
+                        if password_read.with(|pass| pass.is_empty()) {
+                            ""
+                        } else if password_valid() {
+                            "valid"
+                        } else {
+                            "invalid"
+                        }
+                    }
                     prop:value=password_read
                     on:input=move |event| {
                         password_write(event_target_value(&event));
@@ -121,7 +143,15 @@ pub fn register_form() -> impl IntoView {
                 <input
                     type="password"
                     prop:value=verif_password_read
-                    class=move || if verif_password() { "valid" } else { "invalid" }
+                    class=move || {
+                        if verif_password_read.with(|pass| pass.is_empty()) {
+                            ""
+                        } else if verif_password() {
+                            "valid"
+                        } else {
+                            "invalid"
+                        }
+                    }
                     on:input=move |event| {
                         verif_password_write(event_target_value(&event));
                     }

@@ -2,8 +2,8 @@ pub mod memory;
 
 use emu_lib_ui::emu_lib::cpu::z80::Z80;
 use emu_lib_ui::emu_lib::emulator::Emulator;
-use serde::{Deserialize, Serialize};
 use memory::MemoryRequirement;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum Requirement {

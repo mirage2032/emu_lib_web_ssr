@@ -38,7 +38,9 @@ async fn main() {
     let state = AppState {
         leptos_options: leptos_options.clone(),
         pool: pool.clone(),
-        reqwest_client: Client::builder().build().expect("Could not create reqwest client")
+        reqwest_client: Client::builder()
+            .build()
+            .expect("Could not create reqwest client"),
     };
     let state_clone = state.clone();
     let app = Router::new()

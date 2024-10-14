@@ -18,8 +18,8 @@ chrono = {version="0.4.38", features = ["serde"]}
 leptos.workspace = true
 leptos_meta.workspace = true
 leptos_router.workspace = true
+leptos-use = "0.14.0-gamma1"
 leptos_axum = { workspace = true, optional = true }
-leptos-use = { version="0.13.5" }
 codee = "0.2.0"
 regex = "1.10.6"
 gloo = { version="0.11.0",features = ["futures"] }
@@ -29,6 +29,7 @@ cfg-if.workspace = true
 thiserror.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-cookies = "0.2.1"
 gloo-net = { version="0.6.0",features = ["json"] }
 send_wrapper = "0.6.0"
 

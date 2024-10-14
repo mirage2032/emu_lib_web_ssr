@@ -9,11 +9,14 @@ use stylance::{classes, import_style};
 import_style!(style, "./dashboard.module.scss");
 
 #[component]
-fn nav_button_url(icon:String,name:String,url:String,
-                  #[prop(optional)]
-                  extra_class: String) -> impl IntoView{
+fn nav_button_url(
+    icon: String,
+    name: String,
+    url: String,
+    #[prop(optional)] extra_class: String,
+) -> impl IntoView {
     view! {
-        <div class=format!("nav-button{}",extra_class)>
+        <div class=format!("nav-button{}", extra_class)>
             <a href="/">
                 <Icon name=icon />
             </a>
@@ -21,20 +24,23 @@ fn nav_button_url(icon:String,name:String,url:String,
     }
 }
 
-type CallbackList = Vec<Action<(),()>>;
+type CallbackList = Vec<Action<(), ()>>;
 #[island]
-fn nav_button_onclick(icon:String,name:String,callback_index:usize,
-                      extra_class: Option<String>
+fn nav_button_onclick(
+    icon: String,
+    name: String,
+    callback_index: usize,
+    extra_class: Option<String>,
 ) -> impl IntoView
 where {
-    let extra = match extra_class{
-        Some(data) => format!(" {}",data),
-        None => String::default()
+    let extra = match extra_class {
+        Some(data) => format!(" {}", data),
+        None => String::default(),
     };
     let callback = expect_context::<CallbackList>();
     view! {
         <div
-            class=format!("nav-button{}",extra)
+            class=format!("nav-button{}", extra)
             on:click=move |_| {
                 callback[callback_index].dispatch(());
             }
@@ -46,53 +52,47 @@ where {
     }
 }
 
-
 #[island]
 pub fn dashboard() -> impl IntoView {
-    let test_action = Action::new(
-        |&()| async move{
+    let test_action = Action::new(|&()| async move {
         todo!();
     });
-    let context:CallbackList =  vec!(test_action);
+    let context: CallbackList = vec![test_action];
     provide_context(context);
     view! {
         <Title text="Dashboard" />
         <div class=style::maincontainer>
             <div class=style::navcontainer>
-        <nav>
-                <div class=classes!(
-        style::navgroup,
-        style::fullheight
-    )>
-                    <NavButtonUrl
-                        icon="ri-home-fill".to_string()
-                        name="Home".to_string()
-                        url="/".to_string()
-                    />
-                    <NavButtonOnclick
-                        icon="ri-logout-box-fill".to_string()
-                        name="Home".to_string()
-                        extra_class=None
-                        callback_index=0
-                    />
-                    <NavButtonOnclick
-                        icon="ri-cpu-line".to_string()
-                        name="Home".to_string()
-                        extra_class=None
-                        callback_index=0
-                    />
-                </div>
-        <div class=style::navgroup
-        style:height="5rem"
-        >
-                    <NavButtonOnclick
-                        icon="ri-logout-box-fill".to_string()
-                        name="Home".to_string()
-                        extra_class=Some(style::nobottompadding.to_string())
-                        callback_index=0
-                    />
-                </div>
-        </nav>
+                <nav>
+                    <div class=classes!(style::navgroup,
+        style::fullheight)>
+                        <NavButtonUrl
+                            icon="ri-home-fill".to_string()
+                            name="Home".to_string()
+                            url="/".to_string()
+                        />
+                        <NavButtonOnclick
+                            icon="ri-logout-box-fill".to_string()
+                            name="Home".to_string()
+                            extra_class=None
+                            callback_index=0
+                        />
+                        <NavButtonOnclick
+                            icon="ri-cpu-line".to_string()
+                            name="Home".to_string()
+                            extra_class=None
+                            callback_index=0
+                        />
+                    </div>
+                    <div class=style::navgroup style:height="5rem">
+                        <NavButtonOnclick
+                            icon="ri-logout-box-fill".to_string()
+                            name="Home".to_string()
+                            extra_class=Some(style::nobottompadding.to_string())
+                            callback_index=0
+                        />
+                    </div>
+                </nav>
             </div>
         </div>
     }

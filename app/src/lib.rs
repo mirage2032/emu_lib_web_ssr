@@ -12,16 +12,14 @@ use crate::home::HomePage;
 use crate::utils::icons::IconsCDN;
 
 mod auth;
+mod author;
 mod dashboard;
 pub mod db;
 mod error;
 mod footer;
 mod header;
 mod home;
-#[cfg(not(target_arch = "wasm32"))]
-mod server;
 mod utils;
-mod author;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {

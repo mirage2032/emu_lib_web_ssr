@@ -12,7 +12,8 @@ use diesel::prelude::*;
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
-use std::time::{Duration, SystemTime};
+use std::time::SystemTime;
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(not(target_arch = "wasm32"), derive(diesel_derive_enum::DbEnum))]
 #[cfg_attr(
@@ -68,7 +69,7 @@ impl UserLogin {
     pub fn authenticate(
         &self,
         pool: &DbPool,
-        duration: Duration,
+        duration: time::Duration,
     ) -> Result<(User, Session), Box<dyn Error>> {
         let user = User::get_by_login(&self.login, pool)?;
         if password::verify_password(&self.password, &user.password_hash).is_err() {

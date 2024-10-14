@@ -24,5 +24,5 @@ use leptos::prelude::LeptosOptions;
 pub struct AppState {
     pub leptos_options: LeptosOptions,
     pub pool: DbPool,
-    pub reqwest_client: reqwest::Client
+    pub reqwest_client: reqwest::Client,
 }
