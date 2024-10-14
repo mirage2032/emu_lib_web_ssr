@@ -1,16 +1,11 @@
 use leptos::prelude::*;
-use crate::utils::cookie::SessionCookie;
+use crate::utils::cookie::{AppCookie,CookieKey};
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
-    pub use crate::db::models::user::UserData;
     pub use crate::db::models::user::{NewUser, User, UserLogin};
     pub use crate::db::AppState;
-    pub use axum::Extension;
-    pub use axum_extra::extract::cookie::Cookie;
-    pub use http::header::SET_COOKIE;
     pub use http::StatusCode;
-    pub use leptos_axum::extract;
     pub use leptos_axum::ResponseOptions;
 }
 #[server(LoginApi, endpoint = "/login")]
@@ -23,12 +18,12 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     let user_login = UserLogin::new(login, password);
     match user_login.authenticate(&pool, duration) {
         Ok((_, session)) => {
-            SessionCookie::set(&session.token,duration,&response)?;
+            AppCookie::set(&CookieKey::Session,&session.token,duration,&response)?;
             // leptos_axum::redirect("/");
             Ok(())
         }
         Err(e) => {
-            SessionCookie::remove(&response)?;
+            AppCookie::remove(&CookieKey::Session,&response)?;
             response.set_status(StatusCode::UNAUTHORIZED);
             let msg = format!("Failed to login user: {}", e);
             Err(ServerFnError::Response(msg))
