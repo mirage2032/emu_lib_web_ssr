@@ -4,7 +4,10 @@ use crate::utils::icons::Icon;
 use leptos::prelude::*;
 use leptos_meta::Title;
 use std::string::ToString;
+use leptos::task::spawn_local;
 use stylance::{classes, import_style};
+use crate::utils::cookie;
+use crate::utils::cookie::CookieKey;
 
 import_style!(style, "./dashboard.module.scss");
 
@@ -53,14 +56,14 @@ where {
 }
 
 #[island]
-pub fn dashboard() -> impl IntoView {
+fn inner_dashboard() -> impl IntoView {
+    cookie::wasm::set(&CookieKey::Other("ba"),"dd",std::time::Duration::from_secs(60*24));
     let test_action = Action::new(|&()| async move {
         todo!();
     });
     let context: CallbackList = vec![test_action];
     provide_context(context);
     view! {
-        <Title text="Dashboard" />
         <div class=style::maincontainer>
             <div class=style::navcontainer>
                 <nav>
@@ -95,5 +98,12 @@ pub fn dashboard() -> impl IntoView {
                 </nav>
             </div>
         </div>
+    }
+}
+#[component]
+pub fn dashboard() -> impl IntoView {
+    view!{
+        <Title text="Dashboard" />
+        <InnerDashboard/>
     }
 }

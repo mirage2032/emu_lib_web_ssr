@@ -1,13 +1,8 @@
-// use emu_lib_ui::emulator;
-
 use crate::footer::Footer;
 use leptos::prelude::*;
 use leptos_meta::*;
-use leptos_router::components::{FlatRoutes, ParentRoute, Route, Router, Routes};
-use leptos_router::nested_router::Outlet;
+use leptos_router::components::{Route, Router, Routes};
 use leptos_router::*;
-// use crate::error::AppError;
-// use crate::footer::Footer;
 use crate::home::HomePage;
 use crate::utils::icons::IconsCDN;
 
@@ -20,6 +15,7 @@ mod footer;
 mod header;
 mod home;
 mod utils;
+mod emulator;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -60,7 +56,7 @@ pub fn App() -> impl IntoView {
                     // >
                     // <Route path=StaticSegment("z80") view=emulator::Emulator />
                     // </ParentRoute>
-                    // <Route path=StaticSegment("emulator/z80") view=emulator::Emulator />
+                    <Route path=path!("emulator/z80") view=emulator::Emulator />
                     <Route path=path!("login") view=auth::login::Login />
                     <Route path=path!("register") view=auth::register::Register />
                     <Route path=path!("dashboard") view=dashboard::Dashboard />

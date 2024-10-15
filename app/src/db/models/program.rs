@@ -41,7 +41,7 @@ pub struct ProgramError {
 
 impl NewProgram {
     fn compile_check(program: &str) -> Result<(), Vec<ProgramError>> {
-        use emu_lib_ui::emu_lib::cpu::z80::parser::Z80Parser;
+        use emu_lib::cpu::z80::parser::Z80Parser;
         let mut errors = vec![];
         for (line_number, line) in program.lines().enumerate() {
             if line.is_empty() {

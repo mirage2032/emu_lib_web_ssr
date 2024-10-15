@@ -1,5 +1,5 @@
-use emu_lib_ui::emu_lib::memory::Memory;
-use emu_lib_ui::emu_lib::memory::MemoryDevice;
+use emu_lib::memory::Memory;
+use emu_lib::memory::MemoryDevice;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

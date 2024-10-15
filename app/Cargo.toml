@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-emu_lib_ui = { git = "https://github.com/mirage2032/rs_emu_lib_ui.git", default-features = false }
+emu_lib = { git = "https://github.com/mirage2032/rs_emu_lib.git", default-features = false }
 stylance = "0.5.1"
 uuid = { version = "1.10.0", features = ["v4"] }
 argon2 = { version="0.6.0-pre.1", features = ["std"] }
@@ -20,6 +20,8 @@ leptos_meta.workspace = true
 leptos_router.workspace = true
 leptos-use = "0.14.0-gamma1"
 leptos_axum = { workspace = true, optional = true }
+
+wasm-cookies = "0.2.1"
 codee = "0.2.0"
 regex = "1.10.6"
 gloo = { version="0.11.0",features = ["futures"] }
@@ -29,7 +31,6 @@ cfg-if.workspace = true
 thiserror.workspace = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-cookies = "0.2.1"
 gloo-net = { version="0.6.0",features = ["json"] }
 send_wrapper = "0.6.0"
 

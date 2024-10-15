@@ -1,7 +1,7 @@
 pub mod memory;
 
-use emu_lib_ui::emu_lib::cpu::z80::Z80;
-use emu_lib_ui::emu_lib::emulator::Emulator;
+use emu_lib::cpu::z80::Z80;
+use emu_lib::emulator::Emulator;
 use memory::MemoryRequirement;
 use serde::{Deserialize, Serialize};
 
