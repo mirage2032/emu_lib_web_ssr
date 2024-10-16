@@ -2,6 +2,7 @@ mod control;
 mod memory;
 
 use control::Control;
+use memory::Memory;
 
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
@@ -20,7 +21,10 @@ pub fn EmulatorNoTitle() -> impl IntoView {
         let emu = default_emu();
         provide_context(RwSignal::new(emu));
     }
-    view! { <Control /> }
+    view! {
+        <Control />
+        <Memory />
+    }
 }
 #[component]
 pub fn Emulator() -> impl IntoView {
