@@ -1,23 +1,31 @@
 mod control;
+mod memory;
+
+use control::Control;
 
 use emu_lib::cpu::z80::Z80;
-use leptos::prelude::*;
 use emu_lib::emulator::Emulator;
+use leptos::prelude::*;
 use leptos_meta::Title;
 
+fn default_emu() -> Emulator<Z80> {
+    let mut emu = Emulator::<Z80>::default();
+    emu.memory.record_changes(true);
+    emu
+}
+
 #[island]
-pub fn EmulatorNoTitle()-> impl IntoView{
-    let emu_signal = use_context::<RwSignal<Emulator<Z80>>>()
-        .unwrap_or({
-            let mut emu = Emulator::<Z80>::default();
-            emu.memory.record_changes(true);
-            RwSignal::new(emu)
-        });
+pub fn EmulatorNoTitle() -> impl IntoView {
+    if let None = use_context::<RwSignal<Emulator<Z80>>>() {
+        let emu = default_emu();
+        provide_context(RwSignal::new(emu));
+    }
+    view! { <Control /> }
 }
 #[component]
-pub fn Emulator() -> impl IntoView{
-    view!{
-        <Title text="emulator"/>
-        <EmulatorNoTitle/>
+pub fn Emulator() -> impl IntoView {
+    view! {
+        <Title text="Emulator" />
+        <EmulatorNoTitle />
     }
 }

@@ -1,13 +1,13 @@
 mod api;
 
-use crate::utils::icons::Icon;
-use leptos::prelude::*;
-use leptos_meta::Title;
-use std::string::ToString;
-use leptos::task::spawn_local;
-use stylance::{classes, import_style};
 use crate::utils::cookie;
 use crate::utils::cookie::CookieKey;
+use crate::utils::icons::Icon;
+use leptos::prelude::*;
+use leptos::task::spawn_local;
+use leptos_meta::Title;
+use std::string::ToString;
+use stylance::{classes, import_style};
 
 import_style!(style, "./dashboard.module.scss");
 
@@ -57,7 +57,11 @@ where {
 
 #[island]
 fn inner_dashboard() -> impl IntoView {
-    cookie::wasm::set(&CookieKey::Other("ba"),"dd",std::time::Duration::from_secs(60*24));
+    cookie::wasm::set(
+        &CookieKey::Other("ba"),
+        "dd",
+        std::time::Duration::from_secs(60 * 24),
+    );
     let test_action = Action::new(|&()| async move {
         todo!();
     });
@@ -102,8 +106,8 @@ fn inner_dashboard() -> impl IntoView {
 }
 #[component]
 pub fn dashboard() -> impl IntoView {
-    view!{
+    view! {
         <Title text="Dashboard" />
-        <InnerDashboard/>
+        <InnerDashboard />
     }
 }

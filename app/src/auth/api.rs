@@ -4,8 +4,8 @@ use leptos::prelude::*;
 mod server_imports {
     pub use crate::db::models::user::{NewUser, User, UserLogin};
     pub use crate::db::AppState;
+    pub use crate::utils::cookie::{self, CookieKey};
     pub use http::StatusCode;
-    pub use crate::utils::cookie::{self,CookieKey};
     pub use leptos_axum::ResponseOptions;
 }
 #[server(LoginApi, endpoint = "/login")]
@@ -14,16 +14,16 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     let response = expect_context::<ResponseOptions>();
     let state = expect_context::<AppState>();
     let pool = state.pool;
-    let duration = time::Duration::seconds(60*24);
+    let duration = time::Duration::seconds(60 * 24);
     let user_login = UserLogin::new(login, password);
     match user_login.authenticate(&pool, duration) {
         Ok((_, session)) => {
-            cookie::server::set(&CookieKey::Session,&session.token,duration,&response)?;
+            cookie::server::set(&CookieKey::Session, &session.token, duration, &response)?;
             // leptos_axum::redirect("/");
             Ok(())
         }
         Err(e) => {
-            cookie::server::remove(&CookieKey::Session,&response)?;
+            cookie::server::remove(&CookieKey::Session, &response)?;
             response.set_status(StatusCode::UNAUTHORIZED);
             let msg = format!("Failed to login user: {}", e);
             Err(ServerFnError::Response(msg))

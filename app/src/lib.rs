@@ -1,25 +1,25 @@
 use crate::footer::Footer;
+use crate::home::HomePage;
+use crate::utils::icons::IconsCDN;
 use leptos::prelude::*;
 use leptos_meta::*;
 use leptos_router::components::{Route, Router, Routes};
 use leptos_router::*;
-use crate::home::HomePage;
-use crate::utils::icons::IconsCDN;
 
 mod auth;
 mod author;
 mod dashboard;
 pub mod db;
+mod emulator;
 mod error;
 mod footer;
 mod header;
 mod home;
 mod utils;
-mod emulator;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html> 
+        <!DOCTYPE html>
         <html lang="en">
             <head>
                 <meta charset="utf-8" />

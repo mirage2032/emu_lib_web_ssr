@@ -6,7 +6,7 @@ use leptos::prelude::*;
 use leptos_meta::Title;
 use regex::Regex;
 
-fn response_to_class(response:Option<Result<bool,ServerFnError>>)->&'static str{
+fn response_to_class(response: Option<Result<bool, ServerFnError>>) -> &'static str {
     match response {
         Some(val) => match val {
             Ok(true) => "invalid",
@@ -33,7 +33,7 @@ pub fn register_form() -> impl IntoView {
     let (username_read, username_write) = signal(String::new());
     let username_exists_action = ServerAction::<UserExistsApi>::new();
     let username_invalid = move || {
-        if username_read().len() < 5{
+        if username_read().len() < 5 {
             return Some(Ok(true));
         }
         return username_exists_action.value().get();
@@ -51,7 +51,7 @@ pub fn register_form() -> impl IntoView {
     let email_exists_action = ServerAction::<EmailExistsApi>::new();
     let email_invalid = move || {
         let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
-        if !email_regex.is_match(&email_read()){
+        if !email_regex.is_match(&email_read()) {
             return Some(Ok(true));
         }
         return email_exists_action.value().get();
