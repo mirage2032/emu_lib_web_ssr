@@ -1,8 +1,10 @@
 mod control;
+mod disassembler;
 mod memory;
 
 use control::Control;
 use memory::Memory;
+use disassembler::Disassembler;
 
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
@@ -17,13 +19,14 @@ fn default_emu() -> Emulator<Z80> {
 
 #[island]
 pub fn EmulatorNoTitle() -> impl IntoView {
-    if let None = use_context::<RwSignal<Emulator<Z80>>>() {
+    if use_context::<RwSignal<Emulator<Z80>>>().is_none() {
         let emu = default_emu();
         provide_context(RwSignal::new(emu));
     }
     view! {
         <Control />
         <Memory />
+        <Disassembler />
     }
 }
 #[component]
