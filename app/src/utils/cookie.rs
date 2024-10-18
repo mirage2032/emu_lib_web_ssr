@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use http::header::InvalidHeaderValue;
 use thiserror::Error;
 
@@ -12,6 +13,12 @@ impl<'a> CookieKey<'a> {
             CookieKey::Session => "session_token",
             CookieKey::Other(key) => *key,
         }
+    }
+}
+
+impl<'a> Display for CookieKey<'a>{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f,"{}",self.as_str())
     }
 }
 
