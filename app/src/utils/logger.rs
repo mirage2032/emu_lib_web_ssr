@@ -1,7 +1,6 @@
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use crate::utils::logger;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum LogLevel {
@@ -56,13 +55,11 @@ impl LogMessage {
     }
 }
 
-pub trait AnyLogger {}
-pub struct SlaveLogger {
+pub struct Logger {
     origin: Vec<String>,
-    parent: Box<dyn AnyLoggerSignal>,
-    master: LoggerSignal<MasterLogger>,
+    parent: Option<LoggerSignal>,
+    store: LoggerStoreSignal,
 }
-impl AnyLogger for SlaveLogger {}
 
 pub struct LoggerIterator<'a> {
     logs: &'a Vec<LogMessage>,
@@ -83,10 +80,11 @@ impl<'a> Iterator for LoggerIterator<'a> {
         None
     }
 }
-pub struct MasterLogger {
+struct LoggerStore {
+    name:String,
     logs: Vec<LogMessage>,
 }
-impl MasterLogger {
+impl LoggerStore {
     fn iter_master(&self) -> LoggerIterator {
         LoggerIterator {
             logs: &self.logs,
@@ -102,98 +100,84 @@ impl MasterLogger {
         }
     }
 }
-impl AnyLogger for MasterLogger {}
 
-pub trait AnyLoggerSignal: Send + Sync {
-    fn new_sub_logger(&self, name: String) -> LoggerSignal<SlaveLogger>;
-    fn log(&self, message: String, level: LogLevel);
+pub trait Logging: Send + Sync {
+    fn new_sub_logger(&self, name: &str) -> LoggerSignal;
+    fn log(&self, message: &str, level: LogLevel);
     fn list(&self) -> Vec<LogMessage>;
     fn with_iter(&self, c: fn(LoggerIterator));
-    fn as_any(&self) -> Box<dyn AnyLoggerSignal>;
-    fn context(&self) -> LoggerContext{
-        LoggerContext{logger:self.as_any()}
-    }
 }
 
-pub struct LoggerSignal<T: AnyLogger> {
-    signal: RwSignal<T>,
+#[derive(Clone)]
+pub struct LoggerSignal {
+    signal: RwSignal<Logger>,
 }
-impl Default for LoggerSignal<MasterLogger> {
-    fn default() -> Self {
-        LoggerSignal {
-            signal: RwSignal::new(MasterLogger { logs: vec![] }),
+
+#[derive(Clone)]
+pub struct LoggerStoreSignal {
+    signal:RwSignal<LoggerStore>,
+}
+
+impl LoggerStoreSignal{
+    pub fn new(name:&str) -> Self {
+        LoggerStoreSignal{
+            signal:RwSignal::new(
+                LoggerStore{
+                    name:name.to_string(),
+                    logs:vec!()
+                }
+            )
         }
     }
-}
 
-impl<T: AnyLogger> Clone for LoggerSignal<T> {
-    fn clone(&self) -> Self {
-        LoggerSignal {
-            signal: self.signal.clone(),
-        }
-    }
-}
-
-impl AnyLoggerSignal for LoggerSignal<MasterLogger> {
-    fn new_sub_logger(&self, name: String) -> LoggerSignal<SlaveLogger> {
-        LoggerSignal {
-            signal: RwSignal::new(SlaveLogger {
-                origin: vec![name],
-                parent: Box::new(self.clone()),
-                master: self.clone(),
-            }),
-        }
-    }
-    fn log(&self, message: String, level: LogLevel) {
-        self.signal.update(|master| {
-            master.logs.push(LogMessage {
-                origin: vec![],
-                message,
-                level,
-            })
-        })
-    }
-    fn list(&self) -> Vec<LogMessage> {
-        self.signal.with(|master| master.logs.clone())
-    }
-
-    fn with_iter(&self, c: fn(LoggerIterator)) {
-        self.signal.with(|master| c(master.iter_master()));
-    }
-    fn as_any(&self) -> Box<dyn AnyLoggerSignal> {
-        Box::new(self.clone())
-    }
-}
-
-impl LoggerSignal<SlaveLogger> {
-    fn parent(&self) -> Option<Box<dyn AnyLoggerSignal>> {
-        Some(self.signal.with(|slave| slave.parent.as_any()))
-    }
-    fn master(&self) -> LoggerSignal<MasterLogger> {
-        self.signal.with(|slave| slave.master.clone())
-    }
-}
-
-impl AnyLoggerSignal for LoggerSignal<SlaveLogger> {
-    fn new_sub_logger(&self, name: String) -> LoggerSignal<SlaveLogger> {
-        self.signal.with(|slave| {
-            let mut origin = slave.origin.clone();
-            origin.push(name);
+    fn as_sub_logger(&self) -> LoggerSignal {
+        self.signal.with(|master| {
             LoggerSignal {
-                signal: RwSignal::new(SlaveLogger {
-                    origin,
-                    parent: Box::new(self.clone()),
-                    master: slave.master.clone(),
+                signal: RwSignal::new(Logger {
+                    origin:vec!(),
+                    parent: None,
+                    store: self.clone(),
                 }),
             }
         })
     }
-    fn log(&self, message: String, level: LogLevel) {
+}
+
+impl From<LoggerStoreSignal> for LoggerSignal{
+    fn from(value: LoggerStoreSignal) -> Self {
+        value.as_sub_logger()
+    }
+}
+
+impl LoggerSignal {
+    fn parent(&self) -> Option<LoggerSignal> {
+        self.signal.with(|slave| slave.parent.clone())
+    }
+    fn master(&self) -> LoggerStoreSignal {
+        self.signal.with(|slave| slave.store.clone())
+    }
+}
+
+impl Logging for LoggerSignal {
+    fn new_sub_logger(&self, name: &str) -> LoggerSignal {
         self.signal.with(|slave| {
-            slave.master.signal.update(|master| {
+            let mut origin = slave.origin.clone();
+            origin.push(name.to_string());
+            LoggerSignal {
+                signal: RwSignal::new(Logger {
+                    origin,
+                    parent: Some(self.clone()),
+                    store: slave.store.clone(),
+                }),
+            }
+        })
+    }
+    fn log(&self, message: &str, level: LogLevel) {
+        self.signal.with(|slave| {
+            slave.store.signal.update(|master| {
                 master.logs.push(LogMessage {
                     origin: slave.origin.clone(),
-                    message,
+                    message:message.to_string(),
                     level,
                 })
             })
@@ -203,7 +187,7 @@ impl AnyLoggerSignal for LoggerSignal<SlaveLogger> {
     fn list(&self) -> Vec<LogMessage> {
         self.signal.with(|slave| {
             slave
-                .master
+                .store
                 .signal
                 .with(|master| master.iter_slave(&slave.origin).cloned().collect())
         })
@@ -211,23 +195,39 @@ impl AnyLoggerSignal for LoggerSignal<SlaveLogger> {
     fn with_iter(&self, c: fn(LoggerIterator)) {
         self.signal.with(|slave| {
             slave
-                .master
+                .store
                 .signal
                 .with(|master| c(master.iter_slave(&slave.origin)))
         })
     }
-    fn as_any(&self) -> Box<dyn AnyLoggerSignal> {
-        Box::new(self.clone())
-    }
-}
-pub struct LoggerContext{
-    logger:Box<dyn AnyLoggerSignal>
 }
 
-impl Clone for LoggerContext{
-    fn clone(&self) -> Self {
-        LoggerContext{
-            logger:self.logger.as_any()
-        }
+impl Logging for LoggerStoreSignal {
+    fn new_sub_logger(&self, name: &str) -> LoggerSignal {
+        self.signal.with(|master| {
+            LoggerSignal {
+                signal: RwSignal::new(Logger {
+                    origin:vec!(master.name.clone(),name.to_string()),
+                    parent: None,
+                    store: self.clone(),
+                }),
+            }
+        })
+    }
+    fn log(&self, message: &str, level: LogLevel) {
+        self.signal.update(|master| {
+                master.logs.push(LogMessage {
+                    origin: vec!(),
+                    message:message.to_string(),
+                    level,
+                })
+        })
+    }
+
+    fn list(&self) -> Vec<LogMessage> {
+        self.signal.with(|master| master.iter_master().cloned().collect())
+    }
+    fn with_iter(&self, c: fn(LoggerIterator)) {
+        self.signal.with(|master| c(master.iter_master()))
     }
 }

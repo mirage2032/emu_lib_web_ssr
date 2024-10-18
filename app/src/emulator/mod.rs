@@ -11,7 +11,7 @@ use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 use leptos_meta::Title;
-use crate::utils::logger::AnyLoggerSignal;
+use crate::utils::logger::{LoggerStoreSignal, LoggerSignal};
 
 fn default_emu() -> Emulator<Z80> {
     let mut emu = Emulator::<Z80>::default();
@@ -25,9 +25,9 @@ pub fn EmulatorNoTitle() -> impl IntoView {
         let emu = default_emu();
         provide_context(RwSignal::new(emu));
     }
-    if use_context::<logger::LoggerContext>().is_none() {
-        let master_logger = logger::LoggerSignal::<logger::MasterLogger>::default();
-        provide_context(master_logger.context())
+    if use_context::<LoggerSignal>().is_none() {
+        let logger: LoggerSignal = LoggerStoreSignal::new("Emulator").into();
+        provide_context(logger)
     }
     view! {
         <Control />

@@ -3,8 +3,8 @@ pub enum CookieKey<'a> {
     Other(&'a str),
 }
 
-impl<'a> AsRef<str> for CookieKey<'a> {
-    fn as_ref(&self) -> &'a str {
+impl<'a> CookieKey<'a> {
+    fn as_str(&'a self) -> &'a str{
         match self {
             CookieKey::Session => "session_token",
             CookieKey::Other(key) => *key,
@@ -14,15 +14,22 @@ impl<'a> AsRef<str> for CookieKey<'a> {
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod server {
+    use std::sync::Arc;
+    use axum::Extension;
+    use axum::extract::Request;
     use super::CookieKey;
     use axum_extra::extract::cookie::{Cookie, SameSite};
-    use http::{header::SET_COOKIE, HeaderValue};
+    use axum_extra::extract::CookieJar;
+    use http::{header::SET_COOKIE, HeaderMap, HeaderValue, Method};
+    use leptos::prelude::ServerFnError;
+    use leptos_axum::extract;
+
     fn new_cookie<'a>(
         key: &'a CookieKey,
         value: &'a str,
         duration: time::Duration,
-    ) -> axum_extra::extract::cookie::Cookie<'a> {
-        let cookie = Cookie::build((key.as_ref(), value))
+    ) -> Cookie<'a> {
+        let cookie = Cookie::build((key.as_str(), value))
             .same_site(SameSite::Lax)
             .path("/")
             .secure(false)
@@ -39,6 +46,18 @@ pub mod server {
         let cookie = new_cookie(key, value, duration);
         response.append_header(SET_COOKIE, HeaderValue::from_str(&cookie.to_string())?);
         Ok(())
+    }
+
+    pub fn get<'a>(
+        key: &CookieKey<'a>,
+        headers: &HeaderMap
+    ) -> Result<Option<String>, ServerFnError>{
+        let jar = CookieJar::from_headers(&headers);
+        if let Some(cookie) = jar.get(key.as_str()) {
+            Ok(Some(cookie.value().to_string()))
+        } else{
+            Ok(None)
+        }
     }
 
     pub fn remove(
@@ -65,14 +84,23 @@ pub mod wasm {
             same_site: SameSite::Lax,
         }
         .expires_after(duration);
-        wasm_cookies::set(key.as_ref(), value, &options);
+        wasm_cookies::set(key.as_str(), value, &options);
     }
     #[cfg(not(target_arch = "wasm32"))]
     pub fn set(_key: &CookieKey, _value: &str, _duration: std::time::Duration) {}
 
     #[cfg(target_arch = "wasm32")]
+    pub fn get(key: &CookieKey) -> Option<String> {
+        wasm_cookies::get_raw(key.as_str())
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn get(key:&CookieKey) -> Option<String> {
+        None
+    }
+    #[cfg(target_arch = "wasm32")]
     pub fn remove(key: &CookieKey) {
-        wasm_cookies::delete(key.as_ref());
+        wasm_cookies::delete(key.as_str());
     }
     #[cfg(not(target_arch = "wasm32"))]
     pub fn remove(_key: &CookieKey) {}
