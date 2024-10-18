@@ -1,4 +1,4 @@
-use leptos::prelude::{expect_context};
+use leptos::prelude::expect_context;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 

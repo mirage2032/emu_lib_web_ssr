@@ -81,7 +81,7 @@ impl<'a> Iterator for LoggerIterator<'a> {
     }
 }
 struct LoggerStore {
-    name:String,
+    name: String,
     logs: Vec<LogMessage>,
 }
 impl LoggerStore {
@@ -115,35 +115,31 @@ pub struct LoggerSignal {
 
 #[derive(Clone)]
 pub struct LoggerStoreSignal {
-    signal:RwSignal<LoggerStore>,
+    signal: RwSignal<LoggerStore>,
 }
 
-impl LoggerStoreSignal{
-    pub fn new(name:&str) -> Self {
-        LoggerStoreSignal{
-            signal:RwSignal::new(
-                LoggerStore{
-                    name:name.to_string(),
-                    logs:vec!()
-                }
-            )
+impl LoggerStoreSignal {
+    pub fn new(name: &str) -> Self {
+        LoggerStoreSignal {
+            signal: RwSignal::new(LoggerStore {
+                name: name.to_string(),
+                logs: vec![],
+            }),
         }
     }
 
     fn as_sub_logger(&self) -> LoggerSignal {
-        self.signal.with(|master| {
-            LoggerSignal {
-                signal: RwSignal::new(Logger {
-                    origin:vec!(),
-                    parent: None,
-                    store: self.clone(),
-                }),
-            }
+        self.signal.with(|master| LoggerSignal {
+            signal: RwSignal::new(Logger {
+                origin: vec![],
+                parent: None,
+                store: self.clone(),
+            }),
         })
     }
 }
 
-impl From<LoggerStoreSignal> for LoggerSignal{
+impl From<LoggerStoreSignal> for LoggerSignal {
     fn from(value: LoggerStoreSignal) -> Self {
         value.as_sub_logger()
     }
@@ -177,7 +173,7 @@ impl Logging for LoggerSignal {
             slave.store.signal.update(|master| {
                 master.logs.push(LogMessage {
                     origin: slave.origin.clone(),
-                    message:message.to_string(),
+                    message: message.to_string(),
                     level,
                 })
             })
@@ -204,28 +200,27 @@ impl Logging for LoggerSignal {
 
 impl Logging for LoggerStoreSignal {
     fn new_sub_logger(&self, name: &str) -> LoggerSignal {
-        self.signal.with(|master| {
-            LoggerSignal {
-                signal: RwSignal::new(Logger {
-                    origin:vec!(master.name.clone(),name.to_string()),
-                    parent: None,
-                    store: self.clone(),
-                }),
-            }
+        self.signal.with(|master| LoggerSignal {
+            signal: RwSignal::new(Logger {
+                origin: vec![master.name.clone(), name.to_string()],
+                parent: None,
+                store: self.clone(),
+            }),
         })
     }
     fn log(&self, message: &str, level: LogLevel) {
         self.signal.update(|master| {
-                master.logs.push(LogMessage {
-                    origin: vec!(),
-                    message:message.to_string(),
-                    level,
-                })
+            master.logs.push(LogMessage {
+                origin: vec![],
+                message: message.to_string(),
+                level,
+            })
         })
     }
 
     fn list(&self) -> Vec<LogMessage> {
-        self.signal.with(|master| master.iter_master().cloned().collect())
+        self.signal
+            .with(|master| master.iter_master().cloned().collect())
     }
     fn with_iter(&self, c: fn(LoggerIterator)) {
         self.signal.with(|master| c(master.iter_master()))

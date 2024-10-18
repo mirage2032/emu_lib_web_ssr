@@ -15,11 +15,11 @@ mod error;
 mod footer;
 mod header;
 mod home;
-mod utils;
+pub mod utils;
 
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
-        <!DOCTYPE html>
+        <!DOCTYPE html> 
         <html lang="en">
             <head>
                 <meta charset="utf-8" />
@@ -36,7 +36,6 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
         </html>
     }
 }
-
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();

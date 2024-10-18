@@ -1,5 +1,4 @@
 use http::HeaderMap;
-use leptos::either::EitherOf3::C;
 use leptos::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
@@ -7,10 +6,10 @@ mod server_imports {
     pub use crate::db::models::user::{NewUser, User, UserLogin};
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
+    pub use axum::{extract::Extension, http::Method};
     pub use http::StatusCode;
-    pub use leptos_axum::ResponseOptions;
-    pub use axum::{ extract::Extension, http::Method};
     pub use leptos_axum::extract;
+    pub use leptos_axum::ResponseOptions;
 }
 #[server(LoginApi, endpoint = "/login")]
 pub async fn login(login: String, password: String) -> Result<(), ServerFnError> {
@@ -66,11 +65,17 @@ pub async fn login_exists(login: String) -> Result<bool, ServerFnError> {
     // sleep(Duration::from_millis(3000));
     // let user : Result<Extension<UserData>,_> = extract().await;
 
-    let headers:HeaderMap = extract().await?;
-    let res = match cookie::server::get(&CookieKey::Session,&headers){
-        Ok(Some(val)) => { format!("{}",val) },
-        Ok(None) =>{format!("Cookie not found")},
-        Err(err)=>{format!("ERR:{}",err)}
+    let headers: HeaderMap = extract().await?;
+    let res = match cookie::server::get(&CookieKey::Session, &headers) {
+        Ok(Some(val)) => {
+            format!("{}", val)
+        }
+        Ok(None) => {
+            format!("Cookie not found")
+        }
+        Err(err) => {
+            format!("ERR:{}", err)
+        }
     };
     // log!("log:{}",res);
     // println!("print:{}",res);

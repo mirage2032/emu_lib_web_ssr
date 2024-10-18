@@ -4,7 +4,7 @@ pub enum CookieKey<'a> {
 }
 
 impl<'a> CookieKey<'a> {
-    fn as_str(&'a self) -> &'a str{
+    fn as_str(&'a self) -> &'a str {
         match self {
             CookieKey::Session => "session_token",
             CookieKey::Other(key) => *key,
@@ -14,21 +14,17 @@ impl<'a> CookieKey<'a> {
 
 #[cfg(not(target_arch = "wasm32"))]
 pub mod server {
-    use std::sync::Arc;
-    use axum::Extension;
-    use axum::extract::Request;
     use super::CookieKey;
+    use axum::extract::Request;
+    use axum::Extension;
     use axum_extra::extract::cookie::{Cookie, SameSite};
     use axum_extra::extract::CookieJar;
     use http::{header::SET_COOKIE, HeaderMap, HeaderValue, Method};
     use leptos::prelude::ServerFnError;
     use leptos_axum::extract;
+    use std::sync::Arc;
 
-    fn new_cookie<'a>(
-        key: &'a CookieKey,
-        value: &'a str,
-        duration: time::Duration,
-    ) -> Cookie<'a> {
+    fn new_cookie<'a>(key: &'a CookieKey, value: &'a str, duration: time::Duration) -> Cookie<'a> {
         let cookie = Cookie::build((key.as_str(), value))
             .same_site(SameSite::Lax)
             .path("/")
@@ -50,12 +46,12 @@ pub mod server {
 
     pub fn get<'a>(
         key: &CookieKey<'a>,
-        headers: &HeaderMap
-    ) -> Result<Option<String>, ServerFnError>{
+        headers: &HeaderMap,
+    ) -> Result<Option<String>, ServerFnError> {
         let jar = CookieJar::from_headers(&headers);
         if let Some(cookie) = jar.get(key.as_str()) {
             Ok(Some(cookie.value().to_string()))
-        } else{
+        } else {
             Ok(None)
         }
     }
@@ -95,7 +91,7 @@ pub mod wasm {
     }
 
     #[cfg(not(target_arch = "wasm32"))]
-    pub fn get(key:&CookieKey) -> Option<String> {
+    pub fn get(key: &CookieKey) -> Option<String> {
         None
     }
     #[cfg(target_arch = "wasm32")]

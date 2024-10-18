@@ -7,11 +7,11 @@ use control::Control;
 use disassembler::Disassembler;
 use memory::Memory;
 
+use crate::utils::logger::{LoggerSignal, LoggerStoreSignal};
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 use leptos_meta::Title;
-use crate::utils::logger::{LoggerStoreSignal, LoggerSignal};
 
 fn default_emu() -> Emulator<Z80> {
     let mut emu = Emulator::<Z80>::default();
