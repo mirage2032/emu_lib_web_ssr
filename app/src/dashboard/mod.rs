@@ -57,7 +57,7 @@ where {
 
 #[island]
 fn inner_dashboard() -> impl IntoView {
-    cookie::wasm::set(
+    cookie::cookieops::set(
         &CookieKey::Other("ba"),
         "dd",
         std::time::Duration::from_secs(60 * 24),

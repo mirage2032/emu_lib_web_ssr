@@ -29,7 +29,7 @@ pub struct NewSession {
     pub expires_at: SystemTime,
 }
 impl NewSession {
-    pub fn new(user_id: i32, duration: time::Duration) -> Self {
+    pub fn new(user_id: i32, duration: Duration) -> Self {
         let token = uuid::Uuid::new_v4().to_string();
         let expires_at = SystemTime::now() + duration;
         NewSession {

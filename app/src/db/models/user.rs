@@ -69,7 +69,7 @@ impl UserLogin {
     pub fn authenticate(
         &self,
         pool: &DbPool,
-        duration: time::Duration,
+        duration: std::time::Duration,
     ) -> Result<(User, Session), Box<dyn Error>> {
         let user = User::get_by_login(&self.login, pool)?;
         if password::verify_password(&self.password, &user.password_hash).is_err() {

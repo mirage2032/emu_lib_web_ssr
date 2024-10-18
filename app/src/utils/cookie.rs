@@ -1,3 +1,6 @@
+use http::header::InvalidHeaderValue;
+use thiserror::Error;
+
 pub enum CookieKey<'a> {
     Session,
     Other(&'a str),
@@ -12,19 +15,38 @@ impl<'a> CookieKey<'a> {
     }
 }
 
+#[derive(Error, Debug)]
+pub enum SetCookieError {
+    #[error("Missing ResponseOptions in context")]
+    MissingResponseOptions,
+    #[error("Invalid header value")]
+    InvalidHeaderValue(InvalidHeaderValue),
+}
+#[derive(Error, Debug)]
+pub enum RemoveCookieError {
+    #[error("Missing ResponseOptions in context")]
+    MissingResponseOptions,
+    #[error("Invalid header value")]
+    InvalidHeaderValue(InvalidHeaderValue),
+}
+
+#[derive(Error, Debug)]
+pub enum GetCookieError {
+    #[error("Missing HeaderMap in context")]
+    MissingHeaderMap,
+    #[error("Cookie not found")]
+    CookieNotFound,
+}
 #[cfg(not(target_arch = "wasm32"))]
-pub mod server {
-    use super::CookieKey;
-    use axum::extract::Request;
-    use axum::Extension;
+pub mod cookieops {
+    use super::{CookieKey, GetCookieError, RemoveCookieError, SetCookieError};
     use axum_extra::extract::cookie::{Cookie, SameSite};
     use axum_extra::extract::CookieJar;
-    use http::{header::SET_COOKIE, HeaderMap, HeaderValue, Method};
-    use leptos::prelude::ServerFnError;
-    use leptos_axum::extract;
-    use std::sync::Arc;
+    use http::{header::SET_COOKIE, HeaderMap, HeaderValue};
+    use leptos::prelude::{use_context};
+    use leptos_axum::{ResponseOptions};
 
-    fn new_cookie<'a>(key: &'a CookieKey, value: &'a str, duration: time::Duration) -> Cookie<'a> {
+    fn new_cookie<'a>(key: &'a CookieKey, value: &'a str, duration: std::time::Duration) -> Cookie<'a> {
         let cookie = Cookie::build((key.as_str(), value))
             .same_site(SameSite::Lax)
             .path("/")
@@ -36,42 +58,55 @@ pub mod server {
     pub fn set(
         key: &CookieKey,
         value: &str,
-        duration: time::Duration,
-        response: &leptos_axum::ResponseOptions,
-    ) -> Result<(), http::header::InvalidHeaderValue> {
-        let cookie = new_cookie(key, value, duration);
-        response.append_header(SET_COOKIE, HeaderValue::from_str(&cookie.to_string())?);
-        Ok(())
-    }
-
-    pub fn get<'a>(
-        key: &CookieKey<'a>,
-        headers: &HeaderMap,
-    ) -> Result<Option<String>, ServerFnError> {
-        let jar = CookieJar::from_headers(&headers);
-        if let Some(cookie) = jar.get(key.as_str()) {
-            Ok(Some(cookie.value().to_string()))
-        } else {
-            Ok(None)
+        duration: std::time::Duration,
+    ) -> Result<(), SetCookieError> {
+        if let Some(response_options) = use_context::<ResponseOptions>() {
+            let cookie = new_cookie(key, value, duration);
+            response_options.append_header(SET_COOKIE, HeaderValue::from_str(&cookie.to_string()).map_err(|err|SetCookieError::InvalidHeaderValue(err))?);
+            Ok(())
+        }
+        else {
+            Err(SetCookieError::MissingResponseOptions)
         }
     }
 
-    pub fn remove(
-        key: &CookieKey,
-        response: &leptos_axum::ResponseOptions,
-    ) -> Result<(), http::header::InvalidHeaderValue> {
-        let cookie = new_cookie(key, "", time::Duration::seconds(-60 * 24));
-        response.append_header(SET_COOKIE, HeaderValue::from_str(&cookie.to_string())?);
-        Ok(())
+    pub fn get(key: &CookieKey) -> Result<String, GetCookieError> {
+        if let Some(headers) = use_context::<HeaderMap>() {
+            let jar = CookieJar::from_headers(&headers);
+            if let Some(cookie) = jar.get(key.as_str()) {
+                Ok(cookie.value().to_string())
+            } else {
+                Err(GetCookieError::CookieNotFound)
+            }
+        }else{
+            Err(GetCookieError::MissingHeaderMap)
+        }
+    }
+
+    pub fn remove(key: &CookieKey) -> Result<(), RemoveCookieError> {
+        if let Some(response_options) = use_context::<ResponseOptions>() {
+            let cookie = new_cookie(key, "", std::time::Duration::from_secs(0));
+            response_options.append_header(SET_COOKIE, HeaderValue::from_str(&cookie.to_string()).map_err(|err|RemoveCookieError::InvalidHeaderValue(err))?);
+            Ok(())
+        }
+        else{
+            Err(RemoveCookieError::MissingResponseOptions)
+        }
     }
 }
-pub mod wasm {
-    use super::CookieKey;
+
+#[cfg(target_arch = "wasm32")]
+pub mod cookieops {
+    use http::HeaderMap;
+    use super::{CookieKey, GetCookieError, RemoveCookieError, SetCookieError};
     use wasm_cookies::cookies::CookieOptions;
     use wasm_cookies::cookies::SameSite;
 
-    #[cfg(target_arch = "wasm32")]
-    pub fn set(key: &CookieKey, value: &str, duration: std::time::Duration) {
+    pub fn set(
+        key: &CookieKey,
+        value: &str,
+        duration: std::time::Duration,
+    ) -> Result<(), SetCookieError> {
         let options = CookieOptions {
             path: Some("/"),
             domain: None,
@@ -79,25 +114,15 @@ pub mod wasm {
             secure: false,
             same_site: SameSite::Lax,
         }
-        .expires_after(duration);
+        .expires_after(duration.into());
         wasm_cookies::set(key.as_str(), value, &options);
+        Ok(())
     }
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn set(_key: &CookieKey, _value: &str, _duration: std::time::Duration) {}
-
-    #[cfg(target_arch = "wasm32")]
-    pub fn get(key: &CookieKey) -> Option<String> {
-        wasm_cookies::get_raw(key.as_str())
+    pub fn get(key: &CookieKey) -> Result<String, GetCookieError> {
+        wasm_cookies::get_raw(key.as_str()).ok_or_else(||GetCookieError::CookieNotFound)
     }
-
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn get(key: &CookieKey) -> Option<String> {
-        None
-    }
-    #[cfg(target_arch = "wasm32")]
-    pub fn remove(key: &CookieKey) {
+    pub fn remove(key: &CookieKey) -> Result<(), RemoveCookieError> {
         wasm_cookies::delete(key.as_str());
+        Ok(())
     }
-    #[cfg(not(target_arch = "wasm32"))]
-    pub fn remove(_key: &CookieKey) {}
 }
