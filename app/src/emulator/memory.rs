@@ -71,8 +71,7 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                 }
             }
         };
-        view! { <input maxlength=2 on:change=write_mem prop:value=read_mem /> }
-        .into_any()
+        view! { <input maxlength=2 on:change=write_mem prop:value=read_mem /> }.into_any()
     } else {
         view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
     }
@@ -117,7 +116,7 @@ pub fn Memory() -> impl IntoView {
     }
     if use_context::<RwSignal<MemoryStart>>().is_none() {
         let start = MemoryStart { start: 0 };
-        provide_context(start);
+        provide_context(RwSignal::new(start));
     }
     view! {
         <table>

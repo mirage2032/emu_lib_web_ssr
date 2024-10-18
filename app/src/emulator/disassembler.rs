@@ -3,24 +3,24 @@ use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 
 #[derive(Clone, Copy, Debug)]
-pub enum DisassemblerDisplayMode{
+pub enum DisassemblerDisplayMode {
     String,
-    Bytes
+    Bytes,
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct DisassemblerContext {
     pub start: Option<u16>,
     pub rows: u16,
-    pub display_mode: DisassemblerDisplayMode
+    pub display_mode: DisassemblerDisplayMode,
 }
 
-impl Default for DisassemblerContext{
+impl Default for DisassemblerContext {
     fn default() -> Self {
         DisassemblerContext {
             start: None,
             rows: 16,
-            display_mode: DisassemblerDisplayMode::String
+            display_mode: DisassemblerDisplayMode::String,
         }
     }
 }
@@ -38,46 +38,47 @@ pub fn DisassemblerTHead() -> impl IntoView {
     }
 }
 
-// #[island]
-// pub fn DisassemblerTRow(address: usize) -> impl IntoView {
-//     let ctx = expect_context::<RwSignal<DisassemblerContext>>();
-//     let emu = expect_context::<RwSignal<Emulator<Z80>>>();
-//     let instruction = move || {
-//             "DADA".to_string()
-//         // if address > (u16::MAX as usize) {
-//         //     return "N/A".to_string();
-//         // }
-//         // emu.with(|emu| {
-//         //     let pc = emu.cpu.registers.pc;
-//         //     let instruction_opt = Z80Parser::from_memdev(&emu.memory, pc);
-//         //     match instruction_opt {
-//         //         Ok(instruction) => {
-//         //             match ctx.with(|ctx|ctx.display_mode) {
-//         //                 DisassemblerDisplayMode::String => instruction.to_string(),
-//         //                 DisassemblerDisplayMode::Bytes => {
-//         //                     instruction.to_bytes().iter().map(|b| format!("{:02X}",b)).collect::<Vec<_>>().join(" ")
-//         //                 }
-//         //             }
-//         //         },
-//         //         Err(err) => err,
-//         //     }
-//         // })
-//     };
-//     view! {
-//         <tr>
-//             <th>{move || format!("{:04X}", address)}</th>
-//             <td>X</td>
-//             <td>{instruction}</td>
-//         </tr>
-//     }
-// }
+#[island]
+pub fn DisassemblerTRow(address: usize) -> impl IntoView {
+    let ctx = expect_context::<RwSignal<DisassemblerContext>>();
+    let emu = expect_context::<RwSignal<Emulator<Z80>>>();
+    let instruction = move || {
+        // "N/A".to_string()
+        if address > (u16::MAX as usize) {
+            return "N/A".to_string();
+        }
+        emu.with(|emu| {
+            let pc = emu.cpu.registers.pc;
+            let instruction_opt = Z80Parser::from_memdev(&emu.memory, pc);
+            match instruction_opt {
+                Ok(instruction) => match ctx.with(|ctx| ctx.display_mode) {
+                    DisassemblerDisplayMode::String => instruction.to_string(),
+                    DisassemblerDisplayMode::Bytes => instruction
+                        .to_bytes()
+                        .iter()
+                        .map(|b| format!("{:02X}", b))
+                        .collect::<Vec<_>>()
+                        .join(" "),
+                },
+                Err(err) => err,
+            }
+        })
+    };
+    view! {
+        <tr>
+            <th>{move || format!("{:04X}", address)}</th>
+            <td>X</td>
+            <td>{instruction}</td>
+        </tr>
+    }
+}
 
 #[island]
 pub fn DisassemblerTBody() -> impl IntoView {
     let ctx = expect_context::<RwSignal<DisassemblerContext>>();
     let emu = expect_context::<RwSignal<Emulator<Z80>>>();
-    let start = move || ctx.with(|ctx|ctx.start.unwrap_or(emu.with(|emu| emu.cpu.registers.pc)));
-    let rows = move || ctx.with(|ctx|ctx.rows);
+    let start = move || ctx.with(|ctx| ctx.start.unwrap_or(emu.with(|emu| emu.cpu.registers.pc)));
+    let rows = move || ctx.with(|ctx| ctx.rows);
     view! {
         <tbody>
             <For
@@ -85,8 +86,7 @@ pub fn DisassemblerTBody() -> impl IntoView {
                 key=|n| *n
                 let:address
             >
-        {address}
-                // <TRow address />
+                <DisassemblerTRow address />
             </For>
         </tbody>
     }
@@ -99,8 +99,8 @@ pub fn Disassembler() -> impl IntoView {
     }
     view! {
         <table>
-            // <DisassemblerTHead />
-            // <DisassemblerTBody />
+            <DisassemblerTHead />
+            <DisassemblerTBody />
         </table>
     }
 }
