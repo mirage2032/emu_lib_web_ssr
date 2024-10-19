@@ -57,11 +57,7 @@ where {
 
 #[island]
 fn inner_dashboard() -> impl IntoView {
-    cookie::cookieops::set(
-        &CookieKey::Other("ba"),
-        "dd",
-        std::time::Duration::from_secs(60 * 24),
-    );
+    
     let test_action = Action::new(|&()| async move {
         todo!();
     });

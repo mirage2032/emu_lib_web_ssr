@@ -19,7 +19,7 @@ chrono = {version="0.4.38", features = ["serde"]}
 leptos.workspace = true
 leptos_meta.workspace = true
 leptos_router.workspace = true
-leptos-use = "0.14.0-gamma1"
+#leptos-use = "0.14.0-gamma2"
 leptos_axum = { workspace = true, optional = true }
 
 wasm-cookies = "0.2.1"

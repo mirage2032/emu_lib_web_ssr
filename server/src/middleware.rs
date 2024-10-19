@@ -14,7 +14,7 @@ pub async fn auth_middleware(
     next: Next,
 ) -> Result<Response, StatusCode> {
     let pool = app_state.pool;
-    if let Ok(session_token) = cookie::cookieops::get(&CookieKey::Session) {
+    if let Some(session_token) = cookie::server::get(&CookieKey::Session,&req.headers()) {
         if let Ok(session) = Session::get_by_token(&session_token, &pool) {
             if !session.is_expired() {
                 if let Ok(user) = User::get_by_id(session.user_id, &pool) {

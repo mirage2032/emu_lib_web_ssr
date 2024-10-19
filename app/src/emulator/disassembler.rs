@@ -2,6 +2,7 @@ use emu_lib::cpu::z80::{parser::Z80Parser, Z80};
 use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 
+
 #[derive(Clone, Copy, Debug)]
 pub enum DisassemblerDisplayMode {
     String,
@@ -97,8 +98,10 @@ pub fn Disassembler() -> impl IntoView {
         let ctx = RwSignal::new(DisassemblerContext::default());
         provide_context(ctx);
     }
+    
     view! {
-        <table>
+        <table
+        >
             <DisassemblerTHead />
             <DisassemblerTBody />
         </table>
