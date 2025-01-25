@@ -32,7 +32,7 @@ pub fn EmulatorNoTitle() -> impl IntoView {
     view! {
         <Control />
         <Memory />
-        <Disassembler />
+        // <Disassembler />
     }
 }
 #[component]
