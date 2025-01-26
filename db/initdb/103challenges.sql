@@ -3,7 +3,7 @@ CREATE TABLE challenges
     id SERIAL PRIMARY KEY,
     owner_id INTEGER REFERENCES users(id),
     requirements BYTEA,
-    needs_review BOOLEAN NOT NULL DEFAULT FALSE,
+    needs_review BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TABLE solutions

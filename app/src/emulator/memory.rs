@@ -5,6 +5,7 @@ use leptos::ev::Event;
 use leptos::prelude::*;
 use leptos::IntoView;
 use serde::{Deserialize, Serialize};
+use leptos::logging::log;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct MemoryShape {

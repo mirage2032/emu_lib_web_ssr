@@ -1,5 +1,6 @@
 use http::HeaderMap;
 use leptos::prelude::*;
+use leptos::logging::log;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {

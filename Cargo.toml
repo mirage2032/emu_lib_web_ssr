@@ -9,11 +9,12 @@ lto = true
 opt-level = 'z'
 
 [workspace.dependencies]
-leptos = { git = "https://github.com/leptos-rs/leptos", features = ["nightly","experimental-islands"] }
+stylance = { version="0.5.4", features = ["nightly"] }
+leptos = { git = "https://github.com/leptos-rs/leptos", features = ["nightly","islands"] }
 leptos_meta = { git = "https://github.com/leptos-rs/leptos" }
 leptos_router = { git = "https://github.com/leptos-rs/leptos", features = ["nightly"] }
 leptos_axum = { git = "https://github.com/leptos-rs/leptos" }
-
+wasm-bindgen = "0.2.100"
 axum = { version="0.7.6",features=["macros"] }
 reqwest = { version="0.12.8",features = ["json"] }
 cfg-if = "1"
@@ -24,10 +25,9 @@ log = "0.4.20"
 simple_logger = "4.2.0"
 thiserror = "1"
 tokio = { version = "1.33.0" }
-tower = { version = "0.4.13", features = ["full"] }
-tower-http = { version = "0.5", features = ["full"] }
-wasm-bindgen = "=0.2.93"
-axum-extra = {version = "0.9.3", features = ["cookie","typed-header"] }
+tower = { version = "0.5.2", features = ["full"] }
+tower-http = { version = "0.6.2", features = ["full"] }
+axum-extra = {version = "0.10.0", features = ["cookie","typed-header"] }
 
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 
@@ -76,7 +76,7 @@ browserquery = "defaults"
 
 # Set by cargo-leptos watch when building with that tool. Controls whether autoreload JS will be included in the head
 watch = false
-watch-additional-files = ["style", "app/src"]
+#watch-additional-files = ["style"]
 
 # The environment Leptos will run in, usually either "DEV" or "PROD"
 env = "DEV"

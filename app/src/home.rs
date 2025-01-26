@@ -7,8 +7,7 @@ stylance::import_style!(style, "./home.module.scss");
 pub fn HomePage() -> impl IntoView {
     provide_meta_context();
     view! {
-        <head
-        >
+        <head>
             <Title text="Home" />
         </head>
         <div class=style::maincontainer>

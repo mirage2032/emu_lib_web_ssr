@@ -1,4 +1,6 @@
+use emu_lib::cpu::instruction::InstructionParser;
 use emu_lib::cpu::z80::{parser::Z80Parser, Z80};
+use emu_lib::cpu::z80::parser::Z80_PARSER;
 use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 
@@ -50,7 +52,7 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
         }
         emu.with(|emu| {
             let pc = emu.cpu.registers.pc;
-            let instruction_opt = Z80Parser::from_memdev(&emu.memory, pc);
+            let instruction_opt = Z80_PARSER.ins_from_machinecode(&emu.memory, pc);
             match instruction_opt {
                 Ok(instruction) => match ctx.with(|ctx| ctx.display_mode) {
                     DisassemblerDisplayMode::String => instruction.to_string(),
@@ -61,7 +63,7 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
                         .collect::<Vec<_>>()
                         .join(" "),
                 },
-                Err(err) => err,
+                Err(err) => " ".to_string(),
             }
         })
     };

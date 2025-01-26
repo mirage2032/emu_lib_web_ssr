@@ -9,6 +9,9 @@ use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::SystemTime;
+use emu_lib::cpu::instruction::InstructionParser;
+use emu_lib::cpu::z80::parser::Z80_PARSER;
+
 #[cfg_attr(not(target_arch = "wasm32"), derive(Queryable))]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Program {
@@ -41,18 +44,17 @@ pub struct ProgramError {
 
 impl NewProgram {
     fn compile_check(program: &str) -> Result<(), Vec<ProgramError>> {
-        use emu_lib::cpu::z80::parser::Z80Parser;
         let mut errors = vec![];
         for (line_number, line) in program.lines().enumerate() {
             if line.is_empty() {
                 continue;
             };
-            if let Err(error) = Z80Parser::from_string(line) {
+            if let Err(error) = Z80_PARSER.ins_from_asm_string(line) {
                 errors.push({
                     ProgramError {
                         line: line.to_string(),
                         line_number,
-                        error,
+                        error: error.to_string(),
                     }
                 });
             }

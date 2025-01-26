@@ -1,6 +1,5 @@
-@use "emu_lib_ui/stylance" as emu_lib_ui;
-@use "stylance";
 @use "colors" as *;
+@use "stylance/stylance";
 @import "https://necolas.github.io/normalize.css/8.0.1/normalize.css";
 
 * {

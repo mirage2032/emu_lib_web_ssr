@@ -2,7 +2,7 @@
 # will have compiled files and executables
 /target/
 pkg
-style/**/stylance
+style/stylance
 db/data
 Cargo.lock
 .idea

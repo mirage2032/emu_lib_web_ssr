@@ -7,7 +7,7 @@ use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
 use std::time::Duration;
 use stylance::classes;
-
+use leptos::logging::log;
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
@@ -124,7 +124,7 @@ fn LoadButton() -> impl IntoView {
                                     Ok(data) => {
                                         emu_signal
                                             .update(|emu| {
-                                                if let Err(err) = emu.memory.load(&data) {
+                                                if let Err(err) = emu.memory.load(&data,true) {
                                                     log!("Emulator load error: {:?}",err);
                                                 }
                                             })
