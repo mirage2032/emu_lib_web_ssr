@@ -22,8 +22,8 @@
 
   // Add a gradient overlay using ::before pseudo-element
   &::before {
-    --progress: -20%; /* Set the initial value */
-    animation: moveProgress 2.75s linear infinite; /* Apply animation */
+    --progress: 30%; /* Set the initial value */
+    animation: moveBefore 2.75s linear infinite alternate; /* Apply animation */
     content: '';
     position: absolute;
     z-index: -1; /* Ensure the overlay is above the background */
@@ -44,8 +44,8 @@
     mask-position: center; /* Aligns the mask to the center like the image */
   }
   &::after {
-    --progress: -20%; /* Set the initial value */
-    animation: moveProgress 5.23s linear infinite; /* Apply animation */
+    --progress: 50%; /* Set the initial value */
+    animation: moveAfter 5.23s linear infinite; /* Apply animation */
     content: '';
     position: absolute;
     z-index: -2; /* Ensure the overlay is above the background */
@@ -65,22 +65,55 @@
     mask-image: url("/images/circuit_borderless.png");
     mask-position: center; /* Aligns the mask to the center like the image */
   }
+}
 
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
   h1 {
     color: $color-2;
     font-size: 6rem;
+    -webkit-animation: glow 1s ease-in-out infinite alternate;
+    -moz-animation: glow 1s ease-in-out infinite alternate;
+    animation: glow 1s ease-in-out infinite alternate;
+  }
 
-    span {
-      color: $color-3;
+  @-webkit-keyframes glow {
+    from {
+      text-shadow: 0 0 2px #fff, 0 0 5px #FDC300, 0 0 10px #FDC300;// 0 0 40px #FDC300; 0 0 50px #FDC300, 0 0 60px #FDC300, 0 0 70px #FDC300;
     }
+    to {
+      text-shadow: 0 0 2px #fff, 0 0 5px #ADBBCC, 0 0 10px #ADBBCC;// 0 0 40px #ADBBCC; 0 0 50px #ADBBCC, 0 0 60px #ADBBCC, 0 0 70px #ADBBCC;
+    }
+  }
+  span {
+    color: $color-3;
+    font-size: 6rem;
   }
 }
 
-@keyframes moveProgress {
+@keyframes moveBefore {
   0% {
     --progress: -20%;
   }
-  50% {
+  20% {
+    --progress:  -20%;
+  }
+  80% {
+    --progress:  120%;
+  }
+  100% {
+    --progress:  120%;
+  }
+}
+
+@keyframes moveAfter {
+  0% {
+    --progress: -20%;
+  }
+  80% {
     --progress:  120%;
   }
   100% {
