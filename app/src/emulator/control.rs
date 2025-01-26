@@ -1,13 +1,17 @@
 use emu_lib::cpu::z80::Z80;
 use emu_lib::cpu::Cpu;
 use emu_lib::emulator::Emulator;
-use gloo::file::callbacks::read_as_bytes;
-use gloo::file::File;
+use leptos::html::Input;
+use leptos::logging::log;
 use leptos::prelude::*;
-use leptos::web_sys::HtmlInputElement;
+use leptos::task::spawn_local;
+use leptos::wasm_bindgen::closure::Closure;
+use leptos::wasm_bindgen::JsCast;
+use leptos::web_sys;
+use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use stylance::classes;
-use leptos::logging::log;
+
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
@@ -15,6 +19,7 @@ fn StepButton() -> impl IntoView {
     view! {
         <input
             type="button"
+            value="Step"
             class=BTN_CLASS
             on:click=move |_| {
                 emu_signal
@@ -66,6 +71,7 @@ fn RunButton() -> impl IntoView {
     view! {
         <input
             type="button"
+            value="Run"
             class=move || {
                 classes!(BTN_CLASS,handle_sig.with(|&opt|if opt.is_some() {"active"} else {""}))
             }
@@ -80,6 +86,7 @@ fn HaltButton() -> impl IntoView {
     view! {
         <input
             type="button"
+            value="Halt"
             class=move || {
                 classes!(BTN_CLASS,if emu_signal.with(|emu|emu.cpu.halted()) {"active"} else {""})
             }
@@ -99,6 +106,7 @@ fn ResetButton() -> impl IntoView {
     view! {
         <input
             type="button"
+            value="Reset"
             class=BTN_CLASS
             on:click=move |_| emu_signal.update(|emu| { emu.cpu = Z80::default() })
         />
@@ -110,29 +118,30 @@ fn LoadButton() -> impl IntoView {
     let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
     view! {
         <input
-            type="file"
+            value="Load"
             class=BTN_CLASS
+            type="file"
             on:change=move |ev| {
-                let input: HtmlInputElement = event_target(&ev);
-                if let Some(files) = input.files() {
-                    if let Some(file) = files.get(0) {
-                        let file = File::from(file);
-                        read_as_bytes(
-                            &file,
-                            move |res| {
-                                match res {
-                                    Ok(data) => {
-                                        emu_signal
-                                            .update(|emu| {
-                                                if let Err(err) = emu.memory.load(&data,true) {
-                                                    log!("Emulator load error: {:?}",err);
-                                                }
-                                            })
-                                    }
-                                    Err(err) => log!("File read error: {}",err),
-                                }
-                            },
-                        );
+                if let Some(target) = ev.target() {
+                    if let Some(files) = target.unchecked_ref::<HtmlInputElement>().files() {
+                        if let Some(file) = files.get(0) {
+                            let emu_signal = emu_signal.clone();
+                            spawn_local(async move {
+                                let value = wasm_bindgen_futures::JsFuture::from(
+                                        file.array_buffer(),
+                                    )
+                                    .await
+                                    .expect("Error reading file");
+                                let array = js_sys::Uint8Array::new(&value);
+                                let data = array.to_vec();
+                                emu_signal
+                                    .update(|emu| {
+                                        if let Ok(_) = emu.memory.load(&data, true) {
+                                            log!("Loaded file");
+                                        }
+                                    });
+                            });
+                        }
                     }
                 }
             }

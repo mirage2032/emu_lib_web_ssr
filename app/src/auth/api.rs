@@ -1,6 +1,6 @@
 use http::HeaderMap;
-use leptos::prelude::*;
 use leptos::logging::log;
+use leptos::prelude::*;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
@@ -22,12 +22,12 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     let user_login = UserLogin::new(login, password);
     match user_login.authenticate(&pool, duration) {
         Ok((_, session)) => {
-            cookie::server::set(&CookieKey::Session, &session.token, duration,&response)?;
+            cookie::server::set(&CookieKey::Session, &session.token, duration, &response)?;
             // leptos_axum::redirect("/");
             Ok(())
         }
         Err(e) => {
-            cookie::server::remove(&CookieKey::Session,&response)?;
+            cookie::server::remove(&CookieKey::Session, &response)?;
             response.set_status(StatusCode::UNAUTHORIZED);
             let msg = format!("Failed to login user: {}", e);
             Err(ServerFnError::Response(msg))
@@ -63,15 +63,15 @@ pub async fn login_exists(login: String) -> Result<bool, ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
     // sleep(Duration::from_millis(3000));
-    let headers : HeaderMap = extract().await?;
+    let headers: HeaderMap = extract().await?;
 
-    let res = match cookie::server::get(&CookieKey::Session,&headers) {
+    let res = match cookie::server::get(&CookieKey::Session, &headers) {
         Some(val) => {
             format!("{}", val)
         }
-        _ =>"No cookie".to_string()
+        _ => "No cookie".to_string(),
     };
-    log!("log:{}",res);
+    log!("log:{}", res);
     // println!("print:{}",res);
     let pool = &state.pool;
     match User::get_by_login(&login, &pool) {

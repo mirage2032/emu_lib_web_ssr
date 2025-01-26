@@ -6,11 +6,11 @@ use crate::db::DbPool;
 use diesel::prelude::*;
 #[cfg(not(target_arch = "wasm32"))]
 use diesel::{Insertable, Queryable};
+use emu_lib::cpu::instruction::InstructionParser;
+use emu_lib::cpu::z80::parser::Z80_PARSER;
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use std::time::SystemTime;
-use emu_lib::cpu::instruction::InstructionParser;
-use emu_lib::cpu::z80::parser::Z80_PARSER;
 
 #[cfg_attr(not(target_arch = "wasm32"), derive(Queryable))]
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

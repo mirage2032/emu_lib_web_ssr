@@ -44,7 +44,7 @@ mod server_imports {
 //         }
 //     }
 // }
-// 
+//
 // #[server(DeleteProgramApi, endpoint = "/program/delete")]
 // pub async fn delete_program(program_id: i32) -> Result<(), ServerFnError> {
 //     use server_imports::*;

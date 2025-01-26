@@ -57,7 +57,6 @@ where {
 
 #[island]
 fn inner_dashboard() -> impl IntoView {
-    
     let test_action = Action::new(|&()| async move {
         todo!();
     });

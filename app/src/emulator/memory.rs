@@ -2,10 +2,10 @@ use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
+use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::IntoView;
 use serde::{Deserialize, Serialize};
-use leptos::logging::log;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct MemoryShape {
@@ -72,7 +72,8 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                 }
             }
         };
-        view! { <input maxlength=2 style:width="3ch" on:change=write_mem prop:value=read_mem /> }.into_any()
+        view! { <input maxlength=2 style:width="3ch" on:change=write_mem prop:value=read_mem /> }
+            .into_any()
     } else {
         view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
     }

@@ -39,10 +39,7 @@ pub mod server {
         Ok(())
     }
 
-    pub fn get<'a>(
-        key: &CookieKey<'a>,
-        headers: &HeaderMap,
-    ) -> Option<String> {
+    pub fn get<'a>(key: &CookieKey<'a>, headers: &HeaderMap) -> Option<String> {
         let jar = CookieJar::from_headers(&headers);
         if let Some(cookie) = jar.get(key.as_str()) {
             Some(cookie.value().to_string())
@@ -64,7 +61,7 @@ pub mod server {
 //     use super::CookieKey;
 //     use wasm_cookies::cookies::CookieOptions;
 //     use wasm_cookies::cookies::SameSite;
-// 
+//
 //     #[cfg(target_arch = "wasm32")]
 //     pub fn set(key: &CookieKey, value: &str, duration: time::Duration) {
 //         let options = CookieOptions {
@@ -79,12 +76,12 @@ pub mod server {
 //     }
 //     #[cfg(not(target_arch = "wasm32"))]
 //     pub fn set(_key: &CookieKey, _value: &str, _duration: time::Duration) {}
-// 
+//
 //     #[cfg(target_arch = "wasm32")]
 //     pub fn get(key: &CookieKey) -> Option<String> {
 //         wasm_cookies::get_raw(key.as_str())
 //     }
-// 
+//
 //     #[cfg(not(target_arch = "wasm32"))]
 //     pub fn get(key: &CookieKey) -> Option<String> {
 //         None
