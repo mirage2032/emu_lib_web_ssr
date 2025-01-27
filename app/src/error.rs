@@ -26,7 +26,7 @@ impl AppError {
 }
 #[component]
 pub fn Error(#[prop(optional)] code: Option<i32>, message: String) -> impl IntoView {
-    provide_meta_context();
+    // provide_meta_context();
     view! {
         <Title text="Error" />
         <div class=style::errorcontainer>

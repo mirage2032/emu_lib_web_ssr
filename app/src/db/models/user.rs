@@ -71,13 +71,16 @@ impl UserLogin {
         pool: &DbPool,
         duration: time::Duration,
     ) -> Result<(User, Session), Box<dyn Error>> {
-        let user = User::get_by_login(&self.login, pool)?;
-        if password::verify_password(&self.password, &user.password_hash).is_err() {
-            return Err("Invalid password".into());
+        if let Some(user) = User::get_by_login(&self.login, pool)? {
+            if password::verify_password(&self.password, &user.password_hash).is_err() {
+                return Err("Invalid password".into());
+            }
+            let new_session = NewSession::new(user.id, duration);
+            let session = Session::create(new_session, pool)?;
+            Ok((user, session))
+        }else{
+            Err("User not found".into())
         }
-        let new_session = NewSession::new(user.id, duration);
-        let session = Session::create(new_session, pool)?;
-        Ok((user, session))
     }
 }
 
@@ -134,12 +137,14 @@ impl User {
         Ok(user)
     }
 
-    pub fn get_by_login(login: &str, pool: &DbPool) -> Result<User, Box<dyn Error>> {
+    pub fn get_by_login(login: &str, pool: &DbPool) -> Result<Option<User>, Box<dyn Error>> {
         let mut conn = pool.get()?;
-        let user = dsl::users
+        match dsl::users
             .filter(dsl::username.eq(login).or(dsl::email.eq(login)))
-            .first(&mut conn)?;
-        Ok(user)
+            .first(&mut conn){
+            Ok(user) => Ok(Some(user)),
+            Err(_) => Ok(None),
+        }
     }
 
     pub fn delete(&self, pool: &DbPool) -> Result<(), Box<dyn Error>> {

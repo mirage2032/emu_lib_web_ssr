@@ -40,10 +40,8 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
 pub fn App() -> impl IntoView {
     provide_meta_context();
     view! {
-        <head>
-            <Title formatter=|text| format!("Z80Emu - {}", text) />
+        <Title formatter=|text| format!("Z80Emu - {}", text) />
         // <Stylesheet id="app" href="/pkg/app.css" />
-        </head>
         <main>
             <Router>
                 <Routes fallback=|| error::AppError::NotFound.into_view()>

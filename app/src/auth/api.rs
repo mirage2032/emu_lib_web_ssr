@@ -63,20 +63,21 @@ pub async fn login_exists(login: String) -> Result<bool, ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
     // sleep(Duration::from_millis(3000));
-    let headers: HeaderMap = extract().await?;
-
-    let res = match cookie::server::get(&CookieKey::Session, &headers) {
-        Some(val) => {
-            format!("{}", val)
-        }
-        _ => "No cookie".to_string(),
-    };
-    log!("log:{}", res);
+    // let headers: HeaderMap = extract().await?;
+    // check user session cookie
+    // let res = match cookie::server::get(&CookieKey::Session, &headers) {
+    //     Some(val) => {
+    //         format!("{}", val)
+    //     }
+    //     _ => "No cookie".to_string(),
+    // };
+    // log!("log:{}", res);
     // println!("print:{}",res);
     let pool = &state.pool;
     match User::get_by_login(&login, &pool) {
-        Ok(_) => Ok(true),
-        Err(_) => Ok(false),
+        Ok(Some(_)) => Ok(true),
+        Ok(None) => Ok(false),
+        Err(err) => Err(ServerFnError::Response(format!("Failed to check login: {}", err))),
     }
 }
 

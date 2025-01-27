@@ -55,7 +55,7 @@ async fn main() {
                 move || shell(leptos_options.clone())
             },
         )
-        .fallback(file_and_error_handler)
+        .fallback(leptos_axum::file_and_error_handler(shell))
         .layer(from_fn_with_state(
             state.clone(),
             middleware::auth_middleware,
