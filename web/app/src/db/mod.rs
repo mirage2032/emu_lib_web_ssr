@@ -11,7 +11,7 @@ pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
 #[cfg(not(target_arch = "wasm32"))]
 pub async fn establish_connection() -> DbPool {
-    let manager = ConnectionManager::<PgConnection>::new("postgres://user:pass@localhost/emu_web");
+    let manager = ConnectionManager::<PgConnection>::new("postgres://user:pass@db-container/emu_web");
     r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.")

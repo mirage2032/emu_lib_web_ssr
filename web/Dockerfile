@@ -22,4 +22,4 @@ RUN cargo leptos build --release
 EXPOSE 3000
 
 # Run
-CMD ["cargo", "run", "--release"]
+CMD ["cargo", "leptos", "serve", "--release"]
