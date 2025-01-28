@@ -2,7 +2,7 @@ FROM ubuntu:latest
 RUN apt update && apt upgrade -y
 
 # Install Dependencies
-RUN apt install -y build-essential libssl-dev libcrypt-dev postgresql
+RUN apt install -y curl gcc libssl-dev libcrypt-dev libpq-dev pkg-config
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 ENV PATH=/root/.cargo/bin:$PATH
 RUN rustup target add wasm32-unknown-unknown
