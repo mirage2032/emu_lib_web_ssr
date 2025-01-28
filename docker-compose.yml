@@ -4,10 +4,12 @@ services:
     build:
       context: ./db
       dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: emu_web
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_TZ: Europe/Bucharest
     volumes:
       - ./db/initdb:/docker-entrypoint-initdb.d
@@ -16,6 +18,10 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db-container
     ports:
         - "3000:3000"
     depends_on:
