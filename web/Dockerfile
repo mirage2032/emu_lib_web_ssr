@@ -12,16 +12,7 @@ RUN cargo install stylance-cli cargo-leptos wasm-bindgen-cli
 WORKDIR /app
 
 # Copy essential files
-COPY app ./app
-COPY frontend ./frontend
-COPY server ./server
-COPY public ./public
-COPY style ./style
-COPY .env ./.env
-COPY Cargo.toml ./Cargo.toml
-COPY diesel.toml ./diesel.toml
-COPY run_stylance.sh ./run_stylance.sh
-COPY rust-toolchain.toml ./rust-toolchain.toml
+COPY . .
 
 # Build
 RUN stylance app
