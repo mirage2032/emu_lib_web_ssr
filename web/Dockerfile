@@ -9,17 +9,17 @@ RUN rustup target add wasm32-unknown-unknown
 RUN cargo install stylance-cli cargo-leptos wasm-bindgen-cli
 
 # Set Working Directory
-WORKDIR /app
+WORKDIR /web
 
 # Copy essential files
-COPY . .
+#COPY . .
 
 # Build
-RUN stylance app
-RUN cargo leptos build --release
+#RUN stylance app
+#RUN cargo leptos build --release
 
 # Expose Port
 EXPOSE 3000
 
 # Run
-CMD ["cargo", "leptos", "serve", "--release"]
+CMD sh -c "./run_stylance.sh & cargo leptos watch"

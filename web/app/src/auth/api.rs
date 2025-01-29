@@ -97,6 +97,7 @@ pub async fn register(
             Err(e) => {
                 response.set_status(StatusCode::BAD_REQUEST);
                 let msg = format!("Failed to register user: {}", e);
+                leptos::logging::log!("{}",msg);
                 Err(ServerFnError::Response(msg))
             }
         },

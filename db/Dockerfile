@@ -1,7 +1,7 @@
-FROM postgres:latest
+FROM postgres:17
 # Install Dependencies
 RUN apt-get -y update && \
-    apt-get -y install postgresql-contrib postgresql-plperl-16 make
+    apt-get -y install postgresql-contrib postgresql-plperl-17 make
 
 # Install cpan
 RUN echo y | cpan

@@ -44,7 +44,7 @@ pub fn App() -> impl IntoView {
         // <Stylesheet id="app" href="/pkg/app.css" />
         <main>
             <Router>
-                <Routes fallback=|| error::AppError::NotFound.into_view()>
+                <Routes fallback=error::NotFound>
                     // <ParentRoute
                     // path=StaticSegment("emulator")
                     // view=|| {

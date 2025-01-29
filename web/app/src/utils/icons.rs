@@ -3,7 +3,9 @@ use leptos_meta::Stylesheet;
 
 #[component]
 pub fn IconsCDN() -> impl IntoView {
-    view! { <Stylesheet href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" /> }
+    view! { 
+        <Stylesheet href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" />
+    }
 }
 
 #[component]
