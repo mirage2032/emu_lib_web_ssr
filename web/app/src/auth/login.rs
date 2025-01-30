@@ -1,8 +1,13 @@
+use std::time::Duration;
+use leptos::logging::log;
 use super::api::{LoginApi, LoginExistsApi};
 use super::auth_style;
 use crate::header::SimpleHeader;
 use leptos::prelude::*;
 use leptos_meta::Title;
+use serde_json::to_string;
+use stylance::classes;
+use super::AuthBackground;
 
 #[island]
 pub fn LoginForm() -> impl IntoView {
@@ -63,16 +68,20 @@ pub fn LoginForm() -> impl IntoView {
         </ActionForm>
     }
 }
-
 #[component]
 pub fn Login() -> impl IntoView {
     view! {
         <Title text="Login" />
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Login".to_string() />
-            <main>
-                <LoginForm />
-            </main>
+            <div class=auth_style::authmaincontainer>
+                        // <div class=auth_style::authbgline>
+                            <AuthBackground />
+                        // </div>
+                <main>
+                    <LoginForm />
+                </main>
+            </div>
         </div>
     }
 }

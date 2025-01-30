@@ -1,5 +1,4 @@
 //@use "../colors" as *;
-
 .authcontainer {
   display: flex;
   flex-direction: column;
@@ -7,93 +6,142 @@
   justify-content: center;
   height: 100%;
   width: 100vw;
-  background-color: $color-bg;
-
-  main {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  //background-color: $color-bg;
+  //z-index: 0;
+  .authmaincontainer {
+    position: relative;
+    height: 100%;
     width: 100%;
+    overflow: hidden;
 
-    form {
+    .authbg{
+      content: '';
+      position: absolute;
+      //background-color: $color-2;
+      z-index: -3;
+      top:0;
+      left:0;
+      height:100%;
+      width:100%;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      flex-wrap: wrap;
+      .instruction {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        //width: 20rem;
+        padding: 1rem;
+        text-align: center;
+        color: rgba(173, 187, 204, 0.2);
+        //font-size: 2.2rem;
+        font-size: 2vw;
+        font-weight: 700;
+        font-family: "Courier Prime", serif;
+        transition: color 0.5s;
+        //border: 1px solid $color-3;
+        &.active {
+          color: #FDC3007C;
+          transition: color 0.2s;
+        }
+      }
+    }
+
+    main {
+      z-index: 10;
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
-      width: 50%;
-      max-width: 45rem;
-      min-width: 20rem;
-      margin: 1rem;
-      background-color: $color-3;
-      border-radius: 1rem;
+      width: 100%;
+      height: 100%;
 
-      div {
+      form {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        width: 70%;
-        margin: 0.5rem 0;
-        input {
-          width: 100%;
-          padding: 0.5rem;
-          margin: 0.5rem;
-          border: 2px solid $color-bg;
-          border-radius: 1rem;
-          font-size: 1rem;
-          transition: background-color 0.5s;
-          &:focus {
-            outline:none;
+        padding: 1rem;
+        width: 50%;
+        max-width: 45rem;
+        min-width: 20rem;
+        margin: 1rem;
+        background-color: $color-3;
+        border-radius: 1rem;
 
-          }
-          &:global(.valid) {
-            background-color: #30bd1a;
-            &:-webkit-autofill,
-            &:-webkit-autofill:hover,
-            &:-webkit-autofill:focus,
-            &:-webkit-autofill:active {
-              -webkit-box-shadow: 0 0 0 30px #30bd1a inset !important;
+        div {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 70%;
+          margin: 0.5rem 0;
+
+          input {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 0.5rem;
+            border: 2px solid $color-bg;
+            border-radius: 1rem;
+            font-size: 1rem;
+            transition: background-color 0.5s;
+
+            &:focus {
+              outline: none;
+
             }
-          }
 
-          &:global(.warning) {
-            background-color: #c8c514;
-            &:-webkit-autofill,
-            &:-webkit-autofill:hover,
-            &:-webkit-autofill:focus,
-            &:-webkit-autofill:active {
-              -webkit-box-shadow: 0 0 0 30px #c8c514 inset !important;
+            &:global(.valid) {
+              background-color: #30bd1a;
+
+              &:-webkit-autofill,
+              &:-webkit-autofill:hover,
+              &:-webkit-autofill:focus,
+              &:-webkit-autofill:active {
+                -webkit-box-shadow: 0 0 0 30px #30bd1a inset !important;
+              }
             }
-          }
 
-          &:global(.invalid) {
-            background-color: #ca3f25;
-            &:-webkit-autofill,
-            &:-webkit-autofill:hover,
-            &:-webkit-autofill:focus,
-            &:-webkit-autofill:active {
-              -webkit-box-shadow: 0 0 0 30px #ca3f25 inset !important;
+            &:global(.warning) {
+              background-color: #c8c514;
+
+              &:-webkit-autofill,
+              &:-webkit-autofill:hover,
+              &:-webkit-autofill:focus,
+              &:-webkit-autofill:active {
+                -webkit-box-shadow: 0 0 0 30px #c8c514 inset !important;
+              }
+            }
+
+            &:global(.invalid) {
+              background-color: #ca3f25;
+
+              &:-webkit-autofill,
+              &:-webkit-autofill:hover,
+              &:-webkit-autofill:focus,
+              &:-webkit-autofill:active {
+                -webkit-box-shadow: 0 0 0 30px #ca3f25 inset !important;
+              }
             }
           }
         }
-      }
 
-      input[type="submit"] {
-        background-color: $color-bg;
-        color: $color-3;
-        font-size: 1.5rem;
-        padding: 0.5rem 1rem;
-        margin: 0.5rem;
-        border: none;
-        border-radius: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s;
-        font-weight: 700;
+        input[type="submit"] {
+          background-color: $color-bg;
+          color: $color-3;
+          font-size: 1.5rem;
+          padding: 0.5rem 1rem;
+          margin: 0.5rem;
+          border: none;
+          border-radius: 1rem;
+          cursor: pointer;
+          transition: background-color 0.3s;
+          font-weight: 700;
 
-        &:hover {
-          background-color: $color-4;
+          &:hover {
+            background-color: $color-4;
+          }
         }
       }
     }

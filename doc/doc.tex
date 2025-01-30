@@ -1,5 +1,22 @@
 \documentclass[titlepage]{article}
 \usepackage[backend=biber]{biblatex}
+\usepackage[light]{merriweather} %% Option 'black' gives heavier bold face
+\usepackage{inconsolata}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{multicol}
+\lstset{
+    basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n}, % Use Inconsolata font with 8pt size
+    keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
+    commentstyle=\color{green}, % Comments in green
+    stringstyle=\color{red}, % Strings in red
+    backgroundcolor=\color{lightgray}, % Light gray background
+    frame=single, % Frame around the code
+    numbers=left, % Line numbers on the left
+    stepnumber=1, % Step between line numbers
+    numberstyle=\tiny\color{gray}, % Style for line numbers
+}
+%\def\ttdefault{blg}
 \addbibresource{doc.bib}
 \usepackage[
 top=2cm,
@@ -12,9 +29,14 @@ right=2cm]{geometry}
 \usepackage{caption}
 \usepackage{longtable}
 \usepackage{acronym}
+\usepackage{float}
 \renewcommand{\baselinestretch}{1.0}
+%\renewcommand{\ttfamily}{\fontsize{10pt}{12pt}\selectfont}
 % use [Ref n] instead of [n]
 \DeclareFieldFormat{labelnumber}{Ref~\thefield{labelnumber}}
+%spacing 1
+%Text normal: 12 size, proportional serif
+%Cod sursa: fixed width, 8..12 size, fixed width
 
 \begin{document}
 \fontsize{12}{13.5}\selectfont
@@ -95,14 +117,12 @@ Rolul registrilor:
     \item SP este un registru pe 16 biti care contine adresa stivei.
     \item IX si IY sunt registrii pe 16 biti folositi pentru indexare.
     \item I este un registru pe 8 biti folosit pentru intreruperi.
-    \par \hspace{1em} \textit{Acesta contine
     \item R este un registru pe 8 biti folosit pentru temporizare.
     \par \hspace{1em} \textit{Acesta este incrementat cu 1 la fiecare instructiune executata.}
     \item AF, BC, DE si HL sunt registrii de uz general pe 16 biti, fiecare fiind format de 2 registrii pe 8 biti.
 \end{itemize}
-
 Structura acestora se poate vedea si in Figura \ref{fig:z80registers}.
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/z80registers.jpg}
     \caption{Structura registrii Z80. \cite{z80registers}}
@@ -126,7 +146,20 @@ Structura acestuia se poate vedea si in Tabela \ref{tab:z80flags}.
 \subsection{Emulator}
 Un emulator reprezinta o metoda hardware sau software de a imita o anumita arhitectura.
 In cazul acestui lucrari s-a ales un emulator software, acesta fiind mult mai accesibil.
+
 Principala aplicatie a unui emulator este de a rula un program scris pentru o anumita arhitectura pe una complet diferita.
+\begin{multicols}{2}
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello, C++!" << endl;
+    return 0;
+}
+\end{lstlisting}
+\end{multicols}
 
 \subsection{Decizie limbaj de programare}
 

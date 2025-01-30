@@ -21,7 +21,7 @@ impl Default for DisassemblerContext {
     fn default() -> Self {
         DisassemblerContext {
             start: None,
-            rows: 16,
+            rows: 66,
             display_mode: DisassemblerDisplayMode::String,
         }
     }

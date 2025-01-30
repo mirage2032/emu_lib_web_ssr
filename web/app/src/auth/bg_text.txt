@@ -1,0 +1,61 @@
+CALL 0x0005
+HALT
+RET
+LD C, 0x00
+LD A, C
+SUB 0x40
+JR NC, 0x48
+LD E, 0x00
+LD A, E
+SUB 0x40
+JR NC, 0x3e
+LD A, C
+AND 0x38
+ADD A, A
+ADD A, A
+LD B, A
+LD A, E
+AND 0x38
+LD L, A
+LD H, 0x00
+SRA H
+RR L
+LD A, L
+OR B
+LD B, A
+LD A, (0094)
+AND 0x0b
+OR B
+LD B, A
+LD HL, (0090)
+LD A, C
+LD D, 0x00
+ADD A, A
+RL D
+ADD A, A
+RL D
+ADD A, A
+RL D
+ADD A, A
+RL D
+ADD A, A
+RL D
+ADD A, A
+RL D
+ADD A, L
+LD L, A
+LD A, D
+ADC A, H
+LD H, A
+LD D, 0x00
+ADD HL, DE
+LD (HL), B
+INC E
+JR 0xbd
+INC C
+JR 0xb3
+LD HL, 0x005e
+INC (HL)
+JR 0xab
+NOP
+DJNZ 0x00

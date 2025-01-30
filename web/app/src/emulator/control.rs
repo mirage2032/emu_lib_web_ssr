@@ -59,6 +59,7 @@ fn RunButton() -> impl IntoView {
     let start = move |duration| {
         let handle = set_interval_with_handle(step, duration);
         handle_sig.set(handle.ok());
+        log!("Running");
     };
 
     let switch = move |duration| {

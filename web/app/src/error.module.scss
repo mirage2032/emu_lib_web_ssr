@@ -18,6 +18,7 @@
   }
 
 }
+
 .errormain {
   --color-before: $color-3;
   --color-after: $color-2;
@@ -29,7 +30,7 @@
   align-items: center;
   flex-direction: column;
   animation: colorchange 5s infinite;
-
+  @media (min-width: 40rem){
   &::before {
     content: '';
     position: absolute;
@@ -45,10 +46,10 @@
     mask-image: url("/images/corner_circuit.png");
     mask-position: top left; /* Aligns the mask to the center like the image */
     mask-repeat: no-repeat; /* Prevents the mask from tiling */
-    mask-size: 45rem; /* Ensures the mask covers the entire element */
+    mask-size: 35rem; /* Ensures the mask covers the entire element */
     animation: colorchange-before 5s infinite;
-  }
-
+  }}
+  @media (min-width: 70rem){
   &::after {
     content: '';
     position: absolute;
@@ -64,10 +65,11 @@
     mask-image: url("/images/corner_circuit.png");
     mask-position: top left; /* Aligns the mask to the center like the image */
     mask-repeat: no-repeat; /* Prevents the mask from tiling */
-    mask-size: 40rem; /* Ensures the mask covers the entire element */
+    mask-size: 30rem; /* Ensures the mask covers the entire element */
     transform: scaleX(-1) scaleY(-1);
     animation: colorchange-after 5s infinite;
   }
+    }
 
   img:global(.error-icon) {
     //filter: invert(68%) sepia(88%) saturate(509%) hue-rotate(359deg) brightness(100%) contrast(103%);
@@ -112,20 +114,20 @@
 @keyframes colorchange-after {
   0% {
     background-color: $color-2;
-    }
-    58% {
+  }
+  58% {
     background-color: $color-2;
-    }
-    59% {
+  }
+  59% {
     background-color: $color-3;
-    }
-    65% {
+  }
+  65% {
     background-color: $color-3;
-    }
-    66% {
+  }
+  66% {
     background-color: $color-2;
-    }
-    100% {
+  }
+  100% {
     background-color: $color-2;
-    }
+  }
 }
