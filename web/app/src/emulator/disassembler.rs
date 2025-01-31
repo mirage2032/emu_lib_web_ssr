@@ -103,11 +103,7 @@ pub fn DisassemblerTBody() -> impl IntoView {
         };
         rows
     };
-    view! {
-        <tbody>
-            {table_rows}
-        </tbody>
-    }
+    view! { <tbody>{table_rows}</tbody> }
 }
 #[island]
 pub fn Disassembler() -> impl IntoView {

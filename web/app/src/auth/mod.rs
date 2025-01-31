@@ -43,7 +43,7 @@ pub fn AuthBackground() -> impl IntoView{
     let background_lines = move || instructions.with(|instructions| instructions.iter().map(|(_,(v,_))|v).enumerate().map(|(idx, val)| (idx, val.clone())).collect::<Vec<(usize, String)>>());
     let active = move || instructions.with(|instructions| instructions.get(&emu_signal.with(|emu| emu.cpu.registers.pc)).expect("Failed to get instruction").1);
     let next = move || {
-        emu_signal.update(|emu| {emu.step();});
+        emu_signal.update(|emu| {let _ = emu.step();});
     };
     let instruction_class = move |idx:usize| {
         if idx == active() {

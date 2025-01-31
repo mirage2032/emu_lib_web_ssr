@@ -10,7 +10,7 @@ opt-level = 'z'
 
 [profile.dev]
 opt-level = 1
-incremental = true
+#incremental = true
 [profile.dev.package."*"]
 opt-level = 3
 
@@ -106,3 +106,4 @@ lib-features = []
 #
 # Optional. Defaults to false.
 lib-default-features = false
+

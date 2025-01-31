@@ -2,15 +2,25 @@ use crate::header::SimpleHeader;
 use leptos::prelude::*;
 use leptos_meta::Title;
 
-mod resume;
+mod resume_data;
+mod resume_view;
+
 stylance::import_style!(style, "./resume.module.scss");
 
 #[component]
-pub fn ResumeTransition() -> impl IntoView {
-    let resume = Resource::new(|| (), move |_| async move { resume::fetch_resume().await });
-    // let resume = LocalResource::new(resume::fetch_resume);
+fn ResumeError(message: String) -> impl IntoView{
     view! {
-        <Transition fallback=|| view! { <div class=style::greenbox>LOADING</div> }>
+        <div class=style::errorcontainer>
+            <p>{message}</p>
+        </div>
+    }
+}
+
+#[component]
+pub fn ResumeTransition() -> impl IntoView {
+    let resume = Resource::new(|| (), move |_| async move { resume_data::fetch_resume().await });
+    view! {
+        <Transition fallback=|| view! { <ResumeError message="Loading...".to_string() /> }>
             <p>
                 {move || Suspend::new(async move {
                     resume
@@ -18,11 +28,24 @@ pub fn ResumeTransition() -> impl IntoView {
                             match resume {
                                 Some(e) => {
                                     match e.as_ref() {
-                                        Ok(resume) => resume.name.first.clone(),
-                                        _ => "ERROR".to_string(),
+                                        Ok(resume) => {
+                                            let resume = Signal::from(resume.clone());
+                                            view! { <resume_view::Resume resume /> }.into_any()
+                                        }
+                                        _ => {
+                                            view! {
+                                                <ResumeError message="Failed to load resume".to_string() />
+                                            }
+                                                .into_any()
+                                        }
                                     }
                                 }
-                                _ => "ERROR".to_string(),
+                                _ => {
+                                    view! {
+                                        <ResumeError message="Failed to load resume".to_string() />
+                                    }
+                                        .into_any()
+                                }
                             }
                         })
                 })}
@@ -35,6 +58,8 @@ pub fn Author() -> impl IntoView {
     view! {
         <Title text="Author" />
         <SimpleHeader title="Author".to_string() />
-        <ResumeTransition />
+        <div class=style::authorcontainer>
+            <ResumeTransition />
+        </div>
     }
 }

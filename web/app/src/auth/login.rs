@@ -75,9 +75,9 @@ pub fn Login() -> impl IntoView {
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Login".to_string() />
             <div class=auth_style::authmaincontainer>
-                        // <div class=auth_style::authbgline>
-                            <AuthBackground />
-                        // </div>
+                // <div class=auth_style::authbgline>
+                <AuthBackground />
+                // </div>
                 <main>
                     <LoginForm />
                 </main>
