@@ -8,7 +8,7 @@ mod resume_view;
 stylance::import_style!(style, "./resume.module.scss");
 
 #[component]
-fn ResumeError(message: String) -> impl IntoView{
+fn ResumeError(message: String) -> impl IntoView {
     view! {
         <div class=style::errorcontainer>
             <p>{message}</p>
@@ -18,7 +18,10 @@ fn ResumeError(message: String) -> impl IntoView{
 
 #[component]
 pub fn ResumeTransition() -> impl IntoView {
-    let resume = Resource::new(|| (), move |_| async move { resume_data::fetch_resume().await });
+    let resume = Resource::new(
+        || (),
+        move |_| async move { resume_data::fetch_resume().await },
+    );
     view! {
         <Transition fallback=|| view! { <ResumeError message="Loading...".to_string() /> }>
             <p>

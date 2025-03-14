@@ -1,4 +1,4 @@
-FROM postgres:17
+FROM postgres:17.4
 # Install Dependencies
 RUN apt-get -y update && \
     apt-get -y install postgresql-contrib postgresql-plperl-17 make

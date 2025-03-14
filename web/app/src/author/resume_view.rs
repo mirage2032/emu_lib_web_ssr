@@ -167,16 +167,16 @@ pub fn Image(url: Url) -> impl IntoView {
 pub fn Resume(resume: Signal<resume_data::Resume>) -> impl IntoView {
     view! {
         <div class=style::resumecontainer>
-            <Image url=resume.with(|resume|resume.photo.clone()) />
-            // <Name name=resume.with(|resume|resume.name.clone()) />
-            // </Description description=resume.description />
-            // <Contact contact=resume.contact />
-            // <Education education=resume.education />
-            // <Work work=resume.work />
-            // <Languages languages=resume.languages />
-            // <Skills skills=resume.skills />
-            // <Technologies technologies=resume.technologies />
-            // <Project project=resume.projects />
+            <Image url=resume.with(|resume| resume.photo.clone()) />
+        // <Name name=resume.with(|resume|resume.name.clone()) />
+        // </Description description=resume.description />
+        // <Contact contact=resume.contact />
+        // <Education education=resume.education />
+        // <Work work=resume.work />
+        // <Languages languages=resume.languages />
+        // <Skills skills=resume.skills />
+        // <Technologies technologies=resume.technologies />
+        // <Project project=resume.projects />
         </div>
     }
 }

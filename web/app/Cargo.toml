@@ -9,7 +9,7 @@ edition = "2021"
 reactive_stores = "0.1.3"
 indexmap = "2.7.1"
 emu_lib = { git = "https://github.com/mirage2032/rs_emu_lib.git", default-features = false }
-uuid = { version = "1.12.1", features = ["v4"] }
+uuid = { version = "1.12.1", features = ["v4","js"] }
 argon2 = { version="0.6.0-pre.1", features = ["std"] }
 time = "0.3.37"
 serde = { version = "1.0.217", features = ["derive"] }

@@ -88,19 +88,21 @@ pub fn DisassemblerTBody() -> impl IntoView {
         for _ in 0..ctx.with(|ctx| ctx.rows) {
             let address: usize = start as usize + offset;
             if address > (u16::MAX as usize) {
-                rows.push( view! { <DisassemblerTRow address /> });
+                rows.push(view! { <DisassemblerTRow address /> });
             } else {
-                rows.push( view! { <DisassemblerTRow address /> });
+                rows.push(view! { <DisassemblerTRow address /> });
             }
-            let ins_size = emu.with(|emu|{
-                if let Ok(instruction) = Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16){
+            let ins_size = emu.with(|emu| {
+                if let Ok(instruction) =
+                    Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16)
+                {
                     instruction.common().length
                 } else {
                     1
                 }
             });
             offset += ins_size as usize;
-        };
+        }
         rows
     };
     view! { <tbody>{table_rows}</tbody> }

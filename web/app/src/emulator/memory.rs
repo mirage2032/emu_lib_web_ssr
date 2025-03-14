@@ -41,42 +41,45 @@ fn get_mem_address(start: u16, width: u16, col: u16, row: u16) -> Option<u16> {
 fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
     let shape = expect_context::<RwSignal<MemoryShape>>();
     let start = expect_context::<RwSignal<MemoryStart>>();
-    if let Some(address) = get_mem_address(
-        start.read().start,
-        shape.with(|shape| shape.width),
-        column,
-        row,
-    ) {
-        let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
-        let read_mem = move || {
-            emu_signal.with(|emu| match emu.memory.read_8(address) {
-                Ok(val) => format!("{:02X}", val),
-                _ => "N/A".to_string(),
-            })
-        };
-        let write_mem = move |ev: Event| {
-            let value = event_target_value(&ev);
-            match u8::from_str_radix(&value, 16) {
-                Ok(val) => {
-                    emu_signal.update(|emu| {
-                        if let Err(err) = emu.memory.write_8(address, val) {
-                            log!("{}", err);
-                        } else {
-                            log!("written: {} {}", address, val);
-                        }
-                    });
+    let uh = move ||{
+        if let Some(address) = get_mem_address(
+            start.read().start,
+            shape.with(|shape| shape.width),
+            column,
+            row,
+        ) {
+            let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+            let read_mem = move || {
+                emu_signal.with(|emu| match emu.memory.read_8(address) {
+                    Ok(val) => format!("{:02X}", val),
+                    _ => "N/A".to_string(),
+                })
+            };
+            let write_mem = move |ev: Event| {
+                let value = event_target_value(&ev);
+                match u8::from_str_radix(&value, 16) {
+                    Ok(val) => {
+                        emu_signal.update(|emu| {
+                            if let Err(err) = emu.memory.write_8(address, val) {
+                                log!("{}", err);
+                            } else {
+                                log!("written: {} {}", address, val);
+                            }
+                        });
+                    }
+                    Err(_) => {
+                        log!("{} is not a valid hex value", value);
+                        emu_signal.notify();
+                    }
                 }
-                Err(_) => {
-                    log!("{} is not a valid hex value", value);
-                    emu_signal.notify();
-                }
-            }
-        };
-        view! { <input maxlength=2 style:width="3ch" on:change=write_mem prop:value=read_mem /> }
-            .into_any()
-    } else {
-        view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
-    }
+            };
+            view! { <input maxlength=2 style:width="3ch" on:change=write_mem prop:value=read_mem /> }
+                .into_any()
+        } else {
+            view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
+        }
+    };
+    uh.into_view()
 }
 
 #[island]

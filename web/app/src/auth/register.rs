@@ -1,5 +1,5 @@
 use super::api::{EmailExistsApi, RegisterApi, UserExistsApi};
-use super::auth_style;
+use super::{auth_style, AuthBackground};
 use crate::auth::login::LoginForm;
 use crate::header::SimpleHeader;
 use leptos::prelude::*;
@@ -184,9 +184,12 @@ pub fn register() -> impl IntoView {
         <Title text="Register" />
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Register".to_string() />
-            <main>
-                <MainTable />
-            </main>
+            <div class=auth_style::authmaincontainer>
+                <AuthBackground />
+                <main>
+                    <MainTable />
+                </main>
+            </div>
         </div>
     }
 }

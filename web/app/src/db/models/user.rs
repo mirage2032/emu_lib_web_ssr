@@ -78,7 +78,7 @@ impl UserLogin {
             let new_session = NewSession::new(user.id, duration);
             let session = Session::create(new_session, pool)?;
             Ok((user, session))
-        }else{
+        } else {
             Err("User not found".into())
         }
     }
@@ -141,7 +141,8 @@ impl User {
         let mut conn = pool.get()?;
         match dsl::users
             .filter(dsl::username.eq(login).or(dsl::email.eq(login)))
-            .first(&mut conn){
+            .first(&mut conn)
+        {
             Ok(user) => Ok(Some(user)),
             Err(_) => Ok(None),
         }

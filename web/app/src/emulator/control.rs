@@ -57,16 +57,17 @@ fn RunButton() -> impl IntoView {
     };
 
     let start = move |duration| {
-        let handle = set_interval_with_handle(step, duration);
-        handle_sig.set(handle.ok());
+        let handle = set_interval_with_handle(step, duration).expect("Could not set interval");
+        handle_sig.set(Some(handle));
         log!("Running");
     };
 
     let switch = move |duration| {
-        handle_sig.update(|handle_opt| match handle_opt {
-            Some(_) => stop(),
-            None => start(duration),
-        });
+        let is_handle = handle_sig.with(|handle| handle.is_some());
+        match is_handle {
+            true => stop(),
+            false => start(duration),
+        };
     };
 
     view! {

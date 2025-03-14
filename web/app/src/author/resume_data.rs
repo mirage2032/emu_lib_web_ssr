@@ -6,24 +6,24 @@ use url::Url;
 const URI: &str =
     "https://raw.githubusercontent.com/mirage2032/resume/refs/heads/master/resume.json";
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Name {
     pub first: String,
     pub middle: String,
     pub last: String,
 }
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Location {
     pub city: String,
     pub country: String,
 }
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Website {
     pub name: String,
     pub uri: Url,
 }
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Contact {
     pub phone: String,
     pub email: String,
@@ -31,12 +31,12 @@ pub struct Contact {
     pub website: Vec<Website>,
 }
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Interval {
     pub start: NaiveDate,
     pub end: Option<NaiveDate>,
 }
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Education {
     pub name: String,
     pub location: Location,
@@ -45,7 +45,7 @@ pub struct Education {
     pub interval: Interval,
 }
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Work {
     pub name: String,
     pub position: String,
@@ -54,25 +54,25 @@ pub struct Work {
     pub skills: Vec<String>,
 }
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Language {
     pub name: String,
     pub level: String,
 }
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Technologies {
     pub languages: Vec<String>,
     pub others: Vec<String>,
 }
 
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Project {
     pub name: String,
     pub description: String,
     pub uri: Url,
 }
-#[derive(Clone, Serialize, Deserialize,Eq, Hash, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub struct Resume {
     pub name: Name,
     pub photo: Url,

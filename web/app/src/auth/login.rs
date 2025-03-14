@@ -1,13 +1,13 @@
-use std::time::Duration;
-use leptos::logging::log;
 use super::api::{LoginApi, LoginExistsApi};
 use super::auth_style;
+use super::AuthBackground;
 use crate::header::SimpleHeader;
+use leptos::logging::log;
 use leptos::prelude::*;
 use leptos_meta::Title;
 use serde_json::to_string;
+use std::time::Duration;
 use stylance::classes;
-use super::AuthBackground;
 
 #[island]
 pub fn LoginForm() -> impl IntoView {

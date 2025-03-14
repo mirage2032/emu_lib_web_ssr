@@ -68,43 +68,43 @@
         height: min(70vw, 70vh);
         }
         padding: 5rem;
-        @media (min-width: 40rem){
-        &:before{
-          //opacity: 0.5;
-          content: '';
-          position: absolute;
-          background-color: $color-2;
-          pointer-events: none; /* Prevent interaction */
-          mask-image: url("/images/cpu_outline.png");
-          mask-position: center;
-          mask-size: 100% 100%;
-          background-position: center;
-          //stretch
-          border-radius: 1rem;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: -1;
-        }
-        &:after{
-          opacity: 0.9;
-          content: '';
-          position: absolute;
-          background-color: $color-bg;
-          pointer-events: none; /* Prevent interaction */
-          mask-image: url("/images/cpu_inner.png");
-          mask-position: center;
-          mask-size: 100% 100%;
-          background-position: center;
-          //stretch
-          border-radius: 1rem;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: -1;
-        }}
+        //@media (min-width: 40rem){
+        //&:before{
+        //  //opacity: 0.5;
+        //  content: '';
+        //  position: absolute;
+        //  background-color: $color-2;
+        //  pointer-events: none; /* Prevent interaction */
+        //  mask-image: url("/images/cpu_outline.png");
+        //  mask-position: center;
+        //  mask-size: 100% 100%;
+        //  background-position: center;
+        //  //stretch
+        //  border-radius: 1rem;
+        //  top: 0;
+        //  left: 0;
+        //  right: 0;
+        //  bottom: 0;
+        //  z-index: -1;
+        //}
+        //&:after{
+        //  opacity: 0.9;
+        //  content: '';
+        //  position: absolute;
+        //  background-color: $color-bg;
+        //  pointer-events: none; /* Prevent interaction */
+        //  mask-image: url("/images/cpu_inner.png");
+        //  mask-position: center;
+        //  mask-size: 100% 100%;
+        //  background-position: center;
+        //  //stretch
+        //  border-radius: 1rem;
+        //  top: 0;
+        //  left: 0;
+        //  right: 0;
+        //  bottom: 0;
+        //  z-index: -1;
+        //}}
         div {
           display: flex;
           flex-direction: column;

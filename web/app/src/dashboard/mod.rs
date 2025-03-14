@@ -103,6 +103,8 @@ fn inner_dashboard() -> impl IntoView {
 pub fn dashboard() -> impl IntoView {
     view! {
         <Title text="Dashboard" />
-        <InnerDashboard />
+        <div style:height="100%">
+            <InnerDashboard />
+        </div>
     }
 }
