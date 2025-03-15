@@ -6,6 +6,7 @@ use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::IntoView;
 use serde::{Deserialize, Serialize};
+use super::emu_style;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub struct MemoryShape {
@@ -124,7 +125,7 @@ pub fn Memory() -> impl IntoView {
         provide_context(RwSignal::new(start));
     }
     view! {
-        <table>
+        <table class=emu_style::memorymap>
             <MemoryTHead />
             <MemoryTBody />
         </table>

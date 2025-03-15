@@ -56,5 +56,5 @@ hydrate = ["leptos/hydrate"]
 ssr = ["leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum"]
 
 [package.metadata.stylance]
-output_file = "../style/stylance.scss"
-scss_prelude = '@use "colors" as *;'
+output_dir = "../style/"
+scss_prelude = '@use "../colors" as *;'

@@ -1,3 +1,5 @@
+@use "../colors" as *;
+
 //define variable
 $CL1: #FDC300FF;
 $CL2: #fdf900;
@@ -28,7 +30,7 @@ $CL2: #fdf900;
 }
 
 //class applied to <table>
-.memorymap{
+.memorymap-9bb08bb{
   border-collapse: collapse;
   thead{
     tr{

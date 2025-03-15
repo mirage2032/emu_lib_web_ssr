@@ -13,6 +13,8 @@ use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 use leptos_meta::Title;
 
+stylance::import_style!(emu_style, "./emulator.module.scss");
+
 fn default_emu() -> Emulator<Z80> {
     let mut emu = Emulator::<Z80>::default();
     emu.memory.record_changes(true);

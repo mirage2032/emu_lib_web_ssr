@@ -1,0 +1,18 @@
+@use "../colors" as *;
+
+//@use "../colors" as *;
+
+.footerclass-6ad772d {
+    .footercontainer-6ad772d{
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        background-color: $color-bg;
+        border-top: 1px solid $color-2;
+        padding: 0.1rem 0;
+        p {
+            color: $color-3;
+            font-size: 0.8rem;
+        }
+    }
+}

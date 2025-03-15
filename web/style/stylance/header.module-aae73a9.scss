@@ -1,0 +1,38 @@
+@use "../colors" as *;
+
+//@use "../colors" as *;
+
+.simpleheader-aae73a9 {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: $color-2;
+  font-size: 1.5rem;
+  padding: 0 1rem;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  transition: background-color 0.3s;
+  font-weight: 700;
+  border-bottom: 1px solid $color-2;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    font-size: inherit;
+
+    &:hover {
+      color: $color-4;
+    }
+  }
+
+  h1 {
+    color: $color-2;
+    font-size: inherit;
+
+    span {
+      color: $color-3;
+    }
+  }
+}
