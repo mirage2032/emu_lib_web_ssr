@@ -1,72 +1,102 @@
-//define variable
-$CL1: #FDC300FF;
-$CL2: #fdf900;
+// Memory Map Color Scheme
+$mc-primary: #2a7fff;       // Primary accent
+$mc-row-even: #f8f9fa;      // Even row
+$mc-row-odd: #e9ecef;       // Odd row
+$mc-header: #343a40;        // Header
+$mc-text-dark: #212529;     // Dark text
+$mc-text-light: #f8f9fa;    // Light text
+$mc-border: #dee2e6;        // Borders
 
-@mixin memth($mc-bgcol){
-  border:none;
-  color: $color-bg;
-  background: $mc-bgcol;
-  text: $color-bg;
-}
-
-@mixin memcell($mc-bgcol) {
-  height: 100%;
-  input {
-    padding: 0.12rem 0.12rem;
-    height: 100%;
-    width: 100%;
-    border: none;
-    color: $color-bg;
-    background: $mc-bgcol;
-    text-align: center;
-    //no input outlight
-    &:focus {
-      color: #d11616;
-      outline: none;
-    }
-  }
-}
-
-//class applied to <table>
-.memorymap{
+.memorymap {
   border-collapse: collapse;
-  thead{
-    tr{
-      &> :nth-child(even) {
-        border:none;
-        color: $color-bg;
-        background: $CL1;
-      }
-      &> :nth-child(odd){
-        border:none;
-        color: $color-bg;
-        background: $CL2;
-      }
+  font-size: 0.875rem;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  width: auto;
+
+  thead tr {
+    background: $mc-header;
+
+    th {
+      padding: 0.3rem 0.5rem;
+      color: $mc-text-light;
+      font-weight: 500;
+      border-right: 1px solid lighten($mc-header, 8%);
+      font-size: 0.8em;
+
+      &:last-child { border-right: none; }
     }
   }
-  tbody{
-    tr {
-      th{
-        padding: 0.0rem 0.4rem;
+
+  tbody tr {
+    td {
+      padding: 0;
+      position: relative;
+      border-bottom: 1px solid $mc-border;
+
+      input {
+        width: 100%;
+        height: 100%;
+        min-width: 2.8em;
+        padding: 0.2rem 0.3rem;
+        border: none;
+        background: transparent;
+        color: $mc-text-dark;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 0.9em;
+        text-align: center;
+        transition: all 0.15s ease;
+
+        &:hover:not(:focus) {
+          background: rgba($mc-primary, 0.06);
+        }
+
+        &:focus {
+          background: white;
+          box-shadow: 0 0 0 1.5px $mc-primary;
+          outline: none;
+          z-index: 2;
+        }
+
+        &::placeholder {
+          color: rgba($mc-text-dark, 0.4);
+          font-weight: 300;
+        }
       }
     }
-    &> :nth-child(even) {
-      th {
-        @include  memth($CL1);
-        border-right: 0.2rem solid red;
-      }
-      td {
-        @include memcell($CL1);
-      }
+
+    &:nth-child(even) {
+      background: $mc-row-even;
+      td input:focus { background: mix(white, $mc-row-even, 80%); }
     }
-    &> :nth-child(odd){
-      th {
-        @include memth($CL2);
-        border-right: 0.2rem solid red;
-      }
-      td {
-        @include memcell($CL2);
-      }
+
+    &:nth-child(odd) {
+      background: $mc-row-odd;
+      td input:focus { background: mix(white, $mc-row-odd, 80%); }
+    }
+
+    th {
+      padding: 0.3rem 0.6rem;
+      background: lighten($mc-header, 4%);
+      color: rgba($mc-text-light, 0.9);
+      border-right: 1px solid lighten($mc-header, 8%);
+      font-weight: 500;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+  }
+
+  th, td {
+    border-bottom: 1px solid $mc-border;
+
+    &:first-child {
+      border-left: 1px solid $mc-border;
+    }
+
+    &:last-child {
+      border-right: 1px solid $mc-border;
     }
   }
 }

@@ -4,6 +4,7 @@ migraions/
 /target/
 pkg
 style/stylance.scss
+style/stylance/*
 Cargo.lock
 **/*.rs.bk
 

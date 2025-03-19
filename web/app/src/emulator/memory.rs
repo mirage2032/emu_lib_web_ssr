@@ -27,7 +27,7 @@ fn MemoryTHead() -> impl IntoView {
             <tr>
                 <th></th>
                 <For each=move || 0..shape.with(|shape| shape.width) key=|n| *n let:data>
-                    <th>{data}</th>
+                    <th>{format!("{:X}", data)}</th>
                 </For>
             </tr>
         </thead>
@@ -116,7 +116,7 @@ pub fn Memory() -> impl IntoView {
     if use_context::<RwSignal<MemoryShape>>().is_none() {
         let shape = RwSignal::new(MemoryShape {
             width: 0x10,
-            height: 0x10,
+            height: 0x20,
         });
         provide_context(shape);
     }
