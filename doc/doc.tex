@@ -1,4 +1,6 @@
 \documentclass[titlepage]{article}
+\usepackage[romanian]{babel}
+\usepackage[T1]{fontenc}
 \usepackage[backend=biber]{biblatex}
 \usepackage[light]{merriweather} %% Option 'black' gives heavier bold face
 \usepackage{inconsolata}
@@ -61,8 +63,11 @@ right=2cm]{geometry}
 \section*{Lista acronimelor} % Use \section* to avoid it being numbered
 \begin{acronym}  
     \acro {Z80}       {Microcontroler Zilog Z80}
+    \acro {ROM}       {Read Only Memory}
+    \acro {RAM}       {Random Access Memory}
     \acro {Rust}      {Limbajul de programare Rust}
     \acro {WASM}      {Web Assembly}
+    \acro {DARPA}     {Defense Advanced Research Projects Agency}
     \end{acronym}
 \clearpage
 % Sections
@@ -90,7 +95,7 @@ Acest control fin asupra executiei aplcatiei, ar trebui sa confere un avantaj in
 
 Pentru o simulare cat mai corecta si apropiata de un Zilog Z80 adevarat, toate instructiunile acestuia au fost implementate. 
 Executarea instructiunilor se face cat mai realist si tinand cont de factori cum ar fi: lungimea instructiunii, ciclurile acesteia si a vitezei de ceas(clock) aleasa.
-Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind ROM/RAM sau chiar nealocata.
+Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind \ac {ROM}/\ac {RAM} sau chiar nealocata.
 
 
 \section{Stadiul actual}
@@ -146,7 +151,15 @@ Structura acestuia se poate vedea si in Tabela \ref{tab:z80flags}.
 
 \subsubsection{Memorie}
 
-Desi microprocesorul are magistrala de date pe 8 biti, acesta foloseste 16 biti pentru adresare. Datorita acestui lucru capacitatea maxima de memorie este de \(2^16=65536\) octeti, 
+Desi microprocesorul are magistrala de date pe 8 biti, acesta foloseste 16 biti pentru adresare. Datorita acestui lucru capacitatea maxima de memorie este de \(2^{16}=65536\) octeti. Aceasta zona de memorie de 64K poate fi separata intre \ac {ROM} si \ac {RAM} in functie de implementare.
+
+Unele periferice in aceste sisteme sunt legate direct la memorie, acest lucru permitand microprocesorului sa comunice cu dispozitive externe prin simple scrieri si citiri din memorie.
+
+Un exemplu de astfel de dispozitiv ar putea fi un ecran extern, fiecare pixel de pe acesta fiind reprezentat de o locatie in memorie, valoarea din aceasta specificand culoarea pixelului.
+
+\subsubsection{Instructiuni}
+
+Instructiuni
 
 \subsection{Emulator}
 Un emulator reprezinta o metoda hardware sau software de a imita un alt tip de sistem de calcul, cum ar fi un procesor, consola sau chiar un intreg calculator.
@@ -158,6 +171,8 @@ Principala aplicatie a unui emulator este de a rula un program scris pentru o an
 Acest lucru ajuta in mentenanta pe termen lung permitand inlocuirea componentei hardware vechi cu una mai noua fara a necesita software nou.
 
 In cazul curent, deoarece \ac {Z80} este destul de vechi si procurarea acestuia a devenit o problema, in cazul in care microcontrolerul necesita inlocuirea, acesta va putea fi inlocuit cu un Raspberry Pi (sau o alternativa) ruland un emulator.
+
+Pentru realizarea proiectului, emulatorul este necesar sa contina memoria, registrii, si logica necesara pentru decodarea si executarea instructiunilor.
 
 %\begin{multicols}{2}
 
@@ -173,6 +188,28 @@ In cazul curent, deoarece \ac {Z80} este destul de vechi si procurarea acestuia 
 %\end{multicols}
 
 \subsection{Decizie limbaj de programare}
+
+In procesul de alegere a limbajului de programare, s-au luat in considerare mai multe aspecte, cum ar fi: performanta, documentatie si securitate.
+
+Performanta este un aspect important, deoarece emulatorul va trebui sa ruleze cat mai fluid si cat mai apropiat de un Z80 real. Un emulator eficient putand fi capabil sa ruleze in functie de nevoie chiar mai rapid.
+
+Din aceasta cauza a fost preferat un limbaj compilat ce permite un control mai fin asupra memoriei si a resurselor.
+
+Limbaje cum ar fi JavaScript si Python desi capabile, ar avea probleme in a mentine nivelul de performanta necesar unui astfel de emulator.
+
+Un limbaj foarte folosit, mai ales pe embedded este C/C++, acesta fiind considerat a fi printre cele mai rapide.
+
+Alt limbaj care a fost luat in considerare a fost Rust, acesta fiind un limbaj modern, care oferta acelasi nivel de control si performanta ca C/C++, dar cu un sistem de tipuri mai sigur si mai usor de folosit.
+
+Un mare avantaj al \ac {Rust} este sistemul sau de tipuri si de ownership, acesta putand preveni multe buguri comune din C/C++ cum ar fi race conditions, memory leaks sau dereferentierea unui pointer null.
+
+In \ac {Rust} nu exista pointeri null, acest lucru fiind inlocuit de tipul Option<T>, acesta fiind un enum care poate fi Some(T) sau None.
+
+Datorita nivelului ridicat de securitate adus de Rust, \ac {DARPA} a lansat proiectul TRACTOR, acest proiect are ca tinta transformarea automata a codului C/C++ in Rust.
+
+Un alt motiv din cauza carui \ac {Rust} a fost ales ca limbaj pentru proiect, este faptul ca acesta poate fi compilat cu usurinta in \ac {WASM}, acest lucru va permite rularea aplicatiei in orice browser web modern.
+
+
 
 \section{Implementare}
 This is the conclusion.
