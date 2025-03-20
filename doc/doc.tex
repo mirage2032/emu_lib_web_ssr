@@ -103,11 +103,11 @@ This is the main section.
 Pentru a putea realiza acest proiect, a fost necesara o cercetare amanuntita a din capitolele de mai jos.
 Prin aceasta cercetare s-a putut pune la punct o arhitectura structurala a proiectului, pregatita de faza de implementare.
 
-\subsection{Arhitectura Z80}
+\subsection{\ac {Z80}}
 Procesorul Z80 este un procesor pe 8 biti, produs de Zilog in 1976. Acesta este unul dintre cele mai populare procesoare din istorie, fiind utilizat in multe aplicatii, de la calculatoare personale la console de jocuri.
 \ac {Z80} este un procesor CISC, acesta avand un set de 158 de instructiuni oficiale, dar exista si altele care nu au fost documentate oficial de Zilog.
 
-\subsection{Registrii}
+\subsubsection{Registrii}
 Procesorul are 10 registrii pe 8 biti,8 din care sunt pentru uz general, si 4 registrii pe 16 biti.
 Rolul registrilor:
 \begin{itemize}
@@ -125,7 +125,7 @@ Structura acestora se poate vedea si in Figura \ref{fig:z80registers}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/z80registers.jpg}
-    \caption{Structura registrii Z80. \cite{z80registers}}
+    \caption{Structura registrii Z80. \cite{ref:z80registers}}
     \label{fig:z80registers}
 \end{figure}
 
@@ -143,23 +143,34 @@ Structura acestuia se poate vedea si in Tabela \ref{tab:z80flags}.
     \caption{Z80 Flags}
     \label{tab:z80flags}
 \end{table}
+
+\subsubsection{Memorie}
+
+Desi microprocesorul are magistrala de date pe 8 biti, acesta foloseste 16 biti pentru adresare. Datorita acestui lucru capacitatea maxima de memorie este de \(2^16=65536\) octeti, 
+
 \subsection{Emulator}
-Un emulator reprezinta o metoda hardware sau software de a imita o anumita arhitectura.
+Un emulator reprezinta o metoda hardware sau software de a imita un alt tip de sistem de calcul, cum ar fi un procesor, consola sau chiar un intreg calculator.
+
 In cazul acestui lucrari s-a ales un emulator software, acesta fiind mult mai accesibil.
 
 Principala aplicatie a unui emulator este de a rula un program scris pentru o anumita arhitectura pe una complet diferita.
-\begin{multicols}{2}
 
-\begin{lstlisting}[language=C++]
-#include <iostream>
-using namespace std;
+Acest lucru ajuta in mentenanta pe termen lung permitand inlocuirea componentei hardware vechi cu una mai noua fara a necesita software nou.
 
-int main() {
-    cout << "Hello, C++!" << endl;
-    return 0;
-}
-\end{lstlisting}
-\end{multicols}
+In cazul curent, deoarece \ac {Z80} este destul de vechi si procurarea acestuia a devenit o problema, in cazul in care microcontrolerul necesita inlocuirea, acesta va putea fi inlocuit cu un Raspberry Pi (sau o alternativa) ruland un emulator.
+
+%\begin{multicols}{2}
+
+%\begin{lstlisting}[language=C++]
+%#include <iostream>
+%using namespace std;
+%
+%int main() {
+%    cout << "Hello, C++!" << endl;
+%    return 0;
+%}
+%\end{lstlisting}
+%\end{multicols}
 
 \subsection{Decizie limbaj de programare}
 
