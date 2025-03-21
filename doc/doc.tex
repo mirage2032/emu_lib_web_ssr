@@ -3,9 +3,9 @@
 \usepackage[T1]{fontenc}
 \usepackage[backend=biber]{biblatex}
 %\usepackage[light]{merriweather} %% Option 'black' gives heavier bold face
-\usepackage{times}
+\usepackage{tgtermes}
 \usepackage{inconsolata}
-\usepackage{listings}
+\usepackage{listings, listings-rust}
 \usepackage{xcolor}
 \usepackage{multicol}
 \lstset{
@@ -42,7 +42,6 @@ right=2cm]{geometry}
 %Cod sursa: fixed width, 8..12 size, fixed width
 
 \begin{document}
-\fontsize{12}{13.5}\selectfont
 % Title
 \title{Licenta}
 \author{Popescu Ionut-Alexandru}
@@ -64,6 +63,8 @@ right=2cm]{geometry}
 \section*{Lista acronimelor} % Use \section* to avoid it being numbered
 \begin{acronym}  
     \acro {Z80}       {Microcontroler Zilog Z80}
+    \acro {I8080}     {Intel 8080}
+    \acro {IO}        {Input/Output}
     \acro {ROM}       {Read Only Memory}
     \acro {RAM}       {Random Access Memory}
     \acro {Rust}      {Limbajul de programare Rust}
@@ -79,7 +80,7 @@ Emulatorul este conceput sa functioneze ca o librarie flexibila ce poate fi incl
 
 \ac {Z80} este un procesor pe 8 biti, produs din 1976 de catre firma Zilog. Desi acest procesor are magistrala de adrese de 16 biti, magistrala de adrese este de 8 biti.
 Desi registrii procesorului functioneaza pe 8 biti, acesta poate face operatiuni pe valori de 16biti prin folosirea registrilor combinati(BC,DE,HL).
-Z80 are are un set de 158 instructioni considerate oficiale, dar exista si altele care nu au fost documentate oficial de Zilog. Instructiunile pot face o multime de operatiuni cum ar fi: transfer de date, interschimbare, operatiuni aritmetice/logice, rotiri/shiftari, instructiuni la nivel de bit si comunicare cu porturile I/O.
+Z80 are are un set de 158 tipuri de instructioni considerate oficiale, dar exista si altele care nu au fost documentate oficial de Zilog. Instructiunile pot face o multime de operatiuni cum ar fi: transfer de date, interschimbare, operatiuni aritmetice/logice, rotiri/shiftari, instructiuni la nivel de bit si comunicare cu porturile I/O.
 
 Impreuna cu libraria ce se ocupa strict cu partea de emulate, proiectul contine si o aplicatie web bazata pe aceasta librarie.
 Aceasta aplicatie web este de asemenea scrisa in Rust, apoi compilata in \ac {WASM}. Deoarece \ac {WASM} este mai preformant decat JavaScript, aceasta compilare din Rust va aduce un bonus de performanta, un lucru necesar pentru o emulare cat mai fluida.
@@ -110,11 +111,18 @@ Pentru a putea realiza acest proiect, a fost necesara o cercetare amanuntita a d
 Prin aceasta cercetare s-a putut pune la punct o arhitectura structurala a proiectului, pregatita de faza de implementare.
 
 \subsection{\ac {Z80}}
-Procesorul Z80 este un procesor pe 8 biti, produs de Zilog in 1976. Acesta este unul dintre cele mai populare procesoare din istorie, fiind utilizat in multe aplicatii, de la calculatoare personale la console de jocuri.
+Procesorul Z80 (Fig~\ref{fig:z80}) este un procesor pe 8 biti, produs de Zilog in 1976. Acesta este unul dintre cele mai populare procesoare din istorie, fiind utilizat in multe aplicatii, de la calculatoare personale la console de jocuri.
 \ac {Z80} este un procesor CISC, acesta avand un set de 158 de instructiuni oficiale, dar exista si altele care nu au fost documentate oficial de Zilog.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/z80.jpg}
+    \caption{Microprocesor Z80.}
+    \label{fig:z80}
+\end{figure}
+
 \subsubsection{Registrii}
-Procesorul are 10 registrii pe 8 biti,8 din care sunt pentru uz general, si 4 registrii pe 16 biti.
+\cite{ref:z80instructions}Procesorul are 10 registrii pe 8 biti,8 din care sunt pentru uz general, si 4 registrii pe 16 biti.
 Rolul registrilor:
 \begin{itemize}
     \item A,B,C,D,E,H,L sunt registrii de uz general pe 8 biti.
@@ -160,7 +168,60 @@ Un exemplu de astfel de dispozitiv ar putea fi un ecran extern, fiecare pixel de
 
 \subsubsection{Instructiuni}
 
-Instructiuni
+Modelul oficial al \ac {Z80} contine 158 de instructiuni. Luand in considerare fiecare variatie a acestora, numarul total de instructiuni este de 696.
+Instructiunile sunt impartite in 8 categorii principale:
+\begin{itemize}
+    \item Load si Exchange
+    \item Transfer bloc de date si cautare
+    \item Aritmetice si logice
+    \item Rotiri/Shiftari
+    \item Instructiuni la nivel de bit
+    \item Jump/Call/Return
+    \item \ac {IO}
+    \item Control
+\end{itemize}
+
+Instructiunile de tip Load sunt cele care copiaza datele intern intre registrii sau intre registrii si memoria externa.
+Toate aceste instructiuni specifica o locatie sursa de unde sa fie copiata valoarea si o destinatie unde sa fie copiata aceasta.
+Locatia sursa nu este afectata de aceste instructiuni, aceasta fiind doar citita.
+Exemple de asfel de instructiuni sunt cele care copiaza valoarea dintr-un registru in altul "LD A,B" sau cele care copiaza valoarea dintr-o locatie de memorie in registru "LD A,(HL)".
+
+Instructiunile de tip exchange sunt cele care interschimba valorile dintre registrii.\\
+
+Un set unic de instructiuni de transfer al blocurilor de date sunt include in \ac {Z80}.
+Cu o singura instruciune, un bloc din memorie de orice marime poate fi mutat in orice alta locatie din memorie.
+Aceste instructiuni sunt foarte folositoare in procesarea sirurilor de caractere.
+Cu o singura instructiuni, un bloc intreg de de memorie de orice marime poate fi cautat dupa un anumit byte.
+Cand valoarea este gasita sau se ajunge la sfarsitul blocului, instructiunea se opreste automat.
+Instructiunile de acest tip permit intreruperile sa fie procesate in timpul executiei lor, astfel incat procesorul nu este blocat pentru perioade lungi de timp.\\
+
+Instructiunile aritmetice si logice opereaza pe datele stocate in acumulator si alti registrii sau valori din memorie.
+Rezultatul operatiei este stocat in acumulator.
+De asemenea registrul de flaguri este actualizat in functie de rezultatul operatiei.\\
+
+Rotate si Shift sunt grupuri de instructiuni care permit registrilor cat si valorilor din memorie sa fie rotite sau shiftate la stanga sau dreapta, cu sau fara carry.\\
+
+Operatiunile la nivel de bit permit oricarui bit din acumulator, alt registru sau o locatie din memorie sa fie setat, resetat sau testat.\\
+
+Jump, Call si Return sunt tipuri de instructiuni care transfera executia programului la o alta locatie din memorie.
+Aceste instructiuni folosesc mai multe metode diferite de a transfera controlul programului.
+Instructiunea Reset este un tip special de Call care permite saltul la doar 8 locatii diferite din memorie.
+Alte instructiuni permit incarcarea Program Counter (PC) direct cu o valoare din memorie specificata de HL, IX sau IY.
+Aceste instructiuni permit un nivel de control foarte inalt asupra executiei programului.\\
+
+Instructiunile de \ac {IO} permit un spectru larg de transferuri de date intre microprocesor si dispozitivele externe.
+O instructiune de acest tip foloseste ca port in transfer al doilea byte al instructiunii.
+Alta instructiune permite portului sa fie specificat de registrul C.
+Un avantaj mare in a folosi portul C, este ca permite unei functii sa fie refolosita pentru orice port.
+Acest lucru nu ar fi posibil daca portul ar fi specificat de al doilea byte al instructiunii.
+O buna caracteristica a acestor instructiuni este ca modifica automat flagurile in functie de rezultatul operatiei.
+Din acest motiv nu este necesar sa se faca verificari suplimentare pentru a testa rezultatul operatiei. Exemplu: flagul de semn este setat daca rezultatul operatiei este negativ.\\
+
+\ac {Z80} include instructiuni care sunt capabile sa mute blocuri intregi de date (pana la 256 byte) automata intre orice port \ac {IO} si memorie
+Impreuna cu setul dual de registrii cu scop general, aceste instructiuni faciliteaza transferuri rapide de rate cu dispozitivele externe.\\
+
+Instructiunile de control sunt instructiuni care controleaza mici aspecte ale microprocesorului.
+Unele instructiuni de acest tip sunt cele care activeaza sau dezactiveaza intreruperile, sau cele care controleaza modul de raspuns la intreruperi.
 
 \subsection{Emulator}
 Un emulator reprezinta o metoda hardware sau software de a imita un alt tip de sistem de calcul, cum ar fi un procesor, consola sau chiar un intreg calculator.
@@ -174,6 +235,29 @@ Acest lucru ajuta in mentenanta pe termen lung permitand inlocuirea componentei 
 In cazul curent, deoarece \ac {Z80} este destul de vechi si procurarea acestuia a devenit o problema, in cazul in care microcontrolerul necesita inlocuirea, acesta va putea fi inlocuit cu un Raspberry Pi (sau o alternativa) ruland un emulator.
 
 Pentru realizarea proiectului, emulatorul este necesar sa contina memoria, registrii, si logica necesara pentru decodarea si executarea instructiunilor.
+
+Emularea se va face cat mai apropiat de un Z80 real, acest lucru fiind necesar pentru a asigura ca aplicatiile scrise pentru Z80 vor rula corect.
+Pentru asigurarea calitatii si corectitudinii, toate instructiunile Z80 vor fi implementate, acestea fiind testate cu ajutorul unor teste unitare.
+
+Emularea va functiona la nivel de instructiune, acest lucru permitand o monitorizare cat mai buna a executiei programului.
+Utilizatorul va avea in fiecare moment control asupra executiei programului, acesta putand pune pauza executiei, modifica registrii sau vizualiza memoria.
+Aceste facilitati ar trebui sa ofere un avantaj enorm in depanarea aplicatiilor scrise pentru Z80.
+Un asemenea debugger ii va permite programatorului sa vada exact ce se intampla in fiecare moment al executiei programului.
+
+Deoarece se vrea un nivel cat mai inalt de control, memoria emulatorului de asemenea va putea fi configurata.
+Zone intregi de memori pot fi alocate ca fiind \ac {ROM} sau \ac {RAM}, sau chiar nealocate.
+Deoarece codul va rula in emulator, in cazul accesarii unei zone de memorie nealocate, acest lucru va fi detectat si va fi notifica utilizatorul.
+
+Pentru a simula dispozitivele externe, emulatorul va avea si un sistem de porturi \ac {IO}.
+Porturile \ac {IO} in cazul emulatorului, vor fi legate la niste dispozitive virtuale care vor simula dispozitivele reale.
+Aceste dispozitive virtuale vor fi configurabile de catre utilizator, acesta putand alege ce dispozitive sa fie simulate si ce porturi sa fie folosite.
+Exemplu: Emulatorul va putea simula accesul la un ecran, tastatura sau chiar un dispozitiv de stocare.
+
+O alta caracteristica pe care o va avea emulatorul este cea de extensibilitate.
+Emulatorul va fi scris ca o librarie, acesta putand fi inclus in orice alt proiect scris in Rust.
+Acest lucru va permite utilizatoriilor sa isi creeze propriile dispozitive compatibile cu emulatorul.
+Exemplu: Un utilizator ar putea sa creeze un dispozitiv care sa simuleze un ecran cu o rezolutie mai mare
+
 
 %\begin{multicols}{2}
 
@@ -190,9 +274,11 @@ Pentru realizarea proiectului, emulatorul este necesar sa contina memoria, regis
 
 \subsection{Decizie limbaj de programare}
 
-In procesul de alegere a limbajului de programare, s-au luat in considerare mai multe aspecte, cum ar fi: performanta, documentatie si securitate.
+In procesul de alegere a limbajului de programare, s-au luat in considerare mai multe aspecte, cum ar fi:
+performanta, documentatie si securitate.
 
-Performanta este un aspect important, deoarece emulatorul va trebui sa ruleze cat mai fluid si cat mai apropiat de un Z80 real. Un emulator eficient putand fi capabil sa ruleze in functie de nevoie chiar mai rapid.
+Performanta este un aspect important, deoarece emulatorul va trebui sa ruleze cat mai fluid si cat mai apropiat de un Z80 real.
+Un emulator eficient putand fi capabil sa ruleze in functie de nevoie chiar mai rapid.
 
 Din aceasta cauza a fost preferat un limbaj compilat ce permite un control mai fin asupra memoriei si a resurselor.
 
@@ -200,17 +286,79 @@ Limbaje cum ar fi JavaScript si Python desi capabile, ar avea probleme in a ment
 
 Un limbaj foarte folosit, mai ales pe embedded este C/C++, acesta fiind considerat a fi printre cele mai rapide.
 
-Alt limbaj care a fost luat in considerare a fost Rust, acesta fiind un limbaj modern, care oferta acelasi nivel de control si performanta ca C/C++, dar cu un sistem de tipuri mai sigur si mai usor de folosit.
+Alt limbaj care a fost luat in considerare a fost Rust, acesta fiind un limbaj modern,
+care oferta acelasi nivel de control si performanta ca C/C++, dar cu un sistem de tipuri mai sigur si mai usor de folosit.
 
-Un mare avantaj al \ac {Rust} este sistemul sau de tipuri si de ownership, acesta putand preveni multe buguri comune din C/C++ cum ar fi race conditions, memory leaks sau dereferentierea unui pointer null.
+Un mare avantaj al \ac {Rust} este sistemul sau de tipuri si de ownership,
+acesta putand preveni multe buguri comune din C/C++ cum ar fi race conditions, memory leaks sau dereferentierea unui pointer null.
 
-In \ac {Rust} nu exista pointeri null, acest lucru fiind inlocuit de tipul Option<T>, acesta fiind un enum care poate fi Some(T) sau None.
+In \ac {Rust} nu exista pointeri null, acest lucru fiind inlocuit de tipul Option<T>,acesta fiind un enum care poate fi Some(T) sau None.
 
-Datorita nivelului ridicat de securitate adus de Rust, \ac {DARPA} a lansat proiectul TRACTOR, acest proiect are ca tinta transformarea automata a codului C/C++ in Rust.
+Datorita nivelului ridicat de securitate adus de Rust,
+\ac {DARPA} a lansat proiectul TRACTOR, acest proiect are ca tinta transformarea automata a codului C/C++ in Rust.
 
-Un alt motiv din cauza carui \ac {Rust} a fost ales ca limbaj pentru proiect, este faptul ca acesta poate fi compilat cu usurinta in \ac {WASM}, acest lucru va permite rularea aplicatiei in orice browser web modern.
+Un alt motiv din cauza carui \ac {Rust} a fost ales ca limbaj pentru proiect, este faptul ca acesta poate fi compilat cu usurinta in \ac {WASM},
+acest lucru va permite rularea aplicatiei in orice browser web modern.
 
+\subsection{Web}
 
+In ultimii ani, aplicatiile web au devenit din ce in ce mai populare, acestea fiind usor de accesat si de folosit.
+Un avantaj major al aplicatiilor web este faptul ca acestea pot rula pe orice dispozitiv care are un browser web.
+Datorita avansarii rapide in tehnologie, acum se pot gasi pe piata frigidere si masini de spalat care au un browser web, lucru care ar fi fost greu de crezut acum 20 ani.
+
+Un alt avantaj al aplicatiilor web este faptul ca acestea pot fi rulate fara a fi instalate, acest lucru fiind un avantaj major in cazul unui emulator.
+Mare parte din emulatoarele existente necesita instalare, acest lucru fiind un inconvenient pentru utilizatorii care nu doresc sau nu pot sa faca acest lucru.
+Deoarece aplicatia este ruleata din browser, utilizatorul nu risca sa descarce un virus, aplicatia web neavand access direct asupra calculatorului.
+Un alt avantaj a creari unei aplicatii web este ca emulatorul va fi capabil sa ruleze pe orice arhitectura de procesor sau sistem de operare, atat timp cat acesta are un browser web modern.
+
+Desi aplicatia web va fi capabila sa functioneze in mod standalone, complet offline, aceasta va putea fi integrata si in alte aplicatii web, oferind un nivel de control mai mare asupra acesteia.
+
+In proiectul curent, va fi de asemenea folosit si un server pentru partea de backend. Desi nu este necesar, acesta este folosit pentru a oferi o experienta mai buna utilizatorului.
+Anumite actiuni, cum ar fi compilarea codului C in cod Z80, nefiind posibile in browser, acestea fiind procesate de backend si apoi transmise inapoi catre client.
+
+Contrar multor aplicatii web, aceasta nu va folosi javascript, singura parte de javascript fiind cea care incarca aplicatia \ac {WASM} in browser.
+\ac {WASM} a fost ales deoarece este mult mai performant decat javascript, acesta fiind capabil sa ruleze cod mult mai rapid. De asemenea, deoarece fisierele ".wasm" sunt in format binar,
+nu text precum javascript, acestea sunt mult mai compacte, ocupand mai putin spatiu si facilitand o incarcare mai rapida a aplicatiei.
+
+\ac {Rust} a fost folosit ca limbaj de programare atat pentru frontend cat si pentru backend.
+Folosirea aceluiasi limbaj de programare pe ambele parti, va facilita dezvoltarea si mentenanta aplicatiei.
+
+Serializarea si deserializarea datelor reprezinta procesul prin care structuri de date complexe sunt convertite in format text sau binar, pentru a putea fi transmise pe retea sau salvate pe disk.
+In cazul aplicatiei web, serializarea si deserializarea datelor este necesara pentru a putea transmite datele de la client la server si invers.
+Pentru aceasta, se va folosi formatul JSON, acesta fiind un format des folosit pentru web, si foarte bine suportat de \ac {Rust}.
+Datorita librariei de serializare/deserializare Serde, aceasta operatie este foarte usoara si rapida de realizat.
+Toate structurile de date fiind serializabile/deserializabile cu modificari minime.
+Acest lucru ne face foarte usoara transmiterea de obiecte intre server si client.
+
+Serverul aplicatiei va avea access la randul sau la o baza de date, aceasta oferind functionalitatile extra doar utilizatorilor logati.
+Pentru o securitate cat mai buna, parolele nu vor fi salvate direct in baza de date.
+In schimb, acestea vor fi criptate folosind algoritmul de hashing argon2.
+Aceasta metoda de criptare este una dintre cele mai sigure, aceasta fiind capabila sa reziste unor atacuri brute force chiar si pe cele mai puternice calculatoare.
+
+De asemenea, un sistem de tokenuri va fi folosit pentru a autentifica utilizatorii.
+Acest lucru va permite serverului sa stie daca un utilizator este logat sau nu, fara a fi nevoie de a trimite parola la fiecare request.
+Un token unic este creat de server la fiegare logare, acesta fiind trimis inapoi si stocate in browser de catre client.
+Server apoi la fiecare request va verifica daca tokenul este valid si daca este, va permite accesul la resursele protejate.
+
+\subsection {Docker}
+
+Docker\cite{ref:docker} este o platforma ce permite dezvoltarea, livrarea si rularea aplicatiilor.
+Docker ofera posibilitatea de a separa aplicatia de infrastructura, acest lucru permitand rularea acesteia pe orice sistem care are Docker instalat.
+Un container Docker este o unitate standard de software care incorporeaza codul aplicatiei, librariile si dependintele acesteia, impreuna cu un mediu de runtime bazat de obicei pe un sistem de operare Linux.
+Fiecare container este complet izolat de celelalte, acest lucru permitand rularea mai multor aplicatii pe acelasi sistem fara a interfera intre ele.
+Desi fiecare container este izolat, acesta pot fi configurate sa comunice cu alte containere sau cu sistemul gazda, acest lucru permitand crearea de aplicatii complexe.
+
+Docker este folosit in acest proiect pentru a facilita rularea aplicatiei pe orice sistem, fara a fi nevoie de a instala toate dependintele manual.
+Pentru a configura un container docker, o imagine trebuie sa fie creata.
+Aceasta imagine continand tot ce este necesar pentru a rula aplicatia.
+Imaginile sunt create folosind un fisier de configurare numit Dockerfile.
+Acest fisier de configurare contine instructiuni pentru a crea o imagine, cum ar fi ce baza de date sa fie folosita, ce librarii sa fie instalate si cum sa fie configurata aplicatia.
+Folosirea unei astfel de imagini, permite o migrare usoara a aplicatiei intre diferite medii, fie ca este vorba de un server local sau un server cloud.
+
+Alt avantaj al folosirii Docker este faptul ca acesta ofera un nivel de securitate mai mare.
+Datorita faptului ca fiecare container este izolat, acesta nu poate afecta alte containere sau sistemul gazda.
+De asemenea, datorita faptului ca fiecare container are acces doar la resursele pe care le are nevoie, acesta nu poate afecta alte resurse.
+Aceasta izolare ofera un nivel de securitate mai mare, chiar daca aplicatia este vulnerabila, aceasta nu poate afecta restul sistemului.
 
 \section{Implementare}
 This is the conclusion.
