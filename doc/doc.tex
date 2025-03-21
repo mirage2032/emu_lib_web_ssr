@@ -5,7 +5,7 @@
 %\usepackage[light]{merriweather} %% Option 'black' gives heavier bold face
 \usepackage{tgtermes}
 \usepackage{inconsolata}
-\usepackage{listings, listings-rust}
+\usepackage{listings, listings-rust,docker}
 \usepackage{xcolor}
 \usepackage{multicol}
 \lstset{
@@ -348,11 +348,32 @@ Un container Docker este o unitate standard de software care incorporeaza codul 
 Fiecare container este complet izolat de celelalte, acest lucru permitand rularea mai multor aplicatii pe acelasi sistem fara a interfera intre ele.
 Desi fiecare container este izolat, acesta pot fi configurate sa comunice cu alte containere sau cu sistemul gazda, acest lucru permitand crearea de aplicatii complexe.
 
+Desi containerele par similare cu masinile virtuale, acestea sunt mult mai mici, rapide si eficiente.
+Un container va rula pe acelasi kernel ca si sistemul gazda, acest lucru facandu-l mult mai eficient decat o masina virtuala.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/dockerstructure}
+    \caption{Structura Docker.}
+    \label{fig:containerstructure}
+\end{figure}
+
+In cazul aplicatiilor cu trafic mare, Docker ofera posibilitatea de a scala aplicatia pe mai multe containere, fiecare container ruland o parte din aplicatie.
+In cazul cresterea traficului, Docker va putea rula mai multe containere, fiecare container ruland o parte din aplicatie.
+
 Docker este folosit in acest proiect pentru a facilita rularea aplicatiei pe orice sistem, fara a fi nevoie de a instala toate dependintele manual.
 Pentru a configura un container docker, o imagine trebuie sa fie creata.
 Aceasta imagine continand tot ce este necesar pentru a rula aplicatia.
 Imaginile sunt create folosind un fisier de configurare numit Dockerfile.
 Acest fisier de configurare contine instructiuni pentru a crea o imagine, cum ar fi ce baza de date sa fie folosita, ce librarii sa fie instalate si cum sa fie configurata aplicatia.
+\begin{lstlisting}[language=docker,caption={Exemplu Dockerfile},label={lst:dockerfile}]
+    FROM rust:1.52
+    WORKDIR /usr/src/myapp
+    COPY . .
+    RUN cargo build --release
+    CMD ["cargo", "run"]
+\end{lstlisting}
+In (Lst~\ref{lst:dockerfile}) se poate vedea un exemplu de Dockerfile ce copiaza si compileaza o aplicatie Rust.
 Folosirea unei astfel de imagini, permite o migrare usoara a aplicatiei intre diferite medii, fie ca este vorba de un server local sau un server cloud.
 
 Alt avantaj al folosirii Docker este faptul ca acesta ofera un nivel de securitate mai mare.
