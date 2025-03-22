@@ -1,15 +1,17 @@
 \documentclass[titlepage,12pt]{article}
 \usepackage[romanian]{babel}
-\usepackage[T1]{fontenc}
+%\usepackage{mathptmx}
+%\usepackage[T1]{fontenc}
+%\usepackage[utf8]{inputenc}
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
 \usepackage[backend=biber]{biblatex}
-%\usepackage[light]{merriweather} %% Option 'black' gives heavier bold face
-\usepackage{tgtermes}
-\usepackage{inconsolata}
-\usepackage{listings, listings-rust,docker}
+\usepackage{listings, listings-rust, docker}
 \usepackage{xcolor}
 \usepackage{multicol}
+
 \lstset{
-    basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n}, % Use Inconsolata font with 8pt size
+    basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n}
     keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
     commentstyle=\color{green}, % Comments in green
     stringstyle=\color{red}, % Strings in red
