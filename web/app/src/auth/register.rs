@@ -23,7 +23,7 @@ pub fn register_form() -> impl IntoView {
     if let Some(registered) = use_context::<RwSignal<bool>>() {
         Effect::new(move || {
             login.value().with(|val| {
-                if let Some(Ok(())) = val {
+                if let Some(Ok(())) = val.as_ref() {
                     registered.set(true);
                 }
             })
@@ -36,7 +36,7 @@ pub fn register_form() -> impl IntoView {
         if username_read().len() < 5 {
             return Some(Ok(true));
         }
-        return username_exists_action.value().get();
+        return username_exists_action.value().get().clone().take();
     };
     let username_class = move || {
         if username_exists_action.pending().get() {
@@ -54,7 +54,7 @@ pub fn register_form() -> impl IntoView {
         if !email_regex.is_match(&email_read()) {
             return Some(Ok(true));
         }
-        return email_exists_action.value().get();
+        return email_exists_action.value().get().clone().take();
     };
     let email_class = move || {
         if email_exists_action.pending().get() {
@@ -78,7 +78,7 @@ pub fn register_form() -> impl IntoView {
     let allow_submit = move || {
         if let (Some(Ok(false)), Some(Ok(false)), true) = (
             username_invalid(),
-            email_exists_action.value().get(),
+            email_exists_action.value().get().as_ref(),
             verif_password(),
         ) {
             true

@@ -21,7 +21,7 @@ leptos_meta = { git = "https://github.com/leptos-rs/leptos" }
 leptos_router = { git = "https://github.com/leptos-rs/leptos", features = ["nightly"] }
 leptos_axum = { git = "https://github.com/leptos-rs/leptos" }
 wasm-bindgen = "0.2.100"
-axum = { version="0.7.9",features=["macros"] }
+axum = { version= "0.8.3",features=["macros"] }
 reqwest = { version="0.12.8",features = ["json"] }
 cfg-if = "1"
 console_error_panic_hook = "0.1.7"

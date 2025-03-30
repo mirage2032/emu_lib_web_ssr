@@ -14,7 +14,7 @@ pub fn LoginForm() -> impl IntoView {
     let login = ServerAction::<LoginApi>::new();
 
     Effect::new(move || {
-        if let Some(Ok(())) = login.value().get() {
+        if let Some(Ok(())) = login.value().get().as_ref() {
             let _ = window().location().set_href("/dashboard");
         }
     });
@@ -25,7 +25,8 @@ pub fn LoginForm() -> impl IntoView {
         if login_valid_action.pending().get() {
             return "warning";
         }
-        login_valid_action.value().with(|val| match val {
+        let d=login_valid_action.value();
+        login_valid_action.value().with(|val| match val.as_ref() {
             Some(val) => match val {
                 Ok(true) => "valid",
                 Ok(false) => "invalid",
