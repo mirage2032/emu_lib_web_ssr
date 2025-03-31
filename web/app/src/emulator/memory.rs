@@ -74,7 +74,7 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                     }
                 }
             };
-            view! { <input maxlength=2 style:width="3ch" on:change=write_mem prop:value=read_mem /> }
+            view! { <input maxlength=2 on:change=write_mem prop:value=read_mem /> }
                 .into_any()
         } else {
             view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
@@ -116,7 +116,7 @@ pub fn Memory() -> impl IntoView {
     if use_context::<RwSignal<MemoryShape>>().is_none() {
         let shape = RwSignal::new(MemoryShape {
             width: 0x10,
-            height: 0x20,
+            height: 0x10,
         });
         provide_context(shape);
     }
@@ -125,9 +125,12 @@ pub fn Memory() -> impl IntoView {
         provide_context(RwSignal::new(start));
     }
     view! {
-        <table class=emu_style::memorymap>
-            <MemoryTHead />
-            <MemoryTBody />
-        </table>
+        <div class=emu_style::memorymap>
+            <span>Memory</span>
+            <table class=emu_style::memorymaptable>
+                <MemoryTHead />
+                <MemoryTBody />
+            </table>
+        </div>
     }
 }

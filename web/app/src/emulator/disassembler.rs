@@ -1,8 +1,9 @@
-use emu_lib::cpu::instruction::InstructionParser;
+use emu_lib::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use emu_lib::cpu::z80::parser::Z80_PARSER;
 use emu_lib::cpu::z80::{parser::Z80Parser, Z80};
 use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
+use super::emu_style;
 
 #[derive(Clone, Copy, Debug)]
 pub enum DisassemblerDisplayMode {
@@ -21,7 +22,7 @@ impl Default for DisassemblerContext {
     fn default() -> Self {
         DisassemblerContext {
             start: None,
-            rows: 66,
+            rows: 20,
             display_mode: DisassemblerDisplayMode::String,
         }
     }
@@ -35,6 +36,7 @@ pub fn DisassemblerTHead() -> impl IntoView {
                 <th>Address</th>
                 <th></th>
                 <th>Instruction</th>
+                <th>HexCode</th>
             </tr>
         </thead>
     }
@@ -47,29 +49,40 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
     let instruction = move || {
         // "N/A".to_string()
         if address > (u16::MAX as usize) {
-            return "N/A".to_string();
+            return Err("Outside range".to_string());
         }
         emu.with(|emu| {
-            let instruction_opt = Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16);
-            match instruction_opt {
-                Ok(instruction) => match ctx.with(|ctx| ctx.display_mode) {
-                    DisassemblerDisplayMode::String => instruction.to_string(),
-                    DisassemblerDisplayMode::Bytes => instruction
-                        .to_bytes()
-                        .iter()
-                        .map(|b| format!("{:02X}", b))
-                        .collect::<Vec<_>>()
-                        .join(" "),
-                },
-                Err(err) => " ".to_string(),
-            }
+            Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16).map_err(|err|err.to_string())
         })
+    };
+    let ins_bytes = move || {
+        if let Ok(instruction)=instruction() {
+            instruction
+                .to_bytes()
+                .iter()
+                .map(|b| format!("{:02X}", b))
+                .collect::<Vec<_>>()
+                .join(" ")
+        } else { "N/A".to_string() }
+    };
+    let ins_string =move || {
+        if let Ok(instruction)=instruction() {
+            instruction.to_string()
+        } else { "N/A".to_string() }
+    };
+    let breakpoint = move || {
+        if emu.with(|emu| emu.breakpoints.iter().all(|&bp|bp as usize!=address) ) == true {
+            ""
+        }else{
+            "X"
+        }
     };
     view! {
         <tr>
             <th>{move || format!("{:04X}", address)}</th>
-            <td>X</td>
-            <td>{instruction}</td>
+            <td>{breakpoint}</td>
+            <td>{ins_string}</td>
+            <td>{ins_bytes}</td>
         </tr>
     }
 }
@@ -115,9 +128,12 @@ pub fn Disassembler() -> impl IntoView {
     }
 
     view! {
-        <table>
-            <DisassemblerTHead />
-            <DisassemblerTBody />
-        </table>
+        <div class=emu_style::disassembler>
+            <span>Disassembler</span>
+            <table class=emu_style::disassemblertable>
+                <DisassemblerTHead />
+                <DisassemblerTBody />
+            </table>
+        </div>
     }
 }

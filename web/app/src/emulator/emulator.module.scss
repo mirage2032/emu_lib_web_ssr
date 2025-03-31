@@ -1,56 +1,151 @@
 // Memory Map Color Scheme
-$mc-primary: #2a7fff;       // Primary accent
-$mc-row-even: #f8f9fa;      // Even row
-$mc-row-odd: #e9ecef;       // Odd row
-$mc-header: #343a40;        // Header
-$mc-text-dark: #212529;     // Dark text
-$mc-text-light: #f8f9fa;    // Light text
-$mc-border: #dee2e6;        // Borders
+$mc-primary: #2a7fff; // Primary accent
+$mc-row-even: #f8f9fa; // Even row
+$mc-row-odd: #e9ecef; // Odd row
+$mc-header: #343a40; // Header
+$mc-text-dark: #212529; // Dark text
+$mc-text-light: #f8f9fa; // Light text
+$mc-border: #dee2e6; // Borders
+//create mixin
+@mixin span-title {
+  span {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    display: block;
+    padding: 0.3rem;
+    background-color: $mc-header;
+    color: $mc-text-light;
+    text-align: center;
+  }
+}
 
-.memorymap {
-  border-collapse: collapse;
-  font-size: 0.875rem;
-  background: white;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  width: auto;
+.emulator {
+  display: flex;
 
-  thead tr {
-    background: $mc-header;
+  .memorymap {
+    border: 1px solid $mc-border;
+    @include span-title;
 
-    th {
-      padding: 0.3rem 0.5rem;
-      color: $mc-text-light;
-      font-weight: 500;
-      border-right: 1px solid lighten($mc-header, 8%);
-      font-size: 0.8em;
+    .memorymaptable {
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      background: white;
+      border-radius: 0 0 0 0;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      width: auto;
 
-      &:last-child { border-right: none; }
+      thead tr {
+        background: $mc-header;
+
+        th {
+          padding: 0.3rem 0.5rem;
+          color: $mc-text-light;
+          font-weight: 500;
+          //border-right: 1px solid lighten($mc-header, 8%);
+          font-size: 0.8em;
+
+          &:last-child {
+            border-right: none;
+          }
+        }
+      }
+
+      tbody tr {
+        td {
+          padding: 0;
+          position: relative;
+          //border-bottom: 1px solid $mc-border;
+
+          input {
+            width: 4ch;
+            height: 100%;
+            padding: 0.2rem 0.3rem;
+            border: none;
+            background: transparent;
+            color: $mc-text-dark;
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.9em;
+            text-align: center;
+            transition: all 0.15s ease;
+
+            &:hover:not(:focus) {
+              background: rgba($mc-primary, 0.06);
+            }
+
+            &:focus {
+              background: white;
+              box-shadow: 0 0 0 1.5px $mc-primary;
+              outline: none;
+              z-index: 2;
+            }
+
+            &::placeholder {
+              color: rgba($mc-text-dark, 0.4);
+              font-weight: 300;
+            }
+          }
+        }
+
+        &:nth-child(even) {
+          background: $mc-row-even;
+
+          td input:focus {
+            background: mix(white, $mc-row-even, 80%);
+          }
+        }
+
+        &:nth-child(odd) {
+          background: $mc-row-odd;
+
+          td input:focus {
+            background: mix(white, $mc-row-odd, 80%);
+          }
+        }
+
+        th {
+          padding: 0.3rem 0.6rem;
+          background: $mc-header;
+          color: rgba($mc-text-light, 0.9);
+          //border-right: 1px solid lighten($mc-header, 8%);
+          font-weight: 500;
+          font-size: 0.85em;
+          white-space: nowrap;
+        }
+      }
+
+      th, td {
+        //border-bottom: 1px solid $mc-border;
+
+        &:first-child {
+          //border-left: 1px solid $mc-border;
+        }
+
+        &:last-child {
+          //border-right: 1px solid $mc-border;
+        }
+      }
     }
   }
 
-  tbody tr {
-    td {
-      padding: 0;
-      position: relative;
-      border-bottom: 1px solid $mc-border;
+  .emucontrol {
+    width:100%;
+    border: 1px solid $mc-border;
+    border-bottom:none;
+    .load {
+      display: inline;
 
-      input {
-        width: 100%;
-        height: 100%;
-        min-width: 2.8em;
+      label {
         padding: 0.2rem 0.3rem;
         border: none;
         background: transparent;
-        color: $mc-text-dark;
+        color: $mc-text-light;
         font-family: 'SFMono-Regular', Consolas, monospace;
         font-size: 0.9em;
         text-align: center;
         transition: all 0.15s ease;
 
         &:hover:not(:focus) {
-          background: rgba($mc-primary, 0.06);
+          background: rgba($mc-primary, 0.16);
         }
 
         &:focus {
@@ -59,44 +154,129 @@ $mc-border: #dee2e6;        // Borders
           outline: none;
           z-index: 2;
         }
+      }
 
-        &::placeholder {
-          color: rgba($mc-text-dark, 0.4);
-          font-weight: 300;
-        }
+      input[type="file"] { //keep in mind file has a ::file-selector-button pseudo element that needs to be taken care
+        display: none;
       }
     }
 
-    &:nth-child(even) {
-      background: $mc-row-even;
-      td input:focus { background: mix(white, $mc-row-even, 80%); }
-    }
+    input[type="button"] {
+      padding: 0.2rem 0.3rem;
+      border: none;
+      background: transparent;
+      color: $mc-text-light;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.9em;
+      text-align: center;
+      transition: all 0.15s ease;
 
-    &:nth-child(odd) {
-      background: $mc-row-odd;
-      td input:focus { background: mix(white, $mc-row-odd, 80%); }
-    }
+      &:hover:not(:focus) {
+        background: rgba($mc-primary, 0.16);
+      }
 
-    th {
-      padding: 0.3rem 0.6rem;
-      background: lighten($mc-header, 4%);
-      color: rgba($mc-text-light, 0.9);
-      border-right: 1px solid lighten($mc-header, 8%);
-      font-weight: 500;
-      font-size: 0.85em;
-      white-space: nowrap;
+      &:active {
+        background: white;
+        box-shadow: 0 0 0 1.5px $mc-primary;
+        color: $mc-text-dark;
+        outline: none;
+        z-index: 2;
+      }
+
+      &.activeinput {
+        background: white !important;
+        box-shadow: 0 0 0 1.5px $mc-primary;
+        color: $mc-text-dark !important;
+        outline: none;
+        z-index: 2;
+      }
+
+      &::placeholder {
+        color: rgba($mc-text-dark, 0.4);
+        font-weight: 300;
+      }
     }
   }
 
-  th, td {
-    border-bottom: 1px solid $mc-border;
-
-    &:first-child {
-      border-left: 1px solid $mc-border;
+  .disasmregsflex {
+    display: flex;
+    width: 100%;
+    & > * {
+      flex-grow: 0;
+      flex-shrink: 0;
     }
 
-    &:last-child {
-      border-right: 1px solid $mc-border;
+    .disassembler {
+      flex-basis:60%;
+      border: 1px solid $mc-border;
+      @include span-title;
+
+      .disassemblertable {
+        font-size: 0.875rem;
+        background: white;
+        border-radius: 0 0 0 0;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        border-collapse: collapse;
+        width:100%;
+
+        thead tr {
+          background: $mc-header;
+
+          th {
+            padding: 0.3rem 0.5rem;
+            color: $mc-text-light;
+            font-weight: 500;
+            //border-right: 1px solid lighten($mc-header, 8%);
+            font-size: 0.8em;
+
+            &:last-child {
+              border-right: none;
+            }
+          }
+        }
+
+
+        tbody tr {
+          td {
+            padding: 0;
+            position: relative;
+            border-bottom: 1px solid $mc-border;
+
+            input {
+              width: 4ch;
+              height: 100%;
+              padding: 0.2rem 0.3rem;
+              border: none;
+              background: transparent;
+              color: $mc-text-dark;
+              font-family: 'SFMono-Regular', Consolas, monospace;
+              font-size: 0.9em;
+              text-align: center;
+              transition: all 0.15s ease;
+
+              &:hover:not(:focus) {
+                background: rgba($mc-primary, 0.06);
+              }
+
+              &:focus {
+                background: white;
+                box-shadow: 0 0 0 1.5px $mc-primary;
+                outline: none;
+                z-index: 2;
+              }
+
+              &::placeholder {
+                color: rgba($mc-text-dark, 0.4);
+                font-weight: 300;
+              }
+            }
+          }
+        }
+      }
+    }
+    .registers{
+      background-color: green;
     }
   }
 }

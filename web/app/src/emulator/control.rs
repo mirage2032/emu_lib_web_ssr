@@ -11,7 +11,7 @@ use leptos::web_sys;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use stylance::classes;
-
+use super::emu_style;
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
@@ -20,7 +20,6 @@ fn StepButton() -> impl IntoView {
         <input
             type="button"
             value="Step"
-            class=BTN_CLASS
             on:click=move |_| {
                 emu_signal
                     .update(|emu| {
@@ -75,7 +74,7 @@ fn RunButton() -> impl IntoView {
             type="button"
             value="Run"
             class=move || {
-                classes!(BTN_CLASS,handle_sig.with(|&opt|if opt.is_some() {"active"} else {""}))
+                classes!(BTN_CLASS,handle_sig.with(|&opt|if opt.is_some() {emu_style::activeinput} else {""}))
             }
             on:click=move |_| switch(Duration::from_millis(1))
         />
@@ -90,7 +89,7 @@ fn HaltButton() -> impl IntoView {
             type="button"
             value="Halt"
             class=move || {
-                classes!(BTN_CLASS,if emu_signal.with(|emu|emu.cpu.halted()) {"active"} else {""})
+                classes!(if emu_signal.with(|emu|emu.cpu.halted()) {emu_style::activeinput} else {""})
             }
             on:click=move |_| {
                 emu_signal
@@ -109,7 +108,6 @@ fn ResetButton() -> impl IntoView {
         <input
             type="button"
             value="Reset"
-            class=BTN_CLASS
             on:click=move |_| emu_signal.update(|emu| { emu.cpu = Z80::default() })
         />
     }
@@ -119,42 +117,47 @@ fn ResetButton() -> impl IntoView {
 fn LoadButton() -> impl IntoView {
     let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
     view! {
-        <input
-            value="Load"
-            class=BTN_CLASS
-            type="file"
-            on:change=move |ev| {
-                if let Some(target) = ev.target() {
-                    if let Some(files) = target.unchecked_ref::<HtmlInputElement>().files() {
-                        if let Some(file) = files.get(0) {
-                            let emu_signal = emu_signal.clone();
-                            spawn_local(async move {
-                                let value = wasm_bindgen_futures::JsFuture::from(
-                                        file.array_buffer(),
-                                    )
-                                    .await
-                                    .expect("Error reading file");
-                                let array = js_sys::Uint8Array::new(&value);
-                                let data = array.to_vec();
-                                emu_signal
-                                    .update(|emu| {
-                                        if let Ok(_) = emu.memory.load(&data, true) {
-                                            log!("Loaded file");
-                                        }
-                                    });
-                            });
+        <div class=emu_style::load>
+            <label for="fileupload">
+                <span>Load</span>
+            </label>
+            <input
+                id="fileupload"
+                value="Load"
+                type="file"
+                on:change=move |ev| {
+                    if let Some(target) = ev.target() {
+                        if let Some(files) = target.unchecked_ref::<HtmlInputElement>().files() {
+                            if let Some(file) = files.get(0) {
+                                let emu_signal = emu_signal.clone();
+                                spawn_local(async move {
+                                    let value = wasm_bindgen_futures::JsFuture::from(
+                                            file.array_buffer(),
+                                        )
+                                        .await
+                                        .expect("Error reading file");
+                                    let array = js_sys::Uint8Array::new(&value);
+                                    let data = array.to_vec();
+                                    emu_signal
+                                        .update(|emu| {
+                                            if let Ok(_) = emu.memory.load(&data, true) {
+                                                log!("Loaded file");
+                                            }
+                                        });
+                                });
+                            }
                         }
                     }
                 }
-            }
-        />
+            />
+        </div>
     }
 }
 
 #[component]
 pub fn Control() -> impl IntoView {
     view! {
-        <div>
+        <div class=emu_style::emucontrol>
             <StepButton />
             <RunButton />
             <HaltButton />

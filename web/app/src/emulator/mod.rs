@@ -27,20 +27,22 @@ pub fn EmulatorNoTitle() -> impl IntoView {
         let emu = default_emu();
         provide_context(RwSignal::new(emu));
     }
-    // if use_context::<LoggerSignal>().is_none() {
-    //     let logger: LoggerSignal = LoggerStoreSignal::new("Emulator").into();
-    //     provide_context(logger)
-    // }
     view! {
         <Control />
         <Memory />
-        <Disassembler />
+        <div class=emu_style::disasmregsflex>
+            <Disassembler />
+            <div class=emu_style::registers>X</div>
+        </div>
     }
 }
 #[component]
 pub fn Emulator() -> impl IntoView {
     view! {
         <Title text="Emulator" />
-        <EmulatorNoTitle />
+        <div class=emu_style::emulator>
+            <EmulatorNoTitle />
+            // <div></div>
+        </div>
     }
 }

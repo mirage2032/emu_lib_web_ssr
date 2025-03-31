@@ -1,3 +1,4 @@
+#![recursion_limit = "256"]
 use app::db::{establish_connection, AppState};
 use app::*;
 use axum::middleware::from_fn_with_state;
