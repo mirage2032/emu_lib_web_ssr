@@ -1,6 +1,8 @@
 mod control;
 mod disassembler;
 mod memory;
+mod registers;
+
 use crate::utils::logger;
 
 use control::Control;
@@ -12,6 +14,7 @@ use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 use leptos_meta::Title;
+use crate::emulator::registers::Registers;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
 
@@ -32,7 +35,7 @@ pub fn EmulatorNoTitle() -> impl IntoView {
         <Memory />
         <div class=emu_style::disasmregsflex>
             <Disassembler />
-            <div class=emu_style::registers>X</div>
+            <Registers />
         </div>
     }
 }

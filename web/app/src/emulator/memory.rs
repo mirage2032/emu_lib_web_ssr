@@ -121,7 +121,7 @@ pub fn Memory() -> impl IntoView {
         provide_context(shape);
     }
     if use_context::<RwSignal<MemoryStart>>().is_none() {
-        let start = MemoryStart { start: 0 };
+        let start = MemoryStart { start: 16 };
         provide_context(RwSignal::new(start));
     }
     view! {
