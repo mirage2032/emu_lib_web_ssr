@@ -39,6 +39,7 @@ pub fn EmulatorNoTitle() -> impl IntoView {
         </div>
     }
 }
+
 #[component]
 pub fn Emulator() -> impl IntoView {
     view! {

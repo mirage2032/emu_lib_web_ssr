@@ -50,12 +50,12 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
             row,
         ) {
             let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
-            let read_mem = move || {
+            let read_mem = Memo::new(move |_| {
                 emu_signal.with(|emu| match emu.memory.read_8(address) {
                     Ok(val) => format!("{:02X}", val),
                     _ => "N/A".to_string(),
                 })
-            };
+            });
             let write_mem = move |ev: Event| {
                 let value = event_target_value(&ev);
                 match u8::from_str_radix(&value, 16) {

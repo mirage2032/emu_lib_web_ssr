@@ -15,7 +15,6 @@ pub enum DisassemblerDisplayMode {
 pub struct DisassemblerContext {
     pub start: Option<u16>,
     pub rows: u16,
-    pub display_mode: DisassemblerDisplayMode,
 }
 
 impl Default for DisassemblerContext {
@@ -23,7 +22,6 @@ impl Default for DisassemblerContext {
         DisassemblerContext {
             start: None,
             rows: 20,
-            display_mode: DisassemblerDisplayMode::String,
         }
     }
 }
@@ -55,7 +53,7 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
             Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16).map_err(|err|err.to_string())
         })
     };
-    let ins_bytes = move || {
+    let ins_bytes = Memo::new(move |_| {
         if let Ok(instruction)=instruction() {
             instruction
                 .to_bytes()
@@ -64,12 +62,12 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
                 .collect::<Vec<_>>()
                 .join(" ")
         } else { "N/A".to_string() }
-    };
-    let ins_string =move || {
+    });
+    let ins_string =Memo::new(move |_| {
         if let Ok(instruction)=instruction() {
             instruction.to_string()
         } else { "N/A".to_string() }
-    };
+    });
     let breakpoint = move || {
         if emu.with(|emu| emu.breakpoints.iter().all(|&bp|bp as usize!=address) ) == true {
             ""

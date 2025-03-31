@@ -20,7 +20,7 @@ pub async fn auth_middleware(
                 if let Ok(user) = User::get_by_id(session.user_id, &pool) {
                     let user_data: UserData = user.into();
                     req.extensions_mut().insert(user_data);
-                }
+                } 
             }
         }
     }
