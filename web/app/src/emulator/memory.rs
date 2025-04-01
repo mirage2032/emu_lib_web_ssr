@@ -5,6 +5,7 @@ use leptos::ev::Event;
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::IntoView;
+use leptos::web_sys::HtmlInputElement;
 use serde::{Deserialize, Serialize};
 use super::emu_style;
 
@@ -70,7 +71,8 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                     }
                     Err(_) => {
                         log!("{} is not a valid hex value", value);
-                        emu_signal.notify();
+                        let input: HtmlInputElement = event_target(&ev);
+                        input.set_value(&format!("{}", read_mem()));
                     }
                 }
             };
