@@ -1,3 +1,4 @@
+//@use "colors" as *;
 // Memory Map Color Scheme
 $mc-primary: #2a7fff; // Primary accent
 $mc-row-even: #f8f9fa; // Even row
@@ -7,14 +8,48 @@ $mc-text-dark: #212529; // Dark text
 $mc-text-light: #f8f9fa; // Light text
 $mc-border: #dee2e6; // Borders
 //create mixin
-@mixin span-title {
+.sectop {
+  z-index: 1;
+  position: relative;
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  display: block;
+  padding: 0.3rem;
+  background-color: $mc-header;
+  color: $mc-text-light;
+  text-align: center;
+
   span {
-    font-family: 'SFMono-Regular', Consolas, monospace;
-    display: block;
-    padding: 0.3rem;
-    background-color: $mc-header;
-    color: $mc-text-light;
-    text-align: center;
+  }
+
+  .secsettings {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+
+    i {
+      color: $mc-text-light;
+      font-size: 1.0rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        color: $mc-primary;
+        transform: scale(1.1);
+      }
+    }
+
+    .secsettingsinner {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      //bottom: 0;
+      right: 0;
+      background-color: $mc-header;
+      border-radius: 0.5rem;
+      border: 1px solid $color-2;
+      //transform: translateY(-100%);
+    }
   }
 }
 
@@ -23,7 +58,6 @@ $mc-border: #dee2e6; // Borders
 
   .memorymap {
     border: 1px solid $mc-border;
-    @include span-title;
 
     .memorymaptable {
       border-collapse: collapse;
@@ -199,7 +233,6 @@ $mc-border: #dee2e6; // Borders
 
     .disassembler {
       border: 1px solid $mc-border;
-      @include span-title;
 
       .disassemblertable {
         font-size: 0.875rem;
@@ -267,7 +300,6 @@ $mc-border: #dee2e6; // Borders
     }
 
     .registers {
-      @include span-title;
       background-color: green;
       border: 1px solid $mc-border;
 
@@ -276,6 +308,7 @@ $mc-border: #dee2e6; // Borders
         border: 1px solid lighten($mc-header, 8%);
         border-left: none;
         border-right: none;
+
         :nth-child(even) {
           thead th {
             background: lighten($mc-header, 8%);

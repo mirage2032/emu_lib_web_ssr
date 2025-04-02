@@ -3,6 +3,7 @@ use emu_lib::emulator::Emulator;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
 use leptos::logging::log;
+use crate::utils::icons::Icon;
 use leptos::prelude::*;
 use leptos::IntoView;
 use leptos::web_sys::HtmlInputElement;
@@ -113,6 +114,14 @@ fn MemoryTBody() -> impl IntoView {
         </tbody>
     }
 }
+
+#[island]
+pub fn Settings() ->impl IntoView{
+    let ctx = expect_context::<RwSignal<MemoryShape>>();
+    view! {
+        
+    }
+}
 #[island]
 pub fn Memory() -> impl IntoView {
     if use_context::<RwSignal<MemoryShape>>().is_none() {
@@ -128,7 +137,14 @@ pub fn Memory() -> impl IntoView {
     }
     view! {
         <div class=emu_style::memorymap>
-            <span>Memory</span>
+            <div class=emu_style::sectop>
+                <span>Memory</span>
+                <div class=emu_style::secsettings>
+                    <Icon name="ri-settings-3-fill".to_string() />
+                    <div class=emu_style::secsettingsinner>
+                    </div>
+                </div>
+            </div>
             <table class=emu_style::memorymaptable>
                 <MemoryTHead />
                 <MemoryTBody />

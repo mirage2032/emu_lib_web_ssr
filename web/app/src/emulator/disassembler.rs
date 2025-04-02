@@ -127,7 +127,9 @@ pub fn Disassembler() -> impl IntoView {
 
     view! {
         <div class=emu_style::disassembler>
-            <span>Disassembler</span>
+            <div class=emu_style::sectop>
+                <span>Disassembler</span>
+            </div>
             <table class=emu_style::disassemblertable>
                 <DisassemblerTHead />
                 <DisassemblerTBody />

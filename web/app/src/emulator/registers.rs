@@ -284,7 +284,9 @@ pub fn Registers() -> impl IntoView {
 
     view! {
         <div class=emu_style::registers>
-            <span>Registers</span>
+            <div class=emu_style::sectop>
+                <span>Disassembler</span>
+            </div>
             <GPRegisters/>
         </div>
     }
