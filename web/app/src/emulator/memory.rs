@@ -1,16 +1,16 @@
+use super::emu_style;
+use crate::utils::icons::Icon;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
 use leptos::logging::log;
-use crate::utils::icons::Icon;
 use leptos::prelude::*;
-use leptos::IntoView;
 use leptos::web_sys::HtmlInputElement;
+use leptos::IntoView;
 use serde::{Deserialize, Serialize};
-use super::emu_style;
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum MemDisplay {
     Hex,
     Dec,
@@ -79,7 +79,7 @@ fn format_dec(value: u8) -> String {
     format!("{}", value)
 }
 
-fn parse_ascii(value: &str) -> Option<u8> { 
+fn parse_ascii(value: &str) -> Option<u8> {
     value.chars().next().map(|c| c as u8)
 }
 
@@ -111,7 +111,13 @@ fn format_value(value: u8, display: MemDisplay) -> String {
 #[island]
 fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
     let shape = expect_context::<RwSignal<MemoryConfig>>();
-    let vw = move ||{
+    let display = Memo::new(move |_| shape.with(|shape| shape.display));
+    let max_length = Memo::new(move |_| match display.get() {
+        MemDisplay::Hex => 2,
+        MemDisplay::Dec => 3,
+        MemDisplay::Ascii => 1,
+    });
+    let vw = move || {
         if let Some(address) = get_mem_address(
             shape.read().start,
             shape.with(|shape| shape.width),
@@ -121,13 +127,13 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
             let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
             let read_mem = Memo::new(move |_| {
                 emu_signal.with(|emu| match emu.memory.read_8(address) {
-                    Ok(val) => format_value(val, shape.read().display),
+                    Ok(val) => format_value(val, display()),
                     _ => "N/A".to_string(),
                 })
             });
             let write_mem = move |ev: Event| {
                 let value = event_target_value(&ev);
-                match parse_value(&value, shape.read().display) {
+                match parse_value(&value, display()) {
                     Some(val) => {
                         emu_signal.update(|emu| {
                             if let Err(err) = emu.memory.write_8(address, val) {
@@ -138,14 +144,13 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                         });
                     }
                     None => {
-                        log!("{} is not a valid {} value", value, shape.read().display.to_str());
+                        log!("{} is not a valid {} value", value, display().to_str());
                         let input: HtmlInputElement = event_target(&ev);
                         input.set_value(&format!("{}", read_mem()));
                     }
                 }
             };
-            view! { <input maxlength=2 on:change=write_mem prop:value=read_mem /> }
-                .into_any()
+            view! { <input maxlength=max_length on:change=write_mem prop:value=read_mem /> }.into_any()
         } else {
             view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
         }
@@ -182,10 +187,82 @@ fn MemoryTBody() -> impl IntoView {
 }
 
 #[island]
-pub fn Settings() ->impl IntoView{
+pub fn SettingsInner() -> impl IntoView {
     let ctx = expect_context::<RwSignal<MemoryConfig>>();
+    let display = Memo::new(move |_| ctx.with(|ctx| ctx.display));
+    let change_display = move |dsp: MemDisplay| {
+        ctx.update(|ctx| {
+            ctx.display = dsp;
+        });
+    };
     view! {
+        <div class=emu_style::secsettingsinner>
+            <div>
+                <span>Display mode:</span>
+            </div>
+            <div>
+                <input
+                    type="radio"
+                    id="hexdsp"
+                    name="displaymode"
+                    value="Hex"
+                    on:click=move |_| change_display(MemDisplay::Hex)
+                    prop:checked=move || {
+                        if let MemDisplay::Hex = display.get() { true } else { false }
+                    }
+                />
+                <label for="hexdsp">Hex</label>
+            </div>
+            <div>
+                <input
+                    type="radio"
+                    id="decdsp"
+                    name="displaymode"
+                    value="Dec"
+                    on:click=move |_| change_display(MemDisplay::Dec)
+                    prop:checked=move || {
+                        if let MemDisplay::Dec = display.get() { true } else { false }
+                    }
+                />
+                <label for="decdsp">Dec</label>
+            </div>
+            <div>
+                <input
+                    type="radio"
+                    id="asciidsp"
+                    name="displaymode"
+                    value="Ascii"
+                    on:click=move |_| change_display(MemDisplay::Ascii)
+                    prop:checked=move || {
+                        ctx.with(|ctx| {
+                            if let MemDisplay::Ascii = display.get() { true } else { false }
+                        })
+                    }
+                />
+                <label for="asciidsp">ASCII</label>
+            </div>
+        </div>
+    }
+}
 
+#[island]
+pub fn Settings() -> impl IntoView {
+    let display_settings = RwSignal::new(false);
+    let toggle_settings = move |_| {
+        display_settings.update(|state| *state = !*state);
+    };
+    view! {
+        <div class=emu_style::sectop>
+            <span>Memory</span>
+            <div class=emu_style::secsettings>
+                <div on:click=toggle_settings>
+                    <Icon name="ri-settings-3-fill".to_string() />
+                </div>
+                <Show when=move || display_settings.get() fallback=move || { "".to_string() }>
+                    <SettingsInner />
+                </Show>
+            </div>
+        </div>
     }
 }
 #[island]
@@ -194,21 +271,14 @@ pub fn Memory() -> impl IntoView {
         let shape = RwSignal::new(MemoryConfig {
             width: 0x10,
             height: 0x10,
-            start:0,
+            start: 0,
             display: MemDisplay::Ascii,
         });
         provide_context(shape);
     }
     view! {
         <div class=emu_style::memorymap>
-            <div class=emu_style::sectop>
-                <span>Memory</span>
-                <div class=emu_style::secsettings>
-                    <Icon name="ri-settings-3-fill".to_string() />
-                    <div class=emu_style::secsettingsinner>
-                    </div>
-                </div>
-            </div>
+            <Settings />
             <table class=emu_style::memorymaptable>
                 <MemoryTHead />
                 <MemoryTBody />

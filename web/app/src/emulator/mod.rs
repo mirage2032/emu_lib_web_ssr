@@ -46,7 +46,7 @@ pub fn Emulator() -> impl IntoView {
         <Title text="Emulator" />
         <div class=emu_style::emulator>
             <EmulatorNoTitle />
-            // <div></div>
+        // <div></div>
         </div>
     }
 }

@@ -74,7 +74,9 @@ fn RunButton() -> impl IntoView {
             type="button"
             value="Run"
             class=move || {
-                classes!(BTN_CLASS,handle_sig.with(|&opt|if opt.is_some() {emu_style::activeinput} else {""}))
+                classes!(
+                    BTN_CLASS,handle_sig.with(|&opt|if opt.is_some() {emu_style::activeinput} else {""})
+                )
             }
             on:click=move |_| switch(Duration::from_millis(1))
         />
@@ -89,7 +91,9 @@ fn HaltButton() -> impl IntoView {
             type="button"
             value="Halt"
             class=move || {
-                classes!(if emu_signal.with(|emu|emu.cpu.halted()) {emu_style::activeinput} else {""})
+                classes!(
+                    if emu_signal.with(|emu|emu.cpu.halted()) {emu_style::activeinput} else {""}
+                )
             }
             on:click=move |_| {
                 emu_signal

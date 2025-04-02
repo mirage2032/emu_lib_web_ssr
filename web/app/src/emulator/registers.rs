@@ -59,12 +59,23 @@ pub fn Register16Bit(name:String) -> impl IntoView{
     };
     view! {
         <table>
-        <thead>
-            <tr><th>{name}</th></tr>
-        </thead>
-        <tbody>
-            <tr><td><input style:width="6ch" on:change=write_full prop:value=read_full maxlength=4/></td></tr>
-        </tbody>
+            <thead>
+                <tr>
+                    <th>{name}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <input
+                            style:width="6ch"
+                            on:change=write_full
+                            prop:value=read_full
+                            maxlength=4
+                        />
+                    </td>
+                </tr>
+            </tbody>
         </table>
     }
 }
@@ -145,15 +156,36 @@ pub fn GPRegister(name:String) -> impl IntoView{
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="2"><input maxlength=4 style:width="6ch" on:change=write_full prop:value=read_full/></td>
+                    <td colspan="2">
+                        <input
+                            maxlength=4
+                            style:width="6ch"
+                            on:change=write_full
+                            prop:value=read_full
+                        />
+                    </td>
                 </tr>
                 <tr>
                     <th>{name.chars().next().unwrap().to_string()}</th>
                     <th>{name.chars().nth(1).unwrap().to_string()}</th>
                 </tr>
                 <tr>
-                    <td><input maxlength=2 style:width="4ch" on:change=write_higher prop:value=read_higher/></td>
-                    <td><input maxlength=2 style:width="4ch" on:change=write_lower prop:value=read_lower/></td>
+                    <td>
+                        <input
+                            maxlength=2
+                            style:width="4ch"
+                            on:change=write_higher
+                            prop:value=read_higher
+                        />
+                    </td>
+                    <td>
+                        <input
+                            maxlength=2
+                            style:width="4ch"
+                            on:change=write_lower
+                            prop:value=read_lower
+                        />
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -253,24 +285,24 @@ pub fn GPRegisters() -> impl IntoView{
             ("R".to_string(), GPRegisterSignals8::new(r))
         ])
     }));
-    view!{
+    view! {
         <div class=emu_style::registersflex>
-            <GPRegister name="AF".to_string()/>
-            <GPRegister name="BC".to_string()/>
-            <GPRegister name="DE".to_string()/>
-            <GPRegister name="HL".to_string()/>
+            <GPRegister name="AF".to_string() />
+            <GPRegister name="BC".to_string() />
+            <GPRegister name="DE".to_string() />
+            <GPRegister name="HL".to_string() />
         </div>
         <div style:display="none" class=emu_style::registersflex>
-            <GPRegister name="AF'".to_string()/>
-            <GPRegister name="BC'".to_string()/>
-            <GPRegister name="DE'".to_string()/>
-            <GPRegister name="HL'".to_string()/>
+            <GPRegister name="AF'".to_string() />
+            <GPRegister name="BC'".to_string() />
+            <GPRegister name="DE'".to_string() />
+            <GPRegister name="HL'".to_string() />
         </div>
         <div class=emu_style::registersflex>
-            <Register16Bit name="PC".to_string()/>
-            <Register16Bit name="SP".to_string()/>
-            <Register16Bit name="IX".to_string()/>
-            <Register16Bit name="IY".to_string()/>
+            <Register16Bit name="PC".to_string() />
+            <Register16Bit name="SP".to_string() />
+            <Register16Bit name="IX".to_string() />
+            <Register16Bit name="IY".to_string() />
         </div>
     }
 }
@@ -287,7 +319,7 @@ pub fn Registers() -> impl IntoView {
             <div class=emu_style::sectop>
                 <span>Disassembler</span>
             </div>
-            <GPRegisters/>
+            <GPRegisters />
         </div>
     }
 }
