@@ -125,6 +125,19 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
             row,
         ) {
             let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+            let changed = Memo::new(move |_| {
+                emu_signal.with(|emu| { if let Some(addresses) = emu.memory.get_changes() {
+                    addresses.contains(&address)
+                } else {
+                    false
+                } })});
+            let changed_class = Memo::new(move |_| {
+                if changed.get() {
+                    emu_style::changed
+                } else {
+                    ""
+                }
+            });
             let read_mem = Memo::new(move |_| {
                 emu_signal.with(|emu| match emu.memory.read_8(address) {
                     Ok(val) => format_value(val, display()),
@@ -140,7 +153,8 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                                 log!("{}", err);
                             } else {
                                 log!("written: {} {}", address, val);
-                            }
+                            };
+                            emu.memory.clear_change(address); 
                         });
                     }
                     None => {
@@ -150,7 +164,7 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                     }
                 }
             };
-            view! { <input maxlength=max_length on:change=write_mem prop:value=read_mem /> }.into_any()
+            view! { <input class=changed_class maxlength=max_length on:change=write_mem prop:value=read_mem /> }.into_any()
         } else {
             view! { <input prop:value=move || "N/A" maxlength=2 disabled /> }.into_any()
         }
@@ -272,7 +286,7 @@ pub fn Memory() -> impl IntoView {
             width: 0x10,
             height: 0x10,
             start: 0,
-            display: MemDisplay::Ascii,
+            display: MemDisplay::Hex,
         });
         provide_context(shape);
     }

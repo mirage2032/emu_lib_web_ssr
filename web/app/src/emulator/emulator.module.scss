@@ -102,6 +102,9 @@ $mc-border: #dee2e6; // Borders
             font-size: 0.9em;
             text-align: center;
             transition: all 0.15s ease;
+            &.changed {
+              background: $color-2;
+            }
 
             &:hover:not(:focus) {
               background: rgba($mc-primary, 0.06);
