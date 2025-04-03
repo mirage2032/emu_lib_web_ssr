@@ -11,7 +11,8 @@ use leptos::web_sys;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use stylance::classes;
-use super::{emu_style, EmulatorContext};
+use crate::utils::logger::LogLevel;
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
@@ -158,6 +159,51 @@ fn LoadButton() -> impl IntoView {
     }
 }
 
+pub fn fmt_timestamp(ts: &chrono::DateTime<chrono::Utc>) -> String {
+    ts.format("%H:%M:%S").to_string()
+}
+
+#[island]
+pub fn EmuLog() -> impl IntoView {
+    let cfg = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let last_log = Memo::new(move |_| {
+        cfg.with(|cfg| cfg.logstore.last_log().cloned())
+    });
+    let log_class =move || {
+        last_log.with(|log| {
+            if let Some(log) = log {
+                match log.level {
+                    LogLevel::Info => {
+                        emu_style::info
+                    },
+                    LogLevel::Warning => {
+                        emu_style::warning
+                    },
+                    LogLevel::Error => {
+                        emu_style::error
+                    }
+                }
+            } else {
+                ""
+            }
+        })
+    };
+    let log_message = move || {
+        last_log.with(|log| {
+            if let Some(log) = log {
+                log.message.clone()
+            } else {
+                String::new()
+            }
+        })
+    };
+    view! {
+        <div class=emu_style::lastlog>
+            <span class=log_class>{log_message}</span>
+        </div>
+    }
+}
+
 #[component]
 pub fn Control() -> impl IntoView {
     view! {
@@ -167,6 +213,7 @@ pub fn Control() -> impl IntoView {
             <HaltButton />
             <ResetButton />
             <LoadButton />
+            <EmuLog />
         </div>
     }
 }

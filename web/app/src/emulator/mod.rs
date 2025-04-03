@@ -15,6 +15,7 @@ use leptos_meta::Title;
 use crate::emulator::disassembler::DisassemblerContext;
 use crate::emulator::memory::MemoryContext;
 use crate::emulator::registers::Registers;
+use crate::utils::logger::LogStore;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
 
@@ -36,10 +37,10 @@ impl Default for EmulatorContext {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
 pub struct EmulatorCfgContext {
     pub mem_config: MemoryContext,
     pub disasm_config: DisassemblerContext,
+    pub logstore: LogStore,
 }
 
 impl Default for EmulatorCfgContext {
@@ -47,19 +48,24 @@ impl Default for EmulatorCfgContext {
         EmulatorCfgContext {
             mem_config: MemoryContext::default(),
             disasm_config: DisassemblerContext::default(),
+            logstore: LogStore::default()
         }
     }
 }
 
 #[island]
 pub fn EmulatorNoTitle() -> impl IntoView {
-    if use_context::<RwSignal<EmulatorContext>>().is_none() {
-        let emu = EmulatorContext::default();
-        provide_context(RwSignal::new(emu));
-    }
     if use_context::<RwSignal<EmulatorCfgContext>>().is_none() {
         let cfg = EmulatorCfgContext::default();
         provide_context(RwSignal::new(cfg));
+    }
+    if use_context::<RwSignal<EmulatorContext>>().is_none() {
+        let emu = EmulatorContext::default();
+        provide_context(RwSignal::new(emu));
+        let cfg = expect_context::<RwSignal<EmulatorCfgContext>>();
+        cfg.update(|cfg|{
+            cfg.logstore.log_info("Emulator started".to_string());
+        })
     }
     view! {
         <Control />
