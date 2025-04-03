@@ -11,11 +11,11 @@ use leptos::web_sys;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use stylance::classes;
-use super::emu_style;
+use super::{emu_style, EmulatorContext};
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     view! {
         <input
             type="button"
@@ -23,7 +23,7 @@ fn StepButton() -> impl IntoView {
             on:click=move |_| {
                 emu_signal
                     .update(|emu| {
-                        if let Err(err) = emu.step() {
+                        if let Err(err) = emu.emu.step() {
                             log!("{}",err);
                         }
                     })
@@ -34,7 +34,7 @@ fn StepButton() -> impl IntoView {
 
 #[island]
 fn RunButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     let handle_sig: RwSignal<Option<IntervalHandle>> = RwSignal::new(None);
 
     let stop = move || {
@@ -48,7 +48,7 @@ fn RunButton() -> impl IntoView {
 
     let step = move || {
         emu_signal.update(|emu| {
-            if let Err(err) = emu.step() {
+            if let Err(err) = emu.emu.step() {
                 log!("{}", err);
                 stop();
             }
@@ -85,20 +85,20 @@ fn RunButton() -> impl IntoView {
 
 #[island]
 fn HaltButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     view! {
         <input
             type="button"
             value="Halt"
             class=move || {
                 classes!(
-                    if emu_signal.with(|emu|emu.cpu.halted()) {emu_style::activeinput} else {""}
+                    if emu_signal.with(|emu|emu.emu.cpu.halted()) {emu_style::activeinput} else {""}
                 )
             }
             on:click=move |_| {
                 emu_signal
                     .update(|emu| {
-                        emu.cpu.set_halted(!emu.cpu.halted());
+                        emu.emu.cpu.set_halted(!emu.emu.cpu.halted());
                     })
             }
         />
@@ -107,19 +107,19 @@ fn HaltButton() -> impl IntoView {
 
 #[island]
 fn ResetButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     view! {
         <input
             type="button"
             value="Reset"
-            on:click=move |_| emu_signal.update(|emu| { emu.cpu = Z80::default() })
+            on:click=move |_| emu_signal.update(|emu| { emu.emu.cpu = Z80::default() })
         />
     }
 }
 
 #[island]
 fn LoadButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     view! {
         <div class=emu_style::load>
             <label for="fileupload">
@@ -144,7 +144,7 @@ fn LoadButton() -> impl IntoView {
                                     let data = array.to_vec();
                                     emu_signal
                                         .update(|emu| {
-                                            if let Ok(_) = emu.memory.load(&data, true) {
+                                            if let Ok(_) = emu.emu.memory.load(&data, true) {
                                                 log!("Loaded file");
                                             }
                                         });

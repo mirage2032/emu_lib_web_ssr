@@ -1,7 +1,5 @@
-use super::emu_style;
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::utils::icons::Icon;
-use emu_lib::cpu::z80::Z80;
-use emu_lib::emulator::Emulator;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
 use leptos::logging::log;
@@ -37,21 +35,34 @@ impl MemDisplay {
 }
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct MemoryConfig {
+#[derive(PartialEq)]
+pub struct MemoryContext {
     pub width: u16,
     pub height: u16,
     pub start: u16,
     pub display: MemDisplay,
 }
 
+impl Default for MemoryContext {
+    fn default() -> Self {
+        MemoryContext {
+            width: 0x10,
+            height: 0x10,
+            start: 0,
+            display: MemDisplay::Hex,
+        }
+    }
+}
+
 #[island]
 fn MemoryTHead() -> impl IntoView {
-    let shape = expect_context::<RwSignal<MemoryConfig>>();
+    let emu_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let width = Memo::new(move |_| emu_ctx.with(|emu_ctx| emu_ctx.mem_config.width));
     view! {
         <thead>
             <tr>
                 <th></th>
-                <For each=move || 0..shape.with(|shape| shape.width) key=|n| *n let:data>
+                <For each=move || 0..width() key=|n| *n let:data>
                     <th>{format!("{:X}", data)}</th>
                 </For>
             </tr>
@@ -110,23 +121,24 @@ fn format_value(value: u8, display: MemDisplay) -> String {
 
 #[island]
 fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
-    let shape = expect_context::<RwSignal<MemoryConfig>>();
-    let display = Memo::new(move |_| shape.with(|shape| shape.display));
+    let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let display = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config.display));
     let max_length = Memo::new(move |_| match display.get() {
         MemDisplay::Hex => 2,
         MemDisplay::Dec => 3,
         MemDisplay::Ascii => 1,
     });
+    let shape = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config));
     let vw = move || {
         if let Some(address) = get_mem_address(
-            shape.read().start,
+            shape.with(|shape| shape.start),
             shape.with(|shape| shape.width),
             column,
             row,
         ) {
-            let emu_signal = expect_context::<RwSignal<Emulator<Z80>>>();
+            let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
             let changed = Memo::new(move |_| {
-                emu_signal.with(|emu| { if let Some(addresses) = emu.memory.get_changes() {
+                emu_signal.with(|emu| { if let Some(addresses) = emu.emu.memory.get_changes() {
                     addresses.contains(&address)
                 } else {
                     false
@@ -139,7 +151,7 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                 }
             });
             let read_mem = Memo::new(move |_| {
-                emu_signal.with(|emu| match emu.memory.read_8(address) {
+                emu_signal.with(|emu| match emu.emu.memory.read_8(address) {
                     Ok(val) => format_value(val, display()),
                     _ => "N/A".to_string(),
                 })
@@ -149,12 +161,12 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                 match parse_value(&value, display()) {
                     Some(val) => {
                         emu_signal.update(|emu| {
-                            if let Err(err) = emu.memory.write_8(address, val) {
+                            if let Err(err) = emu.emu.memory.write_8(address, val) {
                                 log!("{}", err);
                             } else {
                                 log!("written: {} {}", address, val);
                             };
-                            emu.memory.clear_change(address); 
+                            emu.emu.memory.clear_change(address); 
                         });
                     }
                     None => {
@@ -174,14 +186,15 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
 
 #[island]
 fn MemoryTBody() -> impl IntoView {
-    let shape = expect_context::<RwSignal<MemoryConfig>>();
+    let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let shape = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config));
     view! {
         <tbody>
             <For each=move || 0..shape.with(|shape| shape.height) key=|n| *n let:row>
                 <tr>
                     <th>
                         {get_mem_address(
-                                shape.read().start,
+                                shape.with(|shape| shape.start),
                                 shape.with(|shape| shape.width),
                                 0,
                                 row,
@@ -202,11 +215,11 @@ fn MemoryTBody() -> impl IntoView {
 
 #[island]
 pub fn SettingsInner() -> impl IntoView {
-    let ctx = expect_context::<RwSignal<MemoryConfig>>();
-    let display = Memo::new(move |_| ctx.with(|ctx| ctx.display));
+    let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let display = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config.display));
     let change_display = move |dsp: MemDisplay| {
         ctx.update(|ctx| {
-            ctx.display = dsp;
+            ctx.mem_config.display = dsp;
         });
     };
     view! {
@@ -281,15 +294,15 @@ pub fn Settings() -> impl IntoView {
 }
 #[island]
 pub fn Memory() -> impl IntoView {
-    if use_context::<RwSignal<MemoryConfig>>().is_none() {
-        let shape = RwSignal::new(MemoryConfig {
-            width: 0x10,
-            height: 0x10,
-            start: 0,
-            display: MemDisplay::Hex,
-        });
-        provide_context(shape);
-    }
+    // if use_context::<RwSignal<MemoryCtx>>().is_none() {
+    //     let shape = RwSignal::new(MemoryCtx {
+    //         width: 0x10,
+    //         height: 0x10,
+    //         start: 0,
+    //         display: MemDisplay::Hex,
+    //     });
+    //     provide_context(shape);
+    // }
     view! {
         <div class=emu_style::memorymap>
             <Settings />

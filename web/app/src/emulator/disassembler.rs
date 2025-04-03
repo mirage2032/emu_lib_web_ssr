@@ -1,9 +1,7 @@
 use emu_lib::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use emu_lib::cpu::z80::parser::Z80_PARSER;
-use emu_lib::cpu::z80::{parser::Z80Parser, Z80};
-use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
-use super::emu_style;
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 
 #[derive(Clone, Copy, Debug)]
 pub enum DisassemblerDisplayMode {
@@ -12,6 +10,7 @@ pub enum DisassemblerDisplayMode {
 }
 
 #[derive(Clone, Copy, Debug)]
+#[derive(PartialEq)]
 pub struct DisassemblerContext {
     pub start: Option<u16>,
     pub rows: u16,
@@ -42,15 +41,15 @@ pub fn DisassemblerTHead() -> impl IntoView {
 
 #[island]
 pub fn DisassemblerTRow(address: usize) -> impl IntoView {
-    let ctx = expect_context::<RwSignal<DisassemblerContext>>();
-    let emu = expect_context::<RwSignal<Emulator<Z80>>>();
+    // let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let emu = expect_context::<RwSignal<EmulatorContext>>();
     let instruction = move || {
         // "N/A".to_string()
         if address > (u16::MAX as usize) {
             return Err("Outside range".to_string());
         }
         emu.with(|emu| {
-            Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16).map_err(|err|err.to_string())
+            Z80_PARSER.ins_from_machinecode(&emu.emu.memory, address as u16).map_err(|err|err.to_string())
         })
     };
     let ins_bytes = Memo::new(move |_| {
@@ -69,7 +68,7 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
         } else { "N/A".to_string() }
     });
     let breakpoint = move || {
-        if emu.with(|emu| emu.breakpoints.iter().all(|&bp|bp as usize!=address) ) == true {
+        if emu.with(|emu| emu.emu.breakpoints.iter().all(|&bp|bp as usize!=address) ) == true {
             ""
         }else{
             "X"
@@ -87,16 +86,19 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
 
 #[island]
 pub fn DisassemblerTBody() -> impl IntoView {
-    let ctx = expect_context::<RwSignal<DisassemblerContext>>();
-    let emu = expect_context::<RwSignal<Emulator<Z80>>>();
+    let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let disasm = Memo::new(move |_| {
+        ctx.with(|ctx| ctx.disasm_config)
+    });
+    let emu = expect_context::<RwSignal<EmulatorContext>>();
     let table_rows = move || {
         let mut offset = 0;
         let mut rows = vec![];
-        let start = match ctx.with(|ctx| ctx.start) {
+        let start = match disasm.with(|disasm| disasm.start) {
             Some(start) => start,
-            None => emu.with(|emu| emu.cpu.registers.pc),
+            None => emu.with(|emu| emu.emu.cpu.registers.pc),
         };
-        for _ in 0..ctx.with(|ctx| ctx.rows) {
+        for _ in 0..disasm.with(|disasm| disasm.rows) {
             let address: usize = start as usize + offset;
             if address > (u16::MAX as usize) {
                 rows.push(view! { <DisassemblerTRow address /> });
@@ -105,7 +107,7 @@ pub fn DisassemblerTBody() -> impl IntoView {
             }
             let ins_size = emu.with(|emu| {
                 if let Ok(instruction) =
-                    Z80_PARSER.ins_from_machinecode(&emu.memory, address as u16)
+                    Z80_PARSER.ins_from_machinecode(&emu.emu.memory, address as u16)
                 {
                     instruction.common().length
                 } else {
@@ -120,10 +122,10 @@ pub fn DisassemblerTBody() -> impl IntoView {
 }
 #[island]
 pub fn Disassembler() -> impl IntoView {
-    if use_context::<RwSignal<DisassemblerContext>>().is_none() {
-        let ctx = RwSignal::new(DisassemblerContext::default());
-        provide_context(ctx);
-    }
+    // if use_context::<RwSignal<DisassemblerContext>>().is_none() {
+    //     let ctx = RwSignal::new(DisassemblerContext::default());
+    //     provide_context(ctx);
+    // }
 
     view! {
         <div class=emu_style::disassembler>

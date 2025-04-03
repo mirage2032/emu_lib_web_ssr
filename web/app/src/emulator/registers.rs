@@ -4,7 +4,7 @@ use emu_lib::emulator::Emulator;
 use leptos::ev::Event;
 use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
-use super::emu_style;
+use super::{emu_style, EmulatorContext};
 
 #[derive(Clone,Debug)]
 struct GPRegisterSignals16 {
@@ -194,76 +194,76 @@ pub fn GPRegister(name:String) -> impl IntoView{
 
 #[island]
 pub fn GPRegisters() -> impl IntoView{
-    let emu = expect_context::<RwSignal<Emulator<Z80>>>();
+    let emu = expect_context::<RwSignal<EmulatorContext>>();
     let af = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp.af,
-        |emu,val|emu.cpu.registers.gp.af=val
+        |emu|emu.emu.cpu.registers.gp.af,
+        |emu,val|emu.emu.cpu.registers.gp.af=val
     );
     let bc = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp.bc,
-        |emu,val|emu.cpu.registers.gp.bc=val
+        |emu|emu.emu.cpu.registers.gp.bc,
+        |emu,val|emu.emu.cpu.registers.gp.bc=val
     );
     let de = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp.de,
-        |emu,val|emu.cpu.registers.gp.de=val
+        |emu|emu.emu.cpu.registers.gp.de,
+        |emu,val|emu.emu.cpu.registers.gp.de=val
     );
     let hl = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp.hl,
-        |emu,val|emu.cpu.registers.gp.hl=val
+        |emu|emu.emu.cpu.registers.gp.hl,
+        |emu,val|emu.emu.cpu.registers.gp.hl=val
     );
     let af_alt = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp_alt.af,
-        |emu,val|emu.cpu.registers.gp_alt.af=val
+        |emu|emu.emu.cpu.registers.gp_alt.af,
+        |emu,val|emu.emu.cpu.registers.gp_alt.af=val
     );
     let bc_alt = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp_alt.bc,
-        |emu,val|emu.cpu.registers.gp_alt.bc=val
+        |emu|emu.emu.cpu.registers.gp_alt.bc,
+        |emu,val|emu.emu.cpu.registers.gp_alt.bc=val
     );
     let de_alt = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp_alt.de,
-        |emu,val|emu.cpu.registers.gp_alt.de=val
+        |emu|emu.emu.cpu.registers.gp_alt.de,
+        |emu,val|emu.emu.cpu.registers.gp_alt.de=val
     );
     let hl_alt = create_slice(
         emu,
-        |emu|emu.cpu.registers.gp_alt.hl,
-        |emu,val|emu.cpu.registers.gp_alt.hl=val
+        |emu|emu.emu.cpu.registers.gp_alt.hl,
+        |emu,val|emu.emu.cpu.registers.gp_alt.hl=val
     );
     let pc = create_slice(
         emu,
-        |emu|emu.cpu.registers.pc,
-        |emu,val|emu.cpu.registers.pc=val
+        |emu|emu.emu.cpu.registers.pc,
+        |emu,val|emu.emu.cpu.registers.pc=val
     );
     let sp = create_slice(
         emu,
-        |emu|emu.cpu.registers.sp,
-        |emu,val|emu.cpu.registers.sp=val
+        |emu|emu.emu.cpu.registers.sp,
+        |emu,val|emu.emu.cpu.registers.sp=val
     );
     let ix = create_slice(
         emu,
-        |emu|emu.cpu.registers.ix,
-        |emu,val|emu.cpu.registers.ix=val
+        |emu|emu.emu.cpu.registers.ix,
+        |emu,val|emu.emu.cpu.registers.ix=val
     );
     let iy = create_slice(
         emu,
-        |emu|emu.cpu.registers.iy,
-        |emu,val|emu.cpu.registers.iy=val
+        |emu|emu.emu.cpu.registers.iy,
+        |emu,val|emu.emu.cpu.registers.iy=val
     );
     let i = create_slice(
         emu,
-        |emu|emu.cpu.registers.i,
-        |emu,val|emu.cpu.registers.i=val
+        |emu|emu.emu.cpu.registers.i,
+        |emu,val|emu.emu.cpu.registers.i=val
     );
     let r = create_slice(
         emu,
-        |emu|emu.cpu.registers.r,
-        |emu,val|emu.cpu.registers.r=val
+        |emu|emu.emu.cpu.registers.r,
+        |emu,val|emu.emu.cpu.registers.r=val
     );
     provide_context(RwSignal::new(GPRegistersAllSignals{
         signals16:HashMap::from([

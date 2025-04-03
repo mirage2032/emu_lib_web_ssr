@@ -226,7 +226,7 @@ $mc-border: #dee2e6; // Borders
     }
   }
 
-  .disasmregsflex {
+  .disasmregsinfoflex {
     display: flex;
     width: 100%;
 
@@ -304,94 +304,124 @@ $mc-border: #dee2e6; // Borders
       }
     }
 
-    .registers {
-      background-color: green;
-      border: 1px solid $mc-border;
+    .regsinfo{
+      display: flex;
+      flex-direction: column;
+      .registers {
+        background-color: green;
+        border: 1px solid $mc-border;
 
-      .registersflex {
-        display: flex;
-        border: 1px solid lighten($mc-header, 8%);
-        border-left: none;
-        border-right: none;
+        .registersflex {
+          display: flex;
+          border: 1px solid lighten($mc-header, 8%);
+          border-left: none;
+          border-right: none;
 
-        :nth-child(even) {
-          thead th {
-            background: lighten($mc-header, 8%);
+          :nth-child(even) {
+            thead th {
+              background: lighten($mc-header, 8%);
+            }
+          }
+
+          table {
+            border: 1px solid $mc-header;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            background: white;
+            border-radius: 0 0 0 0;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            width: 100%;
+
+            thead tr {
+              background: $mc-header;
+
+              th {
+                padding: 0.3rem 0.5rem;
+                color: $mc-text-light;
+                font-weight: 500;
+                //border-right: 1px solid lighten($mc-header, 8%);
+                font-size: 0.8em;
+
+                &:last-child {
+                  border-right: none;
+                }
+              }
+            }
+
+            tbody tr {
+              td {
+                padding: 0;
+                position: relative;
+                border-bottom: 1px solid $mc-border;
+                text-align: center;
+
+                input {
+                  height: 100%;
+                  padding: 0.2rem 0.3rem;
+                  border: none;
+                  background: transparent;
+                  color: $mc-text-dark;
+                  font-family: 'SFMono-Regular', Consolas, monospace;
+                  font-size: 0.9em;
+                  text-align: center;
+                  transition: all 0.15s ease;
+
+                  &:hover:not(:focus) {
+                    background: rgba($mc-primary, 0.06);
+                  }
+
+                  &:focus {
+                    background: white;
+                    box-shadow: 0 0 0 1.5px $mc-primary;
+                    outline: none;
+                    z-index: 2;
+                  }
+
+                  &::placeholder {
+                    color: rgba($mc-text-dark, 0.4);
+                    font-weight: 300;
+                  }
+                }
+              }
+
+              th {
+                background: $mc-header;
+                padding: 0.3rem 0.5rem;
+                color: $mc-text-light;
+                font-weight: 500;
+                //border-right: 1px solid lighten($mc-header, 8%);
+                font-size: 0.8em;
+
+                &:last-child {
+                  border-right: none;
+                }
+              }
+            }
           }
         }
-
-        table {
-          border: 1px solid $mc-header;
-          border-collapse: collapse;
-          font-size: 0.875rem;
-          background: white;
-          border-radius: 0 0 0 0;
-          overflow: hidden;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+      .emuinfo{
+        border: 1px solid $mc-border;
+        height: 100%;
+        position: relative;
+        background-color: $mc-row-even;
+        .infocounters{
+          padding: 0.3rem 0.5rem;
+          //width: 100%;
+          display: table;
           width: 100%;
-
-          thead tr {
-            background: $mc-header;
-
-            th {
-              padding: 0.3rem 0.5rem;
-              color: $mc-text-light;
-              font-weight: 500;
-              //border-right: 1px solid lighten($mc-header, 8%);
-              font-size: 0.8em;
-
-              &:last-child {
-                border-right: none;
+          div {
+            display: table-row;
+            padding: 0.3rem 0.5rem;
+            //width: 100%;
+            justify-content: space-between;
+            div {
+              display: table-cell;
+              span {
               }
-            }
-          }
-
-          tbody tr {
-            td {
-              padding: 0;
-              position: relative;
-              border-bottom: 1px solid $mc-border;
-              text-align: center;
-
-              input {
-                height: 100%;
-                padding: 0.2rem 0.3rem;
-                border: none;
-                background: transparent;
-                color: $mc-text-dark;
-                font-family: 'SFMono-Regular', Consolas, monospace;
-                font-size: 0.9em;
-                text-align: center;
-                transition: all 0.15s ease;
-
-                &:hover:not(:focus) {
-                  background: rgba($mc-primary, 0.06);
-                }
-
-                &:focus {
-                  background: white;
-                  box-shadow: 0 0 0 1.5px $mc-primary;
-                  outline: none;
-                  z-index: 2;
-                }
-
-                &::placeholder {
-                  color: rgba($mc-text-dark, 0.4);
-                  font-weight: 300;
-                }
-              }
-            }
-
-            th {
-              background: $mc-header;
-              padding: 0.3rem 0.5rem;
-              color: $mc-text-light;
-              font-weight: 500;
-              //border-right: 1px solid lighten($mc-header, 8%);
-              font-size: 0.8em;
-
-              &:last-child {
-                border-right: none;
+              .resetbutton {
+                display: table-cell;
               }
             }
           }
