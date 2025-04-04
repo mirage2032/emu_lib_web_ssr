@@ -53,6 +53,10 @@ fn RunButton() -> impl IntoView {
                 log!("{}", err);
                 stop();
             }
+            if emu.emu.breakpoints.contains(&emu.emu.cpu.registers.pc) {
+                log!("Breakpoint hit at {:#04X}", emu.emu.cpu.registers.pc);
+                stop();
+            }
         })
     };
 

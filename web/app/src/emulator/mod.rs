@@ -3,6 +3,7 @@ mod disassembler;
 mod memory;
 mod registers;
 mod info;
+mod editor;
 
 use control::Control;
 use info::Info;
@@ -13,6 +14,7 @@ use emu_lib::emulator::Emulator;
 use leptos::prelude::*;
 use leptos_meta::Title;
 use crate::emulator::disassembler::DisassemblerContext;
+use crate::emulator::editor::{Editor, EditorContext};
 use crate::emulator::memory::MemoryContext;
 use crate::emulator::registers::Registers;
 use crate::utils::logger::LogStore;
@@ -41,6 +43,7 @@ pub struct EmulatorCfgContext {
     pub mem_config: MemoryContext,
     pub disasm_config: DisassemblerContext,
     pub logstore: LogStore,
+    pub editor: EditorContext,
 }
 
 impl Default for EmulatorCfgContext {
@@ -48,13 +51,30 @@ impl Default for EmulatorCfgContext {
         EmulatorCfgContext {
             mem_config: MemoryContext::default(),
             disasm_config: DisassemblerContext::default(),
-            logstore: LogStore::default()
+            logstore: LogStore::default(),
+            editor: EditorContext::default(),
         }
     }
 }
 
 #[island]
 pub fn EmulatorNoTitle() -> impl IntoView {
+    view! {
+        <div>
+            <Control />
+            <Memory />
+            <div class=emu_style::disasmregsinfoflex>
+                <Disassembler />
+                <div class=emu_style::regsinfo>
+                    <Registers />
+                    <Info />
+                </div>
+            </div>
+        </div>
+    }
+}
+#[island]
+pub fn EmulatorInner() -> impl IntoView {
     if use_context::<RwSignal<EmulatorCfgContext>>().is_none() {
         let cfg = EmulatorCfgContext::default();
         provide_context(RwSignal::new(cfg));
@@ -68,14 +88,9 @@ pub fn EmulatorNoTitle() -> impl IntoView {
         })
     }
     view! {
-        <Control />
-        <Memory />
-        <div class=emu_style::disasmregsinfoflex>
-            <Disassembler />
-            <div class=emu_style::regsinfo>
-                <Registers />
-                <Info />
-            </div>
+        <div class=emu_style::emulator>
+            <EmulatorNoTitle />
+            <Editor />
         </div>
     }
 }
@@ -84,9 +99,6 @@ pub fn EmulatorNoTitle() -> impl IntoView {
 pub fn Emulator() -> impl IntoView {
     view! {
         <Title text="Emulator" />
-        <div class=emu_style::emulator>
-            <EmulatorNoTitle />
-        // <div></div>
-        </div>
+        <EmulatorInner />
     }
 }

@@ -28,11 +28,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <Stylesheet id="leptos" href="/pkg/start-axum-workspace.css" />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-                    rel="stylesheet"
-                />
-                <HydrationScripts options=options islands=true />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet"/>                <HydrationScripts options=options islands=true />
                 <IconsCDN />
                 <MetaTags />
             </head>

@@ -67,17 +67,31 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
             instruction.to_string()
         } else { "N/A".to_string() }
     });
+    let is_breakpoint = Memo::new(move |_| {
+        emu.with(|emu| emu.emu.breakpoints.iter().any(|&bp|bp as usize==address))
+    });
     let breakpoint = move || {
-        if emu.with(|emu| emu.emu.breakpoints.iter().all(|&bp|bp as usize!=address) ) == true {
-            ""
+        if is_breakpoint() {
+            "⬤".to_string()
         }else{
-            "X"
+            " ".to_string()
         }
+    };
+    let toggle_breakpoint = move |_| {
+        emu.update(|emu| {
+            if emu.emu.breakpoints.iter().any(|&bp|bp as usize==address) {
+                emu.emu.breakpoints.retain(|&bp|bp as usize!=address);
+            } else {
+                emu.emu.breakpoints.push(address as u16);
+            }
+        });
     };
     view! {
         <tr>
             <th>{move || format!("{:04X}", address)}</th>
-            <td>{breakpoint}</td>
+            <td class=emu_style::breakpoint on:click=toggle_breakpoint>
+                {breakpoint}
+            </td>
             <td>{ins_string}</td>
             <td>{ins_bytes}</td>
         </tr>
@@ -122,11 +136,6 @@ pub fn DisassemblerTBody() -> impl IntoView {
 }
 #[island]
 pub fn Disassembler() -> impl IntoView {
-    // if use_context::<RwSignal<DisassemblerContext>>().is_none() {
-    //     let ctx = RwSignal::new(DisassemblerContext::default());
-    //     provide_context(ctx);
-    // }
-
     view! {
         <div class=emu_style::disassembler>
             <div class=emu_style::sectop>

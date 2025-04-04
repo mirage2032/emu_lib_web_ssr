@@ -13,7 +13,7 @@ opt-level = 1
 #incremental = true
 [profile.dev.package."*"]
 opt-level = 3
-debug = 2
+#debug = 2
 
 [workspace.dependencies]
 stylance = { version="0.5.4", features = ["nightly"] }
@@ -83,7 +83,7 @@ browserquery = "defaults"
 
 # Set by cargo-leptos watch when building with that tool. Controls whether autoreload JS will be included in the head
 watch = false
-watch-additional-files = ["style/stylance/_index.scss"]
+#watch-additional-files = ["style/stylance/_index.scss"]
 
 # The environment Leptos will run in, usually either "DEV" or "PROD"
 env = "DEV"

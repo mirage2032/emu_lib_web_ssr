@@ -11,7 +11,7 @@ $mc-border: #dee2e6; // Borders
 .sectop {
   z-index: 1;
   position: relative;
-  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-family: 'JetBrains Mono', Consolas, monospace;
   display: block;
   padding: 0.3rem;
   background-color: $mc-header;
@@ -58,6 +58,51 @@ $mc-border: #dee2e6; // Borders
 .emulator {
   display: flex;
 
+  .editor {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    .editortop{
+      background-color: $color-3;
+    }
+    .editorta {
+      background-color: $mc-row-odd;
+      height: 100%;
+      min-width: 25rem;
+      display: flex;//just an item i want centered on v and h
+      flex-direction: column;
+      //justify-content: center;
+      align-items: center;
+      textarea {
+        margin: 4rem 0;
+        height: 30rem;
+        width: 70%;
+        min-width: 25rem;
+        resize: none;
+        padding: 0.5rem;
+        border: 1px solid $mc-border;
+        background: $mc-row-even;
+        font-family: "Source Code Pro", Consolas, monospace;
+        color: $mc-text-dark;
+        font-size: 1rem;
+        line-height: 1.5;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &:focus {
+          border-color: $mc-primary;
+          box-shadow: 0 0 0 1.5px $mc-primary;
+          outline: none;
+        }
+
+        &::placeholder {
+          color: rgba($mc-text-dark, 0.4);
+          font-weight: 300;
+        }
+      }
+    }
+  }
+
   .memorymap {
     border: 1px solid $mc-border;
 
@@ -79,6 +124,7 @@ $mc-border: #dee2e6; // Borders
           font-weight: 500;
           //border-right: 1px solid lighten($mc-header, 8%);
           font-size: 0.8em;
+          font-family: 'JetBrains Mono', Consolas, monospace;
 
           &:last-child {
             border-right: none;
@@ -99,10 +145,11 @@ $mc-border: #dee2e6; // Borders
             border: none;
             background: transparent;
             color: $mc-text-dark;
-            font-family: 'SFMono-Regular', Consolas, monospace;
+            //font-family: 'JetBrains Mono', Consolas, monospace;
             font-size: 0.9em;
             text-align: center;
             transition: all 0.15s ease;
+
             &.changed {
               background: $color-2;
             }
@@ -146,6 +193,7 @@ $mc-border: #dee2e6; // Borders
           background: $mc-header;
           color: rgba($mc-text-light, 0.9);
           //border-right: 1px solid lighten($mc-header, 8%);
+          font-family: 'JetBrains Mono', Consolas, monospace;
           font-weight: 500;
           font-size: 0.85em;
           white-space: nowrap;
@@ -162,12 +210,13 @@ $mc-border: #dee2e6; // Borders
 
     .load {
       display: flex;
+
       label {
         padding: 0.2rem 0.3rem;
         border: none;
         background: transparent;
         color: $mc-text-light;
-        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-family: 'JetBrains Mono', Consolas, monospace;
         font-size: 0.9em;
         text-align: center;
         transition: all 0.15s ease;
@@ -189,12 +238,13 @@ $mc-border: #dee2e6; // Borders
       }
     }
 
-    .lastlog{
+    .lastlog {
       width: 100%;
       height: 100%;
       //background is a gradient from left to right, left color to right transition only first 10%, make it smooth
-        background: linear-gradient(90deg, $color-bg 0%, $mc-header 10%, $mc-header 100%);
-      span{
+      background: linear-gradient(90deg, $color-bg 0%, $mc-header 10%, $mc-header 100%);
+
+      span {
         padding: 0.3rem 0.5rem;
         display: block;
         font-size: 0.8em;
@@ -203,14 +253,17 @@ $mc-border: #dee2e6; // Borders
         text-align: center;
         position: relative;
       }
-      .info{
+
+      .info {
         color: $mc-text-light;
       }
-      .warning{
+
+      .warning {
         color: $color-2;
       }
-      .error{
-            color: red;
+
+      .error {
+        color: red;
       }
     }
 
@@ -219,7 +272,7 @@ $mc-border: #dee2e6; // Borders
       border: none;
       background: transparent;
       color: $mc-text-light;
-      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-family: 'JetBrains Mono', Consolas, monospace;
       font-size: 0.9em;
       text-align: center;
       transition: all 0.15s ease;
@@ -281,6 +334,7 @@ $mc-border: #dee2e6; // Borders
             color: $mc-text-light;
             font-weight: 500;
             //border-right: 1px solid lighten($mc-header, 8%);
+            font-family: 'JetBrains Mono', Consolas, monospace;
             font-size: 0.8em;
 
             &:last-child {
@@ -290,38 +344,48 @@ $mc-border: #dee2e6; // Borders
         }
 
 
-        tbody tr {
-          td {
-            padding: 0;
-            position: relative;
-            border-bottom: 1px solid $mc-border;
+        tbody {
+          tr {
+            .breakpoint {
+              color: red;
+            }
 
-            input {
-              width: 4ch;
-              height: 100%;
-              padding: 0.2rem 0.3rem;
-              border: none;
-              background: transparent;
-              color: $mc-text-dark;
-              font-family: 'SFMono-Regular', Consolas, monospace;
-              font-size: 0.9em;
-              text-align: center;
-              transition: all 0.15s ease;
+            th {
+              font-family: 'JetBrains Mono', Consolas, monospace;
+            }
 
-              &:hover:not(:focus) {
-                background: rgba($mc-primary, 0.06);
-              }
+            td {
+              padding: 0;
+              position: relative;
+              border-bottom: 1px solid $mc-border;
 
-              &:focus {
-                background: white;
-                box-shadow: 0 0 0 1.5px $mc-primary;
-                outline: none;
-                z-index: 2;
-              }
+              input {
+                width: 4ch;
+                height: 100%;
+                padding: 0.2rem 0.3rem;
+                border: none;
+                background: transparent;
+                color: $mc-text-dark;
+                font-family: 'JetBrains Mono', Consolas, monospace;
+                font-size: 0.9em;
+                text-align: center;
+                transition: all 0.15s ease;
 
-              &::placeholder {
-                color: rgba($mc-text-dark, 0.4);
-                font-weight: 300;
+                &:hover:not(:focus) {
+                  background: rgba($mc-primary, 0.06);
+                }
+
+                &:focus {
+                  background: white;
+                  box-shadow: 0 0 0 1.5px $mc-primary;
+                  outline: none;
+                  z-index: 2;
+                }
+
+                &::placeholder {
+                  color: rgba($mc-text-dark, 0.4);
+                  font-weight: 300;
+                }
               }
             }
           }
@@ -329,9 +393,10 @@ $mc-border: #dee2e6; // Borders
       }
     }
 
-    .regsinfo{
+    .regsinfo {
       display: flex;
       flex-direction: column;
+
       .registers {
         background-color: green;
         border: 1px solid $mc-border;
@@ -365,7 +430,8 @@ $mc-border: #dee2e6; // Borders
                 padding: 0.3rem 0.5rem;
                 color: $mc-text-light;
                 font-weight: 500;
-                //border-right: 1px solid lighten($mc-header, 8%);
+                //border-right: 1px solid lighten($mc-header, 8%)
+                font-family: 'JetBrains Mono', Consolas, monospace;
                 font-size: 0.8em;
 
                 &:last-child {
@@ -387,7 +453,7 @@ $mc-border: #dee2e6; // Borders
                   border: none;
                   background: transparent;
                   color: $mc-text-dark;
-                  font-family: 'SFMono-Regular', Consolas, monospace;
+                  //font-family: 'JetBrains Mono', Consolas, monospace;
                   font-size: 0.9em;
                   text-align: center;
                   transition: all 0.15s ease;
@@ -416,6 +482,7 @@ $mc-border: #dee2e6; // Borders
                 color: $mc-text-light;
                 font-weight: 500;
                 //border-right: 1px solid lighten($mc-header, 8%);
+                font-family: 'JetBrains Mono', Consolas, monospace;
                 font-size: 0.8em;
 
                 &:last-child {
@@ -426,28 +493,44 @@ $mc-border: #dee2e6; // Borders
           }
         }
       }
-      .emuinfo{
+
+      .emuinfo {
         border: 1px solid $mc-border;
         height: 100%;
         position: relative;
         background-color: $mc-row-even;
-        .infocounters{
-          padding: 0.3rem 0.5rem;
-          //width: 100%;
-          display: table;
-          width: 100%;
-          div {
-            display: table-row;
+
+        .infocounters {
+          display: flex;
+
+          .counters {
             padding: 0.3rem 0.5rem;
             //width: 100%;
-            justify-content: space-between;
+            display: table;
+            width: 100%;
+
             div {
-              display: table-cell;
-              span {
-              }
-              .resetbutton {
+              display: table-row;
+              padding: 0.3rem 0.5rem;
+              //width: 100%;
+              justify-content: space-between;
+
+              div {
                 display: table-cell;
+
+                span {
+                }
               }
+            }
+          }
+
+          .resetbutton {
+            margin: 0.3rem 0.5rem;
+
+            input {
+              padding: 0.2rem 0.3rem;
+              width: 100%;
+              height: 100%;
             }
           }
         }
