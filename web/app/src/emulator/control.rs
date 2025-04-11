@@ -1,18 +1,17 @@
 use emu_lib::cpu::z80::Z80;
 use emu_lib::cpu::Cpu;
 use emu_lib::emulator::Emulator;
-use leptos::html::Input;
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos::wasm_bindgen::closure::Closure;
 use leptos::wasm_bindgen::JsCast;
-use leptos::web_sys;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use stylance::classes;
 use crate::utils::logger::LogLevel;
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
+use emu_lib::cpu::instruction::ExecutableInstruction;
+
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
@@ -49,14 +48,15 @@ fn RunButton() -> impl IntoView {
 
     let step = move || {
         emu_signal.update(|emu| {
-            if let Err(err) = emu.emu.step() {
-                log!("{}", err);
+            if let Err(err) = emu.emu.run_ticks(74.0,
+                                                &Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {})){
+                log!("{:?}", err);
                 stop();
             }
-            if emu.emu.breakpoints.contains(&emu.emu.cpu.registers.pc) {
-                log!("Breakpoint hit at {:#04X}", emu.emu.cpu.registers.pc);
-                stop();
-            }
+            // if emu.emu.breakpoints.contains(&emu.emu.cpu.registers.pc) {
+            //     log!("Breakpoint hit at {:#04X}", emu.emu.cpu.registers.pc);
+            //     stop();
+            // }
         })
     };
 

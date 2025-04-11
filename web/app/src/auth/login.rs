@@ -25,7 +25,6 @@ pub fn LoginForm() -> impl IntoView {
         if login_valid_action.pending().get() {
             return "warning";
         }
-        let d=login_valid_action.value();
         login_valid_action.value().with(|val| match val.as_ref() {
             Some(val) => match val {
                 Ok(true) => "valid",

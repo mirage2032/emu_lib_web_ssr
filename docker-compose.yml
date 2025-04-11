@@ -16,6 +16,12 @@ services:
     volumes:
       - ./db/initdb:/docker-entrypoint-initdb.d
       - ./db/data:/var/lib/postgresql/data
+  compiler-service:
+    build:
+      context: ./ccompiler
+      dockerfile: Dockerfile
+    ports:
+      - "4560:4560"
   web-container:
     build:
       context: ./web
@@ -26,6 +32,7 @@ services:
       - .env
     environment:
       - DB_HOST=db-container
+      - COMPILER_HOST=compiler-service
     ports:
         - "3000:3000"
     depends_on:

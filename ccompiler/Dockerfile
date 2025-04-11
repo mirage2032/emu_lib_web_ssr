@@ -12,7 +12,6 @@ RUN venv/bin/pip install --upgrade pip
 # Install PIP Dependencies
 COPY requirements.txt .
 RUN venv/bin/pip install -r requirements.txt
-
 COPY api.py .
 
 # Expose Port
