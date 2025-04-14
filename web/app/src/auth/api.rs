@@ -18,7 +18,7 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     let state = expect_context::<AppState>();
     // let state: Extension<AppState> = extract().await?;
     let pool = &state.pool;
-    let duration = time::Duration::seconds(60 * 24);
+    let duration = time::Duration::seconds(60 * 60 * 24);
     let user_login = UserLogin::new(login, password);
     match user_login.authenticate(&pool, duration) {
         Ok((_, session)) => {
