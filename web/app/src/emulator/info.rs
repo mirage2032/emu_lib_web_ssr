@@ -1,5 +1,5 @@
-use leptos::prelude::*;
 use super::{emu_style, EmulatorContext};
+use leptos::prelude::*;
 
 #[island]
 pub fn InfoCounters() -> impl IntoView {

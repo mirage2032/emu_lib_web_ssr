@@ -1,69 +1,79 @@
-use std::collections::HashMap;
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use leptos::ev::Event;
 use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
-use super::{emu_style, EmulatorCfgContext, EmulatorContext};
+use std::collections::HashMap;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 struct GPRegisterSignals16 {
-    read:Signal<u16>,
-    write:SignalSetter<u16>
+    read: Signal<u16>,
+    write: SignalSetter<u16>,
 }
 
 impl GPRegisterSignals16 {
-    fn new(sig:(Signal<u16>,SignalSetter<u16>)) -> Self{
-        Self{
-            read:sig.0,
-            write:sig.1
+    fn new(sig: (Signal<u16>, SignalSetter<u16>)) -> Self {
+        Self {
+            read: sig.0,
+            write: sig.1,
         }
     }
 }
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 struct GPRegisterSignals8 {
-    read:Signal<u8>,
-    write:SignalSetter<u8>
+    read: Signal<u8>,
+    write: SignalSetter<u8>,
 }
 
 impl GPRegisterSignals8 {
-    fn new(sig:(Signal<u8>,SignalSetter<u8>)) -> Self{
-        Self{
-            read:sig.0,
-            write:sig.1
+    fn new(sig: (Signal<u8>, SignalSetter<u8>)) -> Self {
+        Self {
+            read: sig.0,
+            write: sig.1,
         }
     }
 }
 
-#[derive(Default,Clone)]
+#[derive(Default, Clone)]
 struct GPRegistersAllSignals {
-    signals16:HashMap<String, GPRegisterSignals16>,
-    signals8:HashMap<String, GPRegisterSignals8>
+    signals16: HashMap<String, GPRegisterSignals16>,
+    signals8: HashMap<String, GPRegisterSignals8>,
 }
 
 #[island]
-pub fn Register16Bit(name:String) -> impl IntoView{
-    let signals = use_context::<RwSignal<GPRegistersAllSignals>>().expect("No GPRegistersSignals context found");
-    let emu_cfg_ctx = use_context::<RwSignal<EmulatorCfgContext>>().expect("No EmulatorCfgContext found");
+pub fn Register16Bit(name: String) -> impl IntoView {
+    let signals = use_context::<RwSignal<GPRegistersAllSignals>>()
+        .expect("No GPRegistersSignals context found");
+    let emu_cfg_ctx =
+        use_context::<RwSignal<EmulatorCfgContext>>().expect("No EmulatorCfgContext found");
     let name_clone = name.clone();
     let full_val = move || {
-        signals.get().signals16.get(&name_clone).expect("No signal found for this register").clone()
+        signals
+            .get()
+            .signals16
+            .get(&name_clone)
+            .expect("No signal found for this register")
+            .clone()
     };
     let full_val_clone = full_val.clone();
-    let read_full = move || { format!("{:04X}", full_val().read.get()) };
+    let read_full = move || format!("{:04X}", full_val().read.get());
     let name_clone = name.clone();
-    let write_full =  move |ev: Event| {
+    let write_full = move |ev: Event| {
         let value = event_target_value(&ev);
-        emu_cfg_ctx.update(|emu_cfg| {
-            if let Ok(val) = u16::from_str_radix(&value, 16) {
-                full_val_clone().write.set(val);
+        if let Ok(val) = u16::from_str_radix(&value, 16) {
+            full_val_clone().write.set(val);
+            emu_cfg_ctx.update(|emu_cfg| {
                 emu_cfg.logstore.log_info(
                     "Register changed",
-                    format!("Register {} set to {:04X}", name_clone, val)
+                    format!("Register {} set to {:04X}", name_clone, val),
                 );
-            }
-        });
+            });
+        } else {
+            let input: HtmlInputElement = event_target(&ev);
+            input.set_value(&format!("{:04X}", full_val_clone().read.get()));
+        }
     };
     view! {
         <table>
@@ -108,40 +118,70 @@ pub fn Register16Bit(name:String) -> impl IntoView{
 // }
 
 #[island]
-pub fn GPRegister(name:String) -> impl IntoView{
-    let signals = use_context::<RwSignal<GPRegistersAllSignals>>().expect("No GPRegistersSignals context found");
+pub fn GPRegister(name: String) -> impl IntoView {
+    let signals = use_context::<RwSignal<GPRegistersAllSignals>>()
+        .expect("No GPRegistersSignals context found");
+    let emu_cfg_ctx =
+        use_context::<RwSignal<EmulatorCfgContext>>().expect("No EmulatorCfgContext found");
     let name_clone = name.clone();
-    let full_val = move || signals.get().signals16.get(&name_clone).expect("No signal found for this register").clone();
+    let full_val = move || {
+        signals
+            .get()
+            .signals16
+            .get(&name_clone)
+            .expect("No signal found for this register")
+            .clone()
+    };
     let full_val_clone = full_val.clone();
-    let read_full = move || { format!("{:04X}", full_val_clone().read.get()) };
+    let read_full = move || format!("{:04X}", full_val_clone().read.get());
     let full_val_clone = full_val.clone();
+    let name_clone = name.clone();
     let write_full = move |ev: Event| {
         let value = event_target_value(&ev);
         if let Ok(val) = u16::from_str_radix(&value, 16) {
             full_val_clone().write.set(val);
-        }
-        else {
-            let input:HtmlInputElement = event_target(&ev);
+            emu_cfg_ctx.update(|emu_cfg|emu_cfg.logstore.log_info(
+                "Register changed",
+                format!("Register {} set to {:04X}", name_clone, val)
+            ));
+        } else {
+            let input: HtmlInputElement = event_target(&ev);
             input.set_value(&format!("{:04X}", full_val_clone().read.get()));
         }
     };
     let full_val_clone = full_val.clone();
-    let read_higher = move || { let bytes = full_val_clone().read.get().to_be_bytes(); format!("{:02X}", bytes[0]) };
+    let read_higher = move || {
+        let bytes = full_val_clone().read.get().to_be_bytes();
+        format!("{:02X}", bytes[0])
+    };
     let full_val_clone = full_val.clone();
+    let name_clone = name.clone();
     let write_higher = move |ev: Event| {
         let value = event_target_value(&ev);
         if let Ok(val) = u8::from_str_radix(&value, 16) {
             let mut bytes = full_val_clone().read.get().to_be_bytes();
             bytes[0] = val;
             full_val_clone().write.set(u16::from_be_bytes(bytes));
-        }
-        else {
-            let input:HtmlInputElement = event_target(&ev);
-            input.set_value(&format!("{:02X}", full_val_clone().read.get().to_be_bytes()[0]));
+            emu_cfg_ctx.update(|emu_cfg| {
+                emu_cfg.logstore.log_info(
+                    "Register changed",
+                    format!("Register {} set to {:02X}", name_clone.chars().nth(0).unwrap().to_string(), u16::from_be_bytes(bytes)),
+                );
+            });
+        } else {
+            let input: HtmlInputElement = event_target(&ev);
+            input.set_value(&format!(
+                "{:02X}",
+                full_val_clone().read.get().to_be_bytes()[0]
+            ));
         }
     };
     let full_val_clone = full_val.clone();
-    let read_lower = move || { let bytes = full_val_clone().read.get().to_be_bytes(); format!("{:02X}", bytes[1]) };
+    let name_clone = name.clone();
+    let read_lower = move || {
+        let bytes = full_val_clone().read.get().to_be_bytes();
+        format!("{:02X}", bytes[1])
+    };
     let full_val_clone = full_val.clone();
     let write_lower = move |ev: Event| {
         let value = event_target_value(&ev);
@@ -149,10 +189,18 @@ pub fn GPRegister(name:String) -> impl IntoView{
             let mut bytes = full_val().read.get().to_be_bytes();
             bytes[1] = val;
             full_val_clone().write.set(u16::from_be_bytes(bytes));
-        }
-        else {
-            let input:HtmlInputElement = event_target(&ev);
-            input.set_value(&format!("{:02X}", full_val_clone().read.get().to_be_bytes()[1]));
+            emu_cfg_ctx.update(|emu_cfg| {
+                emu_cfg.logstore.log_info(
+                    "Register changed",
+                    format!("Register {} set to {:02X}", name_clone.chars().nth(1).unwrap().to_string(), u16::from_be_bytes(bytes)),
+                );
+            });
+        } else {
+            let input: HtmlInputElement = event_target(&ev);
+            input.set_value(&format!(
+                "{:02X}",
+                full_val_clone().read.get().to_be_bytes()[1]
+            ));
         }
     };
     view! {
@@ -201,80 +249,80 @@ pub fn GPRegister(name:String) -> impl IntoView{
 }
 
 #[island]
-pub fn GPRegisters() -> impl IntoView{
+pub fn GPRegisters() -> impl IntoView {
     let emu = expect_context::<RwSignal<EmulatorContext>>();
     let af = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp.af,
-        |emu,val|emu.emu.cpu.registers.gp.af=val
+        |emu| emu.emu.cpu.registers.gp.af,
+        |emu, val| emu.emu.cpu.registers.gp.af = val,
     );
     let bc = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp.bc,
-        |emu,val|emu.emu.cpu.registers.gp.bc=val
+        |emu| emu.emu.cpu.registers.gp.bc,
+        |emu, val| emu.emu.cpu.registers.gp.bc = val,
     );
     let de = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp.de,
-        |emu,val|emu.emu.cpu.registers.gp.de=val
+        |emu| emu.emu.cpu.registers.gp.de,
+        |emu, val| emu.emu.cpu.registers.gp.de = val,
     );
     let hl = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp.hl,
-        |emu,val|emu.emu.cpu.registers.gp.hl=val
+        |emu| emu.emu.cpu.registers.gp.hl,
+        |emu, val| emu.emu.cpu.registers.gp.hl = val,
     );
     let af_alt = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp_alt.af,
-        |emu,val|emu.emu.cpu.registers.gp_alt.af=val
+        |emu| emu.emu.cpu.registers.gp_alt.af,
+        |emu, val| emu.emu.cpu.registers.gp_alt.af = val,
     );
     let bc_alt = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp_alt.bc,
-        |emu,val|emu.emu.cpu.registers.gp_alt.bc=val
+        |emu| emu.emu.cpu.registers.gp_alt.bc,
+        |emu, val| emu.emu.cpu.registers.gp_alt.bc = val,
     );
     let de_alt = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp_alt.de,
-        |emu,val|emu.emu.cpu.registers.gp_alt.de=val
+        |emu| emu.emu.cpu.registers.gp_alt.de,
+        |emu, val| emu.emu.cpu.registers.gp_alt.de = val,
     );
     let hl_alt = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.gp_alt.hl,
-        |emu,val|emu.emu.cpu.registers.gp_alt.hl=val
+        |emu| emu.emu.cpu.registers.gp_alt.hl,
+        |emu, val| emu.emu.cpu.registers.gp_alt.hl = val,
     );
     let pc = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.pc,
-        |emu,val|emu.emu.cpu.registers.pc=val
+        |emu| emu.emu.cpu.registers.pc,
+        |emu, val| emu.emu.cpu.registers.pc = val,
     );
     let sp = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.sp,
-        |emu,val|emu.emu.cpu.registers.sp=val
+        |emu| emu.emu.cpu.registers.sp,
+        |emu, val| emu.emu.cpu.registers.sp = val,
     );
     let ix = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.ix,
-        |emu,val|emu.emu.cpu.registers.ix=val
+        |emu| emu.emu.cpu.registers.ix,
+        |emu, val| emu.emu.cpu.registers.ix = val,
     );
     let iy = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.iy,
-        |emu,val|emu.emu.cpu.registers.iy=val
+        |emu| emu.emu.cpu.registers.iy,
+        |emu, val| emu.emu.cpu.registers.iy = val,
     );
     let i = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.i,
-        |emu,val|emu.emu.cpu.registers.i=val
+        |emu| emu.emu.cpu.registers.i,
+        |emu, val| emu.emu.cpu.registers.i = val,
     );
     let r = create_slice(
         emu,
-        |emu|emu.emu.cpu.registers.r,
-        |emu,val|emu.emu.cpu.registers.r=val
+        |emu| emu.emu.cpu.registers.r,
+        |emu, val| emu.emu.cpu.registers.r = val,
     );
-    provide_context(RwSignal::new(GPRegistersAllSignals{
-        signals16:HashMap::from([
+    provide_context(RwSignal::new(GPRegistersAllSignals {
+        signals16: HashMap::from([
             ("AF".to_string(), GPRegisterSignals16::new(af)),
             ("BC".to_string(), GPRegisterSignals16::new(bc)),
             ("DE".to_string(), GPRegisterSignals16::new(de)),
@@ -286,12 +334,12 @@ pub fn GPRegisters() -> impl IntoView{
             ("PC".to_string(), GPRegisterSignals16::new(pc)),
             ("SP".to_string(), GPRegisterSignals16::new(sp)),
             ("IX".to_string(), GPRegisterSignals16::new(ix)),
-            ("IY".to_string(), GPRegisterSignals16::new(iy))
+            ("IY".to_string(), GPRegisterSignals16::new(iy)),
         ]),
-        signals8:HashMap::from([
+        signals8: HashMap::from([
             ("I".to_string(), GPRegisterSignals8::new(i)),
-            ("R".to_string(), GPRegisterSignals8::new(r))
-        ])
+            ("R".to_string(), GPRegisterSignals8::new(r)),
+        ]),
     }));
     view! {
         <div class=emu_style::registersflex>

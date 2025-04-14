@@ -1,12 +1,31 @@
 use base64::Engine;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
+#[derive(Clone,Error, Debug, Serialize, Deserialize)]
+pub enum CompilerError {
+    #[error("Unauthorized")]
+    Unauthorized,
+    #[error("Error sending request: {0}")]
+    RequestError(String),
+    #[error("Error decoding response: {0}")]
+    DecodeError(String),
+    #[error("Server fn error: {0}")]
+    ServerFn(ServerFnErrorErr),
+}
+
+impl FromServerFnError for CompilerError {
+    fn from_server_fn_error(value: ServerFnErrorErr) -> Self {
+        CompilerError::ServerFn(value)
+    }
+}
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
-    pub use axum::Extension;
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
+    pub use axum::Extension;
     pub use http::StatusCode;
     pub use leptos_axum::extract;
     pub use leptos_axum::ResponseOptions;
@@ -42,7 +61,7 @@ pub struct CompileData {
 }
 
 impl EncCompileData {
-    pub fn decode(&self) -> Result<CompileData, ServerFnError<String>> {
+    pub fn decode(&self) -> Result<CompileData, CompilerError> {
         let decode_str = |data: &str| {
             let decoded = base64::engine::general_purpose::STANDARD
                 .decode(data)
@@ -51,14 +70,14 @@ impl EncCompileData {
                 .map_err(|e| format!("Failed to convert decoded data to string: {}", e))
         };
         let stdout = decode_str(&self.b64stdout).map_err(|e| {
-            ServerFnError::ServerError(format!("Failed to decode base64 data: {}", e).to_string())
+            CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e).to_string())
         })?;
         let stderr = decode_str(&self.b64stderr).map_err(|e| {
-            ServerFnError::ServerError(format!("Failed to decode stderr: {}", e).to_string())
+            CompilerError::DecodeError(format!("Failed to decode stderr: {}", e).to_string())
         })?;
         let data = base64::engine::general_purpose::STANDARD
             .decode(&self.b64data)
-            .map_err(|e| format!("Failed to decode base64 data: {}", e))?;
+            .map_err(|e| CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e)))?;
         Ok(CompileData {
             rc: self.rc,
             stdout,
@@ -78,12 +97,12 @@ pub struct FormatData {
 }
 
 impl EncFormatData {
-    pub fn decode(&self) -> Result<FormatData, ServerFnError<String>> {
+    pub fn decode(&self) -> Result<FormatData, CompilerError> {
         let data = base64::engine::general_purpose::STANDARD
             .decode(&self.b64data)
-            .map_err(|e| format!("Failed to decode base64 data: {}", e))?;
+            .map_err(|e| CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e)))?;
         let data = String::from_utf8(data)
-            .map_err(|e| format!("Failed to convert decoded data to string: {}", e))?;
+            .map_err(|e| CompilerError::DecodeError(format!("Failed to convert decoded data to string: {}", e)))?;
         Ok(FormatData { data })
     }
 }
@@ -101,12 +120,12 @@ pub struct SyntaxCheckData {
 }
 
 impl EncSyntaxCheckData {
-    pub fn decode(&self) -> Result<SyntaxCheckData, ServerFnError<String>> {
+    pub fn decode(&self) -> Result<SyntaxCheckData, CompilerError> {
         let stderr = base64::engine::general_purpose::STANDARD
             .decode(&self.b64stderr)
-            .map_err(|e| format!("Failed to decode base64 data: {}", e))?;
+            .map_err(|e| CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e)))?;
         let stderr = String::from_utf8(stderr)
-            .map_err(|e| format!("Failed to convert decoded data to string: {}", e))?;
+            .map_err(|e| CompilerError::DecodeError(format!("Failed to convert decoded data to string: {}", e)))?;
         Ok(SyntaxCheckData {
             rc: self.rc,
             stderr,
@@ -115,9 +134,9 @@ impl EncSyntaxCheckData {
 }
 
 #[server(CCompile, endpoint = "/ccompile")]
-pub async fn c_compile(code: String) -> Result<CompileData, ServerFnError<String>> {
-    use server_imports::*;
+pub async fn c_compile(code: String) -> Result<CompileData, CompilerError> {
     use crate::db::models::user::UserData;
+    use server_imports::*;
     //encode code in b64
     let data = RequestBody::new(code);
     let state = expect_context::<AppState>();
@@ -128,29 +147,30 @@ pub async fn c_compile(code: String) -> Result<CompileData, ServerFnError<String
             let reqwest_client = &state.reqwest_client;
             let response = reqwest_client
                 .post(format!("http://{COMPILER_HOST}/compile"))
-                .header("Content-Length", serde_json::to_string(&data).unwrap().len())
+                .header(
+                    "Content-Length",
+                    serde_json::to_string(&data).unwrap().len(),
+                )
                 .json(&data)
                 .send()
                 .await
-                .map_err(|e| ServerFnError::ServerError(e.to_string()))?
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?
                 .json::<EncCompileData>()
                 .await
-                .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?;
             response.decode()
         }
         Err(_) => {
             response.set_status(StatusCode::UNAUTHORIZED);
-            Err(ServerFnError::Response(
-                "Only authenticated users can use the compiler".to_string(),
-            ))
+            Err(CompilerError::Unauthorized)
         }
     }
 }
 
 #[server(CFormat, endpoint = "/cformat")]
-pub async fn c_format(code:String) -> Result<FormatData, ServerFnError<String>> {
-    use server_imports::*;
+pub async fn c_format(code: String) -> Result<FormatData, CompilerError> {
     use crate::db::models::user::UserData;
+    use server_imports::*;
     //encode code in b64
     let data = RequestBody::new(code);
     let state = expect_context::<AppState>();
@@ -161,29 +181,30 @@ pub async fn c_format(code:String) -> Result<FormatData, ServerFnError<String>> 
             let reqwest_client = &state.reqwest_client;
             let response = reqwest_client
                 .post(format!("http://{COMPILER_HOST}/format"))
-                .header("Content-Length", serde_json::to_string(&data).unwrap().len())
+                .header(
+                    "Content-Length",
+                    serde_json::to_string(&data).unwrap().len(),
+                )
                 .json(&data)
                 .send()
                 .await
-                .map_err(|e| ServerFnError::ServerError(e.to_string()))?
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?
                 .json::<EncFormatData>()
                 .await
-                .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?;
             response.decode()
         }
         Err(_) => {
             response.set_status(StatusCode::UNAUTHORIZED);
-            Err(ServerFnError::Response(
-                "Only authenticated users can use the compiler".to_string(),
-            ))
+            Err(CompilerError::Unauthorized)
         }
     }
 }
 
 #[server(CSyntaxCheck, endpoint = "/csyntax_check")]
-pub async fn c_syntax_check(code: String) -> Result<SyntaxCheckData, ServerFnError<String>> {
-    use server_imports::*;
+pub async fn c_syntax_check(code: String) -> Result<SyntaxCheckData, CompilerError> {
     use crate::db::models::user::UserData;
+    use server_imports::*;
     //encode code in b64
     let data = RequestBody::new(code);
     let state = expect_context::<AppState>();
@@ -194,21 +215,22 @@ pub async fn c_syntax_check(code: String) -> Result<SyntaxCheckData, ServerFnErr
             let reqwest_client = &state.reqwest_client;
             let response = reqwest_client
                 .post(format!("http://{COMPILER_HOST}/syntax_check"))
-                .header("Content-Length", serde_json::to_string(&data).unwrap().len())
+                .header(
+                    "Content-Length",
+                    serde_json::to_string(&data).unwrap().len(),
+                )
                 .json(&data)
                 .send()
                 .await
-                .map_err(|e| ServerFnError::ServerError(e.to_string()))?
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?
                 .json::<EncSyntaxCheckData>()
                 .await
-                .map_err(|e| ServerFnError::ServerError(e.to_string()))?;
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?;
             response.decode()
         }
         Err(_) => {
             response.set_status(StatusCode::UNAUTHORIZED);
-            Err(ServerFnError::Response(
-                "Only authenticated users can use the compiler".to_string(),
-            ))
+            Err(CompilerError::Unauthorized)
         }
     }
 }

@@ -1,4 +1,3 @@
-
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
     pub use crate::db::models::program::{NewProgram, Program};

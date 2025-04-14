@@ -1,3 +1,6 @@
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
+use crate::utils::logger::LogLevel;
+use emu_lib::cpu::instruction::ExecutableInstruction;
 use emu_lib::cpu::z80::Z80;
 use emu_lib::cpu::Cpu;
 use emu_lib::emulator::{Emulator, StopReason};
@@ -8,9 +11,6 @@ use leptos::wasm_bindgen::JsCast;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use stylance::classes;
-use crate::utils::logger::LogLevel;
-use super::{emu_style, EmulatorCfgContext, EmulatorContext};
-use emu_lib::cpu::instruction::ExecutableInstruction;
 
 const BTN_CLASS: &str = "button";
 #[island]
@@ -69,19 +69,28 @@ fn RunButton() -> impl IntoView {
 
     let step = move || {
         emu_ctx.update(|emu| {
-            if let Err(err) = emu.emu.run_ticks(74.0,
-                                                &Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {})){
-                emu_cfg_ctx.update(|emu_cfg| {
-                    match err {
-                        StopReason::Halt => {
-                            emu_cfg.logstore.log_info("Emulator stopped: halt", "Emulator stopped due to a halt".to_string());
-                        }
-                        StopReason::Error(err) => {
-                            emu_cfg.logstore.log_error("Error", err);
-                        }
-                        StopReason::Breakpoint => {
-                            emu_cfg.logstore.log_info("Emulator stopped: breakpoint", format!("Emulator stopped due to a breakpoint at {:#04X}", emu.emu.cpu.registers.pc));
-                        }
+            if let Err(err) = emu.emu.run_ticks(
+                74.0,
+                &Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {}),
+            ) {
+                emu_cfg_ctx.update(|emu_cfg| match err {
+                    StopReason::Halt => {
+                        emu_cfg.logstore.log_info(
+                            "Emulator stopped: halt",
+                            "Emulator stopped due to a halt".to_string(),
+                        );
+                    }
+                    StopReason::Error(err) => {
+                        emu_cfg.logstore.log_error("Error", err);
+                    }
+                    StopReason::Breakpoint => {
+                        emu_cfg.logstore.log_info(
+                            "Emulator stopped: breakpoint",
+                            format!(
+                                "Emulator stopped due to a breakpoint at {:#04X}",
+                                emu.emu.cpu.registers.pc
+                            ),
+                        );
                     }
                 });
                 stop();
@@ -97,18 +106,23 @@ fn RunButton() -> impl IntoView {
         let handle = set_interval_with_handle(step, duration).expect("Could not set interval");
         handle_sig.set(Some(handle));
         emu_cfg_ctx.update(|emu_cfg| {
-            emu_cfg.logstore.log_info("Emulator started", "Emulator started".to_string());
+            emu_cfg
+                .logstore
+                .log_info("Emulator started", "Emulator started".to_string());
         });
     };
 
     let switch = move |duration| {
         let is_handle = handle_sig.with(|handle| handle.is_some());
         match is_handle {
-            true => { stop();
+            true => {
+                stop();
                 emu_cfg_ctx.update(|emu_cfg| {
-                    emu_cfg.logstore.log_info("Emulator stopped", "Emulator stopped".to_string());
+                    emu_cfg
+                        .logstore
+                        .log_info("Emulator stopped", "Emulator stopped".to_string());
                 });
-            },
+            }
             false => start(duration),
         };
     };
@@ -172,10 +186,8 @@ fn ResetButton() -> impl IntoView {
     let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     let on_reset = move |_| {
         emu_cfg_ctx.update(|emu| {
-            emu.logstore.log_info(
-                "Emulator reset",
-                "Emulator reset".to_string(),
-            );
+            emu.logstore
+                .log_info("Emulator reset", "Emulator reset".to_string());
         });
         emu_ctx.update(|emu| {
             emu.emu.cpu = Z80::default();
@@ -242,22 +254,14 @@ pub fn fmt_timestamp(ts: &chrono::DateTime<chrono::Utc>) -> String {
 #[island]
 pub fn EmuLog() -> impl IntoView {
     let cfg = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let last_log = Memo::new(move |_| {
-        cfg.with(|cfg| cfg.logstore.last_log().cloned())
-    });
-    let log_class =move || {
+    let last_log = Memo::new(move |_| cfg.with(|cfg| cfg.logstore.last_log().cloned()));
+    let log_class = move || {
         last_log.with(|log| {
             if let Some(log) = log {
                 match log.level {
-                    LogLevel::Info => {
-                        emu_style::info
-                    },
-                    LogLevel::Warning => {
-                        emu_style::warning
-                    },
-                    LogLevel::Error => {
-                        emu_style::error
-                    }
+                    LogLevel::Info => emu_style::info,
+                    LogLevel::Warning => emu_style::warning,
+                    LogLevel::Error => emu_style::error,
                 }
             } else {
                 ""

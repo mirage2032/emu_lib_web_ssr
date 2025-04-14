@@ -1,23 +1,23 @@
 mod control;
 mod disassembler;
+mod editor;
+mod info;
 mod memory;
 mod registers;
-mod info;
-mod editor;
 
-use control::Control;
-use info::Info;
-use disassembler::Disassembler;
-use memory::Memory;
-use emu_lib::cpu::z80::Z80;
-use emu_lib::emulator::Emulator;
-use leptos::prelude::*;
-use leptos_meta::Title;
 use crate::emulator::disassembler::DisassemblerContext;
 use crate::emulator::editor::{Editor, EditorContext};
 use crate::emulator::memory::MemoryContext;
 use crate::emulator::registers::Registers;
 use crate::utils::logger::LogStore;
+use control::Control;
+use disassembler::Disassembler;
+use emu_lib::cpu::z80::Z80;
+use emu_lib::emulator::Emulator;
+use info::Info;
+use leptos::prelude::*;
+use leptos_meta::Title;
+use memory::Memory;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
 
@@ -33,9 +33,7 @@ pub struct EmulatorContext {
 
 impl Default for EmulatorContext {
     fn default() -> Self {
-        EmulatorContext {
-            emu: default_emu(),
-        }
+        EmulatorContext { emu: default_emu() }
     }
 }
 
@@ -82,8 +80,11 @@ pub fn EmulatorInner() -> impl IntoView {
         let emu = EmulatorContext::default();
         provide_context(RwSignal::new(emu));
         let cfg = expect_context::<RwSignal<EmulatorCfgContext>>();
-        cfg.update(|cfg|{
-            cfg.logstore.log_info("Emulator initialized","Emulator initialized with default settings".to_string());
+        cfg.update(|cfg| {
+            cfg.logstore.log_info(
+                "Emulator initialized",
+                "Emulator initialized with default settings".to_string(),
+            );
         })
     }
     view! {

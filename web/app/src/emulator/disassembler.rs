@@ -1,7 +1,7 @@
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use emu_lib::cpu::instruction::{ExecutableInstruction, InstructionParser};
 use emu_lib::cpu::z80::parser::Z80_PARSER;
 use leptos::prelude::*;
-use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 
 #[derive(Clone, Copy, Debug)]
 pub enum DisassemblerDisplayMode {
@@ -9,8 +9,7 @@ pub enum DisassemblerDisplayMode {
     Bytes,
 }
 
-#[derive(Clone, Copy, Debug)]
-#[derive(PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct DisassemblerContext {
     pub start: Option<u16>,
     pub rows: u16,
@@ -49,38 +48,44 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
             return Err("Outside range".to_string());
         }
         emu.with(|emu| {
-            Z80_PARSER.ins_from_machinecode(&emu.emu.memory, address as u16).map_err(|err|err.to_string())
+            Z80_PARSER
+                .ins_from_machinecode(&emu.emu.memory, address as u16)
+                .map_err(|err| err.to_string())
         })
     };
     let ins_bytes = Memo::new(move |_| {
-        if let Ok(instruction)=instruction() {
+        if let Ok(instruction) = instruction() {
             instruction
                 .to_bytes()
                 .iter()
                 .map(|b| format!("{:02X}", b))
                 .collect::<Vec<_>>()
                 .join(" ")
-        } else { "N/A".to_string() }
+        } else {
+            "N/A".to_string()
+        }
     });
-    let ins_string =Memo::new(move |_| {
-        if let Ok(instruction)=instruction() {
+    let ins_string = Memo::new(move |_| {
+        if let Ok(instruction) = instruction() {
             instruction.to_string()
-        } else { "N/A".to_string() }
+        } else {
+            "N/A".to_string()
+        }
     });
     let is_breakpoint = Memo::new(move |_| {
-        emu.with(|emu| emu.emu.breakpoints.iter().any(|&bp|bp as usize==address))
+        emu.with(|emu| emu.emu.breakpoints.iter().any(|&bp| bp as usize == address))
     });
     let breakpoint = move || {
         if is_breakpoint() {
             "⬤".to_string()
-        }else{
+        } else {
             " ".to_string()
         }
     };
     let toggle_breakpoint = move |_| {
         emu.update(|emu| {
-            if emu.emu.breakpoints.iter().any(|&bp|bp as usize==address) {
-                emu.emu.breakpoints.retain(|&bp|bp as usize!=address);
+            if emu.emu.breakpoints.iter().any(|&bp| bp as usize == address) {
+                emu.emu.breakpoints.retain(|&bp| bp as usize != address);
             } else {
                 emu.emu.breakpoints.push(address as u16);
             }
@@ -101,9 +106,7 @@ pub fn DisassemblerTRow(address: usize) -> impl IntoView {
 #[island]
 pub fn DisassemblerTBody() -> impl IntoView {
     let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let disasm = Memo::new(move |_| {
-        ctx.with(|ctx| ctx.disasm_config)
-    });
+    let disasm = Memo::new(move |_| ctx.with(|ctx| ctx.disasm_config));
     let emu = expect_context::<RwSignal<EmulatorContext>>();
     let table_rows = move || {
         let mut offset = 0;

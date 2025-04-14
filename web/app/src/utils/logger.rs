@@ -1,4 +1,3 @@
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum LogLevel {
     Info,
@@ -20,15 +19,12 @@ pub struct LogStore {
 
 impl Default for LogStore {
     fn default() -> Self {
-        LogStore {
-            logs: Vec::new(),
-        }
+        LogStore { logs: Vec::new() }
     }
 }
 
 impl LogStore {
-
-    pub fn log(&mut self, level: LogLevel, short_message:&'static str, message: String) {
+    pub fn log(&mut self, level: LogLevel, short_message: &'static str, message: String) {
         let log = Log {
             timestamp: chrono::Utc::now(),
             level,
@@ -37,19 +33,19 @@ impl LogStore {
         };
         self.logs.push(log);
     }
-    
-    pub fn log_info(&mut self,short_message:&'static str, message: String) {
-        self.log(LogLevel::Info,short_message, message);
+
+    pub fn log_info(&mut self, short_message: &'static str, message: String) {
+        self.log(LogLevel::Info, short_message, message);
     }
-    
-    pub fn log_warning(&mut self,short_message:&'static str, message: String) {
-        self.log(LogLevel::Warning,short_message, message);
+
+    pub fn log_warning(&mut self, short_message: &'static str, message: String) {
+        self.log(LogLevel::Warning, short_message, message);
     }
-    
-    pub fn log_error(&mut self,short_message:&'static str, message: String) {
-        self.log(LogLevel::Error,short_message, message); 
+
+    pub fn log_error(&mut self, short_message: &'static str, message: String) {
+        self.log(LogLevel::Error, short_message, message);
     }
-    
+
     pub fn last_log(&self) -> Option<&Log> {
         self.logs.last()
     }

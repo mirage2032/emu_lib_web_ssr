@@ -33,8 +33,7 @@ impl MemDisplay {
     }
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-#[derive(PartialEq)]
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 pub struct MemoryContext {
     pub width: u16,
     pub height: u16,
@@ -137,11 +136,14 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
             row,
         ) {
             let changed = Memo::new(move |_| {
-                emu_ctx.with(|emu| { if let Some(addresses) = emu.emu.memory.get_changes() {
-                    addresses.contains(&address)
-                } else {
-                    false
-                } })});
+                emu_ctx.with(|emu| {
+                    if let Some(addresses) = emu.emu.memory.get_changes() {
+                        addresses.contains(&address)
+                    } else {
+                        false
+                    }
+                })
+            });
             let changed_class = Memo::new(move |_| {
                 if changed.get() {
                     emu_style::changed
@@ -180,7 +182,11 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                         emu_cfg_ctx.update(|cfg| {
                             cfg.logstore.log_error(
                                 "Memory write error",
-                                format!("Memory write error: invalid value {}, not {}", value,cfg.mem_config.display.to_str()),
+                                format!(
+                                    "Memory write error: invalid value {}, not {}",
+                                    value,
+                                    cfg.mem_config.display.to_str()
+                                ),
                             );
                         });
                         let input: HtmlInputElement = event_target(&ev);

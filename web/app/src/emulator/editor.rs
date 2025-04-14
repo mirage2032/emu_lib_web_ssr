@@ -1,10 +1,8 @@
-use leptos::task::spawn_local;
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
-use crate::utils::ccompiler::{c_compile,c_format,c_syntax_check};
+use crate::utils::ccompiler::{c_compile, c_format, c_syntax_check,CompilerError};
 use leptos::ev::{Event, Targeted};
-use leptos::logging::log;
 use leptos::prelude::*;
-use leptos::web_sys;
+use leptos::task::spawn_local;
 use leptos::web_sys::{HtmlInputElement, HtmlTextAreaElement};
 use serde::{Deserialize, Serialize};
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq)]
@@ -84,75 +82,127 @@ pub fn EditorTop() -> impl IntoView {
     let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
     let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     let on_compile = move |_| {
-        let code =  emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
+        let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {
             let res = c_compile(code).await;
             match res {
                 Ok(res) => {
                     if res.rc != 0 {
                         emu_cfg_ctx.update(|emu_cfg_ctx| {
-                            emu_cfg_ctx.logstore.log_error("C Compilation error",format!("C Compilation error: {}", res.stderr));
+                            emu_cfg_ctx.logstore.log_error(
+                                "C Compilation error",
+                                format!("C Compilation error: {}", res.stderr),
+                            );
                         });
                         return;
                     }
                     emu_ctx.update(|emu_ctx| {
                         if let Err(err) = emu_ctx.emu.memory.load(&res.data, true) {
                             emu_cfg_ctx.update(|emu_cfg_ctx| {
-                                emu_cfg_ctx.logstore.log_error("C Compilation error",format!("C Compilation error, writting into emulator memory: {:?}", err));
+                                emu_cfg_ctx.logstore.log_error(
+                                    "C Compilation error",
+                                    format!(
+                                        "C Compilation error, writting into emulator memory: {:?}",
+                                        err
+                                    ),
+                                );
                             });
                         } else {
                             emu_cfg_ctx.update(|emu_cfg_ctx| {
-                                emu_cfg_ctx.logstore.log_info("C Compilation success","C Compilation success, program loaded into emulator memory".to_string());
+                                emu_cfg_ctx.logstore.log_info(
+                                    "C Compilation success",
+                                    "C Compilation success, program loaded into emulator memory"
+                                        .to_string(),
+                                );
                             });
                         }
                     });
                 }
+                Err(CompilerError::Unauthorized) => {
+                    emu_cfg_ctx.update(|emu_cfg_ctx| {
+                        emu_cfg_ctx
+                            .logstore
+                            .log_error("Unauthenticated", "C Compilation error: Unauthorized".to_string());
+                    });
+                }
                 Err(err) => {
                     emu_cfg_ctx.update(|emu_cfg_ctx| {
-                        emu_cfg_ctx.logstore.log_error("C Compilation error",format!("C Compilation error: {:?}", err));
+                        emu_cfg_ctx.logstore.log_error(
+                            "C Compilation error",
+                            format!("C Compilation error: {:?}", err),
+                        );
                     });
                 }
             }
         });
     };
-    let on_format= move |_| {
-        let code =  emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
+    let on_format = move |_| {
+        let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {
             let res = c_format(code).await;
             match res {
                 Ok(res) => {
                     emu_cfg_ctx.update(|emu_ctx| {
-                        emu_ctx.editor.write_buffer(CompileLanguage::C, res.data.clone());
-                        emu_ctx.logstore.log_info("Formatted C code",format!("Formatted C code: {}", res.data));
+                        emu_ctx
+                            .editor
+                            .write_buffer(CompileLanguage::C, res.data.clone());
+                        emu_ctx.logstore.log_info(
+                            "Formatted C code",
+                            format!("Formatted C code: {}", res.data),
+                        );
+                    });
+                }
+                Err(CompilerError::Unauthorized) => {
+                    emu_cfg_ctx.update(|emu_ctx| {
+                        emu_ctx
+                            .logstore
+                            .log_error("Unauthenticated", "Format C error: Unauthorized".to_string());
                     });
                 }
                 Err(err) => {
                     emu_cfg_ctx.update(|emu_ctx| {
-                        emu_ctx.logstore.log_error("Format C error",format!("Format C error: {:?}", err));
+                        emu_ctx
+                            .logstore
+                            .log_error("Format C error", format!("Format C error: {:?}", err));
                     });
                 }
             }
         });
     };
-    let on_syntax_check= move |_| {
-        let code =  emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
+    let on_syntax_check = move |_| {
+        let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {
             let res = c_syntax_check(code).await;
             match res {
                 Ok(res) => {
                     if res.stderr.is_empty() {
                         emu_cfg_ctx.update(|emu_ctx| {
-                            emu_ctx.logstore.log_info("No syntax error","C Syntax check: no errors".to_string());
+                            emu_ctx.logstore.log_info(
+                                "No C syntax error",
+                                "C Syntax check: no errors".to_string(),
+                            );
                         });
                     } else {
                         emu_cfg_ctx.update(|emu_ctx| {
-                            emu_ctx.logstore.log_error("Syntax errors",format!("C Syntax errors: {}", res.stderr));
+                            emu_ctx.logstore.log_error(
+                                "C Syntax errors",
+                                format!("C Syntax errors: {}", res.stderr),
+                            );
                         });
                     }
                 }
+                Err(CompilerError::Unauthorized) => {
+                    emu_cfg_ctx.update(|emu_ctx| {
+                        emu_ctx
+                            .logstore
+                            .log_error("Unauthenticated", "C Syntax check error: Unauthorized".to_string());
+                    });
+                }
                 Err(err) => {
                     emu_cfg_ctx.update(|emu_ctx| {
-                        emu_ctx.logstore.log_error("Syntax errors",format!("Syntax check error: {:?}", err));
+                        emu_ctx
+                            .logstore
+                            .log_error("C Syntax errors", format!("C Syntax check error: {:?}", err));
                     });
                 }
             }
