@@ -1,6 +1,6 @@
 use emu_lib::cpu::z80::Z80;
 use emu_lib::cpu::Cpu;
-use emu_lib::emulator::Emulator;
+use emu_lib::emulator::{Emulator, StopReason};
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
@@ -15,17 +15,37 @@ use emu_lib::cpu::instruction::ExecutableInstruction;
 const BTN_CLASS: &str = "button";
 #[island]
 fn StepButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     view! {
         <input
             type="button"
             value="Step"
             on:click=move |_| {
-                emu_signal
+                emu_ctx
                     .update(|emu| {
-                        if let Err(err) = emu.emu.step() {
-                            log!("{}",err);
-                        }
+                        emu_cfg_ctx
+                            .update(|emu_cfg| {
+                                if let Err(err) = emu.emu.step() {
+                                    emu_cfg
+                                        .logstore
+                                        .log_error(
+                                            "Step error",
+                                            format!(
+                                                "Step error at {:#04X}: {}",
+                                                emu.emu.cpu.registers.pc,
+                                                err,
+                                            ),
+                                        );
+                                } else {
+                                    emu_cfg
+                                        .logstore
+                                        .log_info(
+                                            "Step",
+                                            format!("Step at {:#04X}", emu.emu.cpu.registers.pc),
+                                        );
+                                }
+                            });
                     })
             }
         />
@@ -34,7 +54,8 @@ fn StepButton() -> impl IntoView {
 
 #[island]
 fn RunButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     let handle_sig: RwSignal<Option<IntervalHandle>> = RwSignal::new(None);
 
     let stop = move || {
@@ -47,10 +68,22 @@ fn RunButton() -> impl IntoView {
     };
 
     let step = move || {
-        emu_signal.update(|emu| {
+        emu_ctx.update(|emu| {
             if let Err(err) = emu.emu.run_ticks(74.0,
                                                 &Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {})){
-                log!("{:?}", err);
+                emu_cfg_ctx.update(|emu_cfg| {
+                    match err {
+                        StopReason::Halt => {
+                            emu_cfg.logstore.log_info("Emulator stopped: halt", "Emulator stopped due to a halt".to_string());
+                        }
+                        StopReason::Error(err) => {
+                            emu_cfg.logstore.log_error("Error", err);
+                        }
+                        StopReason::Breakpoint => {
+                            emu_cfg.logstore.log_info("Emulator stopped: breakpoint", format!("Emulator stopped due to a breakpoint at {:#04X}", emu.emu.cpu.registers.pc));
+                        }
+                    }
+                });
                 stop();
             }
             // if emu.emu.breakpoints.contains(&emu.emu.cpu.registers.pc) {
@@ -63,13 +96,19 @@ fn RunButton() -> impl IntoView {
     let start = move |duration| {
         let handle = set_interval_with_handle(step, duration).expect("Could not set interval");
         handle_sig.set(Some(handle));
-        log!("Running");
+        emu_cfg_ctx.update(|emu_cfg| {
+            emu_cfg.logstore.log_info("Emulator started", "Emulator started".to_string());
+        });
     };
 
     let switch = move |duration| {
         let is_handle = handle_sig.with(|handle| handle.is_some());
         match is_handle {
-            true => stop(),
+            true => { stop();
+                emu_cfg_ctx.update(|emu_cfg| {
+                    emu_cfg.logstore.log_info("Emulator stopped", "Emulator stopped".to_string());
+                });
+            },
             false => start(duration),
         };
     };
@@ -90,20 +129,37 @@ fn RunButton() -> impl IntoView {
 
 #[island]
 fn HaltButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     view! {
         <input
             type="button"
             value="Halt"
             class=move || {
                 classes!(
-                    if emu_signal.with(|emu|emu.emu.cpu.halted()) {emu_style::activeinput} else {""}
+                    if emu_ctx.with(|emu|emu.emu.cpu.halted()) {emu_style::activeinput} else {""}
                 )
             }
             on:click=move |_| {
-                emu_signal
+                emu_ctx
                     .update(|emu| {
-                        emu.emu.cpu.set_halted(!emu.emu.cpu.halted());
+                        emu_cfg_ctx
+                            .update(|emu_cfg| {
+                                if emu.emu.cpu.halted() {
+                                    emu_cfg
+                                        .logstore
+                                        .log_info(
+                                            "Emulater unhalted",
+                                            "Emulator unhalted".to_string(),
+                                        );
+                                    emu.emu.cpu.set_halted(false);
+                                } else {
+                                    emu_cfg
+                                        .logstore
+                                        .log_info("Emulator halted", "Emulator halted".to_string());
+                                    emu.emu.cpu.set_halted(true);
+                                }
+                            });
                     })
             }
         />
@@ -112,19 +168,27 @@ fn HaltButton() -> impl IntoView {
 
 #[island]
 fn ResetButton() -> impl IntoView {
-    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
-    view! {
-        <input
-            type="button"
-            value="Reset"
-            on:click=move |_| emu_signal.update(|emu| { emu.emu.cpu = Z80::default() })
-        />
-    }
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let on_reset = move |_| {
+        emu_cfg_ctx.update(|emu| {
+            emu.logstore.log_info(
+                "Emulator reset",
+                "Emulator reset".to_string(),
+            );
+        });
+        emu_ctx.update(|emu| {
+            emu.emu.cpu = Z80::default();
+            emu.emu.reset_counters();
+        });
+    };
+    view! { <input type="button" value="Reset" on:click=on_reset /> }
 }
 
 #[island]
 fn LoadButton() -> impl IntoView {
     let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_ctx_signal = expect_context::<RwSignal<EmulatorCfgContext>>();
     view! {
         <div class=emu_style::load>
             <label for="fileupload">
@@ -150,7 +214,15 @@ fn LoadButton() -> impl IntoView {
                                     emu_signal
                                         .update(|emu| {
                                             if let Ok(_) = emu.emu.memory.load(&data, true) {
-                                                log!("Loaded file");
+                                                emu_ctx_signal
+                                                    .update(|emu_ctx| {
+                                                        emu_ctx
+                                                            .logstore
+                                                            .log_info(
+                                                                "File loaded",
+                                                                format!("File loaded: {}", file.name()),
+                                                            );
+                                                    });
                                             }
                                         });
                                 });
@@ -195,7 +267,7 @@ pub fn EmuLog() -> impl IntoView {
     let log_message = move || {
         last_log.with(|log| {
             if let Some(log) = log {
-                log.message.clone()
+                log.short_message.to_string()
             } else {
                 String::new()
             }

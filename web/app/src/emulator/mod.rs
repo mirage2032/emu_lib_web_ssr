@@ -61,7 +61,6 @@ impl Default for EmulatorCfgContext {
 pub fn EmulatorNoTitle() -> impl IntoView {
     view! {
         <div>
-            <Control />
             <Memory />
             <div class=emu_style::disasmregsinfoflex>
                 <Disassembler />
@@ -84,10 +83,11 @@ pub fn EmulatorInner() -> impl IntoView {
         provide_context(RwSignal::new(emu));
         let cfg = expect_context::<RwSignal<EmulatorCfgContext>>();
         cfg.update(|cfg|{
-            cfg.logstore.log_info("Emulator started".to_string());
+            cfg.logstore.log_info("Emulator initialized","Emulator initialized with default settings".to_string());
         })
     }
     view! {
+        <Control />
         <div class=emu_style::emulator>
             <EmulatorNoTitle />
             <Editor />

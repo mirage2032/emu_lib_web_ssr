@@ -2,7 +2,6 @@ use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::utils::icons::Icon;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
-use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
 use leptos::IntoView;
@@ -121,14 +120,15 @@ fn format_value(value: u8, display: MemDisplay) -> String {
 
 #[island]
 fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
-    let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let display = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config.display));
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let display = Memo::new(move |_| emu_cfg_ctx.with(|ctx| ctx.mem_config.display));
     let max_length = Memo::new(move |_| match display.get() {
         MemDisplay::Hex => 2,
         MemDisplay::Dec => 3,
         MemDisplay::Ascii => 1,
     });
-    let shape = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config));
+    let shape = Memo::new(move |_| emu_cfg_ctx.with(|ctx| ctx.mem_config));
     let vw = move || {
         if let Some(address) = get_mem_address(
             shape.with(|shape| shape.start),
@@ -136,9 +136,8 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
             column,
             row,
         ) {
-            let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
             let changed = Memo::new(move |_| {
-                emu_signal.with(|emu| { if let Some(addresses) = emu.emu.memory.get_changes() {
+                emu_ctx.with(|emu| { if let Some(addresses) = emu.emu.memory.get_changes() {
                     addresses.contains(&address)
                 } else {
                     false
@@ -151,7 +150,7 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                 }
             });
             let read_mem = Memo::new(move |_| {
-                emu_signal.with(|emu| match emu.emu.memory.read_8(address) {
+                emu_ctx.with(|emu| match emu.emu.memory.read_8(address) {
                     Ok(val) => format_value(val, display()),
                     _ => "N/A".to_string(),
                 })
@@ -160,17 +159,30 @@ fn MemoryMemCell(column: u16, row: u16) -> impl IntoView {
                 let value = event_target_value(&ev);
                 match parse_value(&value, display()) {
                     Some(val) => {
-                        emu_signal.update(|emu| {
-                            if let Err(err) = emu.emu.memory.write_8(address, val) {
-                                log!("{}", err);
-                            } else {
-                                log!("written: {} {}", address, val);
-                            };
-                            emu.emu.memory.clear_change(address); 
+                        emu_ctx.update(|emu| {
+                            emu_cfg_ctx.update(|cfg| {
+                                if let Err(err) = emu.emu.memory.write_8(address, val) {
+                                    cfg.logstore.log_error(
+                                        "Memory write error",
+                                        format!("Memory write error: {}", err),
+                                    );
+                                } else {
+                                    cfg.logstore.log_info(
+                                        "Memory written",
+                                        format!("Memory write: ({:#04X}) = {:#04X}", address, val),
+                                    );
+                                }
+                            });
+                            emu.emu.memory.clear_change(address);
                         });
                     }
                     None => {
-                        log!("{} is not a valid {} value", value, display().to_str());
+                        emu_cfg_ctx.update(|cfg| {
+                            cfg.logstore.log_error(
+                                "Memory write error",
+                                format!("Memory write error: invalid value {}, not {}", value,cfg.mem_config.display.to_str()),
+                            );
+                        });
                         let input: HtmlInputElement = event_target(&ev);
                         input.set_value(&format!("{}", read_mem()));
                     }

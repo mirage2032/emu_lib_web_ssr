@@ -32,7 +32,7 @@ services:
       - .env
     environment:
       - DB_HOST=db-container
-      - COMPILER_HOST=compiler-service
+      - COMPILER_HOST=compiler-service:3000
     ports:
         - "3000:3000"
     depends_on:

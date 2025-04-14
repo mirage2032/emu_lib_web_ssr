@@ -4,7 +4,7 @@ use emu_lib::emulator::Emulator;
 use leptos::ev::Event;
 use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
-use super::{emu_style, EmulatorContext};
+use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 
 #[derive(Clone,Debug)]
 struct GPRegisterSignals16 {
@@ -45,17 +45,25 @@ struct GPRegistersAllSignals {
 #[island]
 pub fn Register16Bit(name:String) -> impl IntoView{
     let signals = use_context::<RwSignal<GPRegistersAllSignals>>().expect("No GPRegistersSignals context found");
+    let emu_cfg_ctx = use_context::<RwSignal<EmulatorCfgContext>>().expect("No EmulatorCfgContext found");
     let name_clone = name.clone();
     let full_val = move || {
         signals.get().signals16.get(&name_clone).expect("No signal found for this register").clone()
     };
     let full_val_clone = full_val.clone();
     let read_full = move || { format!("{:04X}", full_val().read.get()) };
+    let name_clone = name.clone();
     let write_full =  move |ev: Event| {
         let value = event_target_value(&ev);
-        if let Ok(val) = u16::from_str_radix(&value, 16) {
-            full_val_clone().write.set(val);
-        }
+        emu_cfg_ctx.update(|emu_cfg| {
+            if let Ok(val) = u16::from_str_radix(&value, 16) {
+                full_val_clone().write.set(val);
+                emu_cfg.logstore.log_info(
+                    "Register changed",
+                    format!("Register {} set to {:04X}", name_clone, val)
+                );
+            }
+        });
     };
     view! {
         <table>
