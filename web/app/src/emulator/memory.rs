@@ -2,12 +2,12 @@ use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::utils::icons::Icon;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
-use leptos::logging::log;
+use std::ops::Div;
 use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
-use leptos::IntoView;
+use leptos::{html, IntoView};
+use leptos_use::{on_click_outside_with_options, OnClickOutsideOptions};
 use serde::{Deserialize, Serialize};
-use std::ops::Div;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum MemDisplay {
@@ -228,17 +228,28 @@ fn MemoryTBody() -> impl IntoView {
     }
 }
 
+#[derive(Clone)]
+struct DisplayMemorySettings{
+    signal: RwSignal<bool>,
+}
+
 #[island]
 pub fn SettingsInner() -> impl IntoView {
-    let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let display = Memo::new(move |_| ctx.with(|ctx| ctx.mem_config.display));
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let display = Memo::new(move |_| emu_cfg_ctx.with(|ctx| ctx.mem_config.display));
     let change_display = move |dsp: MemDisplay| {
-        ctx.update(|ctx| {
+        emu_cfg_ctx.update(|ctx| {
             ctx.mem_config.display = dsp;
         });
     };
+    let should_display = expect_context::<DisplayMemorySettings>();
+    let noderef = NodeRef::new();
+    let _ = on_click_outside_with_options(noderef, move |_| {should_display.signal.update(|state| *state = false)},
+                                          OnClickOutsideOptions::default().ignore(["div", ".memsetbtn"]),
+    );
+
     view! {
-        <div class=emu_style::secsettingsinner>
+        <div node_ref=noderef class=emu_style::secsettingsinner>
             <div>
                 <span>Display mode:</span>
             </div>
@@ -276,9 +287,10 @@ pub fn SettingsInner() -> impl IntoView {
                     value="Ascii"
                     on:click=move |_| change_display(MemDisplay::Ascii)
                     prop:checked=move || {
-                        ctx.with(|ctx| {
-                            if let MemDisplay::Ascii = display.get() { true } else { false }
-                        })
+                        emu_cfg_ctx
+                            .with(|ctx| {
+                                if let MemDisplay::Ascii = display.get() { true } else { false }
+                            })
                     }
                 />
                 <label for="asciidsp">ASCII</label>
@@ -290,14 +302,17 @@ pub fn SettingsInner() -> impl IntoView {
 #[island]
 pub fn Settings() -> impl IntoView {
     let display_settings = RwSignal::new(false);
-    let toggle_settings = move |_| {
+    provide_context::<DisplayMemorySettings>(DisplayMemorySettings {
+        signal: display_settings.clone(),
+    });
+    let switch_settings = move |_| {
         display_settings.update(|state| *state = !*state);
     };
     view! {
         <div class=emu_style::sectop>
             <span>Memory</span>
             <div class=emu_style::secsettings>
-                <div on:click=toggle_settings>
+                <div class="memsetbtn" on:click=switch_settings>
                     <Icon name="ri-settings-3-fill".to_string() />
                 </div>
                 <Show when=move || display_settings.get() fallback=move || { "".to_string() }>

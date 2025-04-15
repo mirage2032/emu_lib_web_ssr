@@ -1,9 +1,11 @@
 use base64::Engine;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
+use server_fn::error::ServerFnErrorEncoding;
 use thiserror::Error;
+use server_fn::codec::JsonEncoding;
 
-#[derive(Clone, Error, Debug, Serialize, Deserialize)]
+#[derive(Clone,Error, Debug, Serialize, Deserialize)]
 pub enum CompilerError {
     #[error("Unauthorized")]
     Unauthorized,
@@ -12,12 +14,13 @@ pub enum CompilerError {
     #[error("Error decoding response: {0}")]
     DecodeError(String),
     #[error("Server fn error: {0}")]
-    ServerFn(ServerFnErrorErr),
+    ServerFnError(ServerFnErrorErr),
 }
 
 impl FromServerFnError for CompilerError {
+    type Encoder = JsonEncoding;
     fn from_server_fn_error(value: ServerFnErrorErr) -> Self {
-        CompilerError::ServerFn(value)
+        CompilerError::ServerFnError(value)
     }
 }
 
