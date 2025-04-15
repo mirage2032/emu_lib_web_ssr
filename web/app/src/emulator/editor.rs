@@ -1,5 +1,5 @@
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
-use crate::utils::ccompiler::{c_compile, c_format, c_syntax_check,CompilerError};
+use crate::utils::ccompiler::{c_compile, c_format, c_syntax_check, CompilerError};
 use leptos::ev::{Event, Targeted};
 use leptos::logging::log;
 use leptos::prelude::*;
@@ -121,9 +121,10 @@ pub fn EditorTop() -> impl IntoView {
                 }
                 Err(CompilerError::Unauthorized) => {
                     emu_cfg_ctx.update(|emu_cfg_ctx| {
-                        emu_cfg_ctx
-                            .logstore
-                            .log_error("Unauthenticated", "C Compilation error: Unauthorized".to_string());
+                        emu_cfg_ctx.logstore.log_error(
+                            "Unauthenticated",
+                            "C Compilation error: Unauthorized".to_string(),
+                        );
                     });
                 }
                 Err(err) => {
@@ -156,9 +157,10 @@ pub fn EditorTop() -> impl IntoView {
                 }
                 Err(CompilerError::Unauthorized) => {
                     emu_cfg_ctx.update(|emu_ctx| {
-                        emu_ctx
-                            .logstore
-                            .log_error("Unauthenticated", "Format C error: Unauthorized".to_string());
+                        emu_ctx.logstore.log_error(
+                            "Unauthenticated",
+                            "Format C error: Unauthorized".to_string(),
+                        );
                     });
                 }
                 Err(err) => {
@@ -195,16 +197,18 @@ pub fn EditorTop() -> impl IntoView {
                 }
                 Err(CompilerError::Unauthorized) => {
                     emu_cfg_ctx.update(|emu_ctx| {
-                        emu_ctx
-                            .logstore
-                            .log_error("Unauthenticated", "C Syntax check error: Unauthorized".to_string());
+                        emu_ctx.logstore.log_error(
+                            "Unauthenticated",
+                            "C Syntax check error: Unauthorized".to_string(),
+                        );
                     });
                 }
                 Err(err) => {
                     emu_cfg_ctx.update(|emu_ctx| {
-                        emu_ctx
-                            .logstore
-                            .log_error("C Syntax errors", format!("C Syntax check error: {:?}", err));
+                        emu_ctx.logstore.log_error(
+                            "C Syntax errors",
+                            format!("C Syntax check error: {:?}", err),
+                        );
                     });
                 }
             }

@@ -140,10 +140,12 @@ pub fn GPRegister(name: String) -> impl IntoView {
         let value = event_target_value(&ev);
         if let Ok(val) = u16::from_str_radix(&value, 16) {
             full_val_clone().write.set(val);
-            emu_cfg_ctx.update(|emu_cfg|emu_cfg.logstore.log_info(
-                "Register changed",
-                format!("Register {} set to {:04X}", name_clone, val)
-            ));
+            emu_cfg_ctx.update(|emu_cfg| {
+                emu_cfg.logstore.log_info(
+                    "Register changed",
+                    format!("Register {} set to {:04X}", name_clone, val),
+                )
+            });
         } else {
             let input: HtmlInputElement = event_target(&ev);
             input.set_value(&format!("{:04X}", full_val_clone().read.get()));
@@ -165,7 +167,11 @@ pub fn GPRegister(name: String) -> impl IntoView {
             emu_cfg_ctx.update(|emu_cfg| {
                 emu_cfg.logstore.log_info(
                     "Register changed",
-                    format!("Register {} set to {:02X}", name_clone.chars().nth(0).unwrap().to_string(), u16::from_be_bytes(bytes)),
+                    format!(
+                        "Register {} set to {:02X}",
+                        name_clone.chars().nth(0).unwrap().to_string(),
+                        u16::from_be_bytes(bytes)
+                    ),
                 );
             });
         } else {
@@ -192,7 +198,11 @@ pub fn GPRegister(name: String) -> impl IntoView {
             emu_cfg_ctx.update(|emu_cfg| {
                 emu_cfg.logstore.log_info(
                     "Register changed",
-                    format!("Register {} set to {:02X}", name_clone.chars().nth(1).unwrap().to_string(), u16::from_be_bytes(bytes)),
+                    format!(
+                        "Register {} set to {:02X}",
+                        name_clone.chars().nth(1).unwrap().to_string(),
+                        u16::from_be_bytes(bytes)
+                    ),
                 );
             });
         } else {

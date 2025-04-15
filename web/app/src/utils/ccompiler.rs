@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Clone,Error, Debug, Serialize, Deserialize)]
+#[derive(Clone, Error, Debug, Serialize, Deserialize)]
 pub enum CompilerError {
     #[error("Unauthorized")]
     Unauthorized,
@@ -52,7 +52,7 @@ struct EncCompileData {
     b64data: String,
 }
 
-#[derive(Debug,Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CompileData {
     pub rc: i32,
     pub stdout: String,
@@ -77,7 +77,9 @@ impl EncCompileData {
         })?;
         let data = base64::engine::general_purpose::STANDARD
             .decode(&self.b64data)
-            .map_err(|e| CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e)))?;
+            .map_err(|e| {
+                CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e))
+            })?;
         Ok(CompileData {
             rc: self.rc,
             stdout,
@@ -91,7 +93,7 @@ pub struct EncFormatData {
     b64data: String,
 }
 
-#[derive(Debug,Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct FormatData {
     pub data: String,
 }
@@ -100,9 +102,12 @@ impl EncFormatData {
     pub fn decode(&self) -> Result<FormatData, CompilerError> {
         let data = base64::engine::general_purpose::STANDARD
             .decode(&self.b64data)
-            .map_err(|e| CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e)))?;
-        let data = String::from_utf8(data)
-            .map_err(|e| CompilerError::DecodeError(format!("Failed to convert decoded data to string: {}", e)))?;
+            .map_err(|e| {
+                CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e))
+            })?;
+        let data = String::from_utf8(data).map_err(|e| {
+            CompilerError::DecodeError(format!("Failed to convert decoded data to string: {}", e))
+        })?;
         Ok(FormatData { data })
     }
 }
@@ -113,7 +118,7 @@ pub struct EncSyntaxCheckData {
     pub b64stderr: String,
 }
 
-#[derive(Debug,Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SyntaxCheckData {
     pub rc: i32,
     pub stderr: String,
@@ -123,9 +128,12 @@ impl EncSyntaxCheckData {
     pub fn decode(&self) -> Result<SyntaxCheckData, CompilerError> {
         let stderr = base64::engine::general_purpose::STANDARD
             .decode(&self.b64stderr)
-            .map_err(|e| CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e)))?;
-        let stderr = String::from_utf8(stderr)
-            .map_err(|e| CompilerError::DecodeError(format!("Failed to convert decoded data to string: {}", e)))?;
+            .map_err(|e| {
+                CompilerError::DecodeError(format!("Failed to decode base64 data: {}", e))
+            })?;
+        let stderr = String::from_utf8(stderr).map_err(|e| {
+            CompilerError::DecodeError(format!("Failed to convert decoded data to string: {}", e))
+        })?;
         Ok(SyntaxCheckData {
             rc: self.rc,
             stderr,
