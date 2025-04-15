@@ -60,14 +60,10 @@ def format_str(b64data_in: str) -> FormatData:
         f.write(data_in)
         f.flush()
         command = [
-            "indent",
-            "-br",  # brace right (same line) for blocks like if, while
-            "-brf",  # brace right for functions
-            "-npsl",  # don't put return type on its own line
-            "-npcs",  # no space between function name and (
-            "-nut",  # no tabs
-            "-i4",  # indent size 4
-            "-cli4",  # continuation indent
+            "astyle",
+            "--style=attach",
+            "--indent=spaces=4",
+            "--suffix=none",
             f.name
         ]
         result = subprocess.run(

@@ -1,6 +1,7 @@
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::utils::ccompiler::{c_compile, c_format, c_syntax_check,CompilerError};
 use leptos::ev::{Event, Targeted};
+use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
 use leptos::web_sys::{HtmlInputElement, HtmlTextAreaElement};
@@ -142,6 +143,7 @@ pub fn EditorTop() -> impl IntoView {
             let res = c_format(code).await;
             match res {
                 Ok(res) => {
+                    log!("Formatted C code: {:?}", res);
                     emu_cfg_ctx.update(|emu_ctx| {
                         emu_ctx
                             .editor

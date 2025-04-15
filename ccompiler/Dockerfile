@@ -1,7 +1,7 @@
 FROM z88dk/z88dk
 
 # Install Python
-RUN apk add --no-cache python3 py3-pip indent
+RUN apk add --no-cache python3 py3-pip astyle
 
 WORKDIR /web
 

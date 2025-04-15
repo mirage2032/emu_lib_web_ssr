@@ -52,7 +52,7 @@ struct EncCompileData {
     b64data: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct CompileData {
     pub rc: i32,
     pub stdout: String,
@@ -91,7 +91,7 @@ pub struct EncFormatData {
     b64data: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct FormatData {
     pub data: String,
 }
@@ -113,7 +113,7 @@ pub struct EncSyntaxCheckData {
     pub b64stderr: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct SyntaxCheckData {
     pub rc: i32,
     pub stderr: String,
