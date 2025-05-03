@@ -44,6 +44,7 @@ right=2cm]{geometry}
 \usepackage{longtable}
 \usepackage{acronym}
 \usepackage{float}
+\usepackage{wrapfig}
 \renewcommand{\baselinestretch}{1.0}
 %\renewcommand{\ttfamily}{\fontsize{10pt}{12pt}\selectfont}
 % use [Ref n] instead of [n]
@@ -170,6 +171,28 @@ Accessul la dispozitivele IO se poate face in 2 feluri:
     \item \textbf{Mapat pe memorie}, accessul la dispozitivul extern se face prin acelasi tip de instructiuni de citire/scriere ca pentru memorie.
     \item \textbf{Prin porturi}, accessul se va face prin instructiuni speciale IN si OUT.
 \end{itemize}
+
+\subsubsection{Date tehnice și comparaţie între modele}
+
+\begin{table}[htb]
+  \centering
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{lccc}
+      \hline
+      Caracteristică           & Intel 8080      & MOS 6502        & Zilog Z80      \\
+      \hline
+      Anul lansării            & 1974            & 1975            & 1976           \\
+      Frecvenţă ceas           & 2 MHz           & 1 - 3 MHz           & 2.5 - 8.0 MHz        \\
+      Registre generale        & A, B, C, D, E, H, L & A, X, Y        & A, B, C, D, E, H, L, IX, IY \\
+      Spaţiu adresabil         & 64 KB           & 64 KB           & 64 KB          \\
+      Instrucţiuni             & 256            & 151            & ≈ 698          \\
+      \hline
+    \end{tabular}%
+  }
+  \caption{Date tehnice și comparaţie între modele}
+\end{table}
+
+
 
 \subsection{Evoluția webului}
 
@@ -414,6 +437,13 @@ care oferta acelasi nivel de control si performanta ca C/C++, dar cu un sistem d
 
 Un mare avantaj al \ac {Rust} este sistemul sau de tipuri si de ownership,
 acesta putand preveni multe buguri comune din C/C++ cum ar fi race conditions, memory leaks sau dereferentierea unui pointer null.
+
+\begin{wrapfigure}{r}{0.4\textwidth}
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/rust_gear_logo.png}
+    \caption{Logo Rust}
+    \label{fig:rust-logo}
+\end{wrapfigure}
 
 In \ac {Rust} nu exista pointeri null, acest lucru fiind inlocuit de tipul Option<T>,acesta fiind un enum care poate fi Some(T) sau None.
 

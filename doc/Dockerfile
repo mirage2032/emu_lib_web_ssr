@@ -11,13 +11,14 @@ RUN apk add --no-cache texlive-xetex
 RUN apk add --no-cache msttcorefonts-installer
 RUN update-ms-fonts
 RUN apk add --no-cache texmf-dist-context
+RUN apk add --no-cache inkscape
 
 WORKDIR /doc
 RUN mkdir /out
 
 COPY . .
 
-CMD xelatex -output-directory=/out doc.tex && \
+CMD xelatex --shell-escape -output-directory=/out doc.tex && \
 	biber -output-directory=/out doc && \
 	xelatex -output-directory=/out doc.tex && \
 	xelatex -output-directory=/out doc.tex
