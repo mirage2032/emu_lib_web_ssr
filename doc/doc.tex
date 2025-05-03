@@ -1,15 +1,20 @@
 \documentclass[titlepage,12pt]{article}
 \usepackage[romanian]{babel}
-%\usepackage{mathptmx}
-%\usepackage[T1]{fontenc}
-%\usepackage[utf8]{inputenc}
+%FONT SIMILAR TO TIMES NEW ROMAN
 \usepackage{fontspec}
-\setmainfont{Times New Roman}
+\setmainfont{texgyretermes}[
+  UprightFont = *-regular ,
+  BoldFont = *-bold ,
+  ItalicFont = *-italic ,
+  BoldItalicFont = *-bolditalic ,
+  Extension = .otf ,
+  Scale = 1.0 ]
 \usepackage[backend=biber]{biblatex}
 \usepackage{listings, listings-rust, docker}
 \usepackage{xcolor}
 \usepackage{multicol}
 
+%SETTINGS FOR CODE
 \lstset{
     basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n}
     keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
@@ -21,6 +26,8 @@
     stepnumber=1, % Step between line numbers
     numberstyle=\tiny\color{gray}, % Style for line numbers
 }
+%\usepackage{fontspec}
+%\setmainfont{Times New Roman}
 %\def\ttdefault{blg}
 \addbibresource{doc.bib}
 \usepackage[
@@ -28,6 +35,8 @@ top=2cm,
 bottom=2cm,
 left=2cm,
 right=2cm]{geometry}
+\geometry{a4paper}
+
 \usepackage{setspace}
 \usepackage{indentfirst}
 \usepackage{graphicx}
@@ -72,6 +81,7 @@ right=2cm]{geometry}
     \acro {Rust}      {Limbajul de programare Rust}
     \acro {WASM}      {Web Assembly}
     \acro {DARPA}     {Defense Advanced Research Projects Agency}
+    \acro {GPR}       {General Purpose Register}
     \end{acronym}
 \clearpage
 % Sections
@@ -109,14 +119,112 @@ This is the introduction.
 In aceasta sectiune se va discuta despre fundamentele teoretice ale proiectului, cum ar fi microcontrolerul Z80, emulatorul si limbajul de programare ales.
 
 Aceste detalii vor reprezenta baza teoretica a proiectului, oferind o intelegere mai buna a modului in care functioneaza emulatorul si cum poate fi folosit.
-\subsection{Arhitectura procesoarelor pe 8 biti}
-Un procesor pe 8 biti este un tip de microprocesor care poate procesa date in grupuri de 8 biti. Aceste microprocesoare folosesc si o unitate de logica aritmetica (ALU) care este capabila sa efectueze operatiuni aritmetice si logice pe datele de 8 biti.
+\subsection{Microrocesoarele pe 8 biti}
+
+Microprocesoarele pe 8 biți reprezintă una dintre cele mai importante etape din evoluția calculatoarelor și a sistemelor electronice. Aceste componente au capacitatea de a prelucra date în cuvinte de 8 biți, ceea ce înseamnă că registrele interne, magistrala de date și instrucțiunile sunt proiectate pentru a lucra cu unități de 8 biți. Deși în prezent există procesoare mult mai avansate, cele pe 8 biți sunt încă relevante în anumite contexte datorită simplității și eficienței lor.
+
+Primele microprocesoare pe 8 biți, precum Intel 8080, MOS Technology 6502 sau Zilog Z80, au fost utilizate în computerele personale timpurii, console de jocuri și dispozitive electronice de larg consum. De exemplu, Intel 8080 a fost inima calculatorului Altair 8800, în timp ce 6502 a fost folosit în Apple II și consola NES. Aceste procesoare ofereau o combinație remarcabilă de performanță și cost redus, fiind accesibile pentru dezvoltatorii și pasionații vremii.
+
+Caracteristicile generale ale acestor microprocesoare includ o magistrală de date de 8 biți, o magistrală de adrese de obicei de 16 biți (permițând accesul la 64 KB memorie), un set de instrucțiuni relativ restrâns și un consum energetic scăzut. Toate acestea le-au făcut ideale pentru aplicații embedded, unde cerințele de calcul sunt limitate, dar fiabilitatea este esențială.
+
+Chiar și astăzi, microprocesoarele pe 8 biți sunt utilizate pe scară largă în sisteme încorporate, cum ar fi controlerele Arduino (cu cipuri precum ATmega328P), în telecomenzi, jucării, echipamente medicale de bază și electrocasnice. Longevitatea acestor procesoare demonstrează versatilitatea și eficiența lor în aplicații în care puterea de calcul ridicată nu este o necesitate.
+
+Prin urmare, microprocesoarele pe 8 biți nu sunt doar relicve ale trecutului, ci componente esențiale în arhitectura multor sisteme moderne. Ele continuă să joace un rol vital în educație, prototipare rapidă și industrie, dovedind că simplitatea poate fi un avantaj strategic în multe domenii tehnologice.
 
 \subsubsection{Registrii}
 
 Un registru este o zona de memorie interna a procesorului care este utilizata pentru a stoca date temporar. Acestea sunt folosite pentru a efectua operatiuni aritmetice si logice, precum si pentru a stoca adresele de memorie.
-Registrii sunt foarte rapizi, deoarece sunt situati in interiorul procesorului si pot fi accesati mult mai repede decat memoria externa.
+Registrii sunt foarte rapizi, deoarece sunt situati in interiorul procesorului si pot fi accesati mult mai repede decat memoria externa, ceea ce contribuie la cresterea performantei globale.
 
+Acesti registrii se pot categoriza dupa mai multe criterii, unul dintre ele fiind tipul acestora:
+\begin{itemize}
+    
+    \item \ac {GPR}, acesta este folosit pentru operatiuni aritmetice, logice si pentru indexare. In arhitecturi comune pe 8 biti exista adesea 4-8 astfel de registre (ex: A,B,C,D in familia Intel 8080).
+    \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero,semn,carry,overflow,semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
+    \item Registrii cu scop special.
+    \begin{itemize}
+        \item PC(Program Counter), acest registru are 16 biti (in majoritatea procesoarelor pe 8 biti), care contine adresa urmatoarei instructiuni ce urmeaza a fi executata.
+        \item SP(Stack Pointer), acest registru are de asemenea 16 biti si contine varful stivei in memoria RAM.
+    \end{itemize}
+
+\end{itemize}
+
+Microprocesorul functioneaza prin a rula secvential instructiunile aflate la adresa stocata in PC.
+In majoritatea cazurilor dupa ce se ruleaza o instructiune, PC este incrementat cu lungimea instructiunii executate.
+In cazul salturilor(ex: JMP), ramificatiilor(ex: CMP), sau instructiunilor de apel(ex: CALL), PC este setat la o alta adresa.
+
+Procesorul de asemenea foloseste o stiva pentru a stoca date temporare. Un astfel de tip de date salvate temporar pe stiva sunt adresele de returnare.
+Cand o functie este apelata(CALL), adresa de returnare(urmataoarea instructiuni) este salvata in stiva. La returnare(RET), valoarea de returnare va fi extrasa din stiva si apoi plasta in PC.
+
+\subsubsection{I/O}
+
+Pentru a putea interactiona cu un microprocesor, acesta trebuie sa aiba un sistem de intrare/iesire (I/O).
+Acest sistem permite procesorului sa comunice cu alte dispozitive externe, cum ar fi tastaturi, ecrane sau dispozitive de stocare.
+In majoritatea cazurilor comunicarea cu dispozitivele externe se face prin porturi/pini fizici conectati la procesor.
+
+Multe microporcesoare au de asemenea si un sistem de intreruperi. Acesta permite procesorului sa fie notificat atunci cand un dispozitiv extern are nevoie de atentie.
+Acest sistem de inreruperi creste eficienta unui microprocesor, deoarece acesta nu trebuie sa verifice constant starea dispozitivelor externe.
+
+Accessul la dispozitivele IO se poate face in 2 feluri:
+\begin{itemize}
+    \item \textbf{Mapat pe memorie}, accessul la dispozitivul extern se face prin acelasi tip de instructiuni de citire/scriere ca pentru memorie.
+    \item \textbf{Prin porturi}, accessul se va face prin instructiuni speciale IN si OUT.
+\end{itemize}
+
+\subsection{Evoluția webului}
+
+De la primele pagini statice publicate la începutul anilor ’90 până la aplicațiile interactive și descentralizate de astăzi, webul a parcurs câteva etape majore de evoluție. În faza inițială, denumită adesea Web 1.0, site-urile erau în esență documente HTML simple, statice, fără posibilitatea interacțiunii avansate cu utilizatorul. Conținutul era creat și actualizat manual, iar navigarea se baza pe hyperlink-uri elementare. Browserele timpurii (Netscape Navigator, Internet Explorer) interpretau fragmente de HTML și imagini GIF, fără suport pentru CSS sau JavaScript.
+
+Odată cu apariția limbajelor de scripting pe server (PHP, ASP.NET, JSP) și a bazelor de date relaționale (MySQL, PostgreSQL), webul a început să devină dinamic: paginile erau generate on‑the‑fly, iar datele utilizatorilor puteau fi stocate și prelucrate. Aceasta a deschis calea către Web 2.0, unde site‑urile s-au transformat în platforme participative—bloguri, forumuri, rețele sociale—în care conținutul era creat și moderat chiar de utilizatori. Tehnici precum AJAX au permis încărcarea asincronă a datelor, reducând timpul de așteptare și eliminând refresh‑ul complet al paginilor.
+
+Pe măsură ce numărul de utilizatori și complexitatea aplicațiilor au crescut, arhitectura clasică „monolitică” back‑end (server + baza de date într‑un singur serviciu) a început să dea semne de blocaj. A apărut modelul microserviciilor, în care componente independente comunică prin API‑uri REST sau, mai recent, GraphQL. Limbaje și cadre back‑end populare includ Node.js (Express, NestJS), Python (Django, Flask), Go (Gin, Echo) și Rust (Actix, Rocket, Warp). În paralel, containerizarea (Docker) și orchestrarea (Kubernetes) au devenit standard pentru deploy-uri scalabile și fiabile.
+
+Pe front‑end, tranziția de la paginile multi‑page (MPA) la Single‑Page Applications (SPA) a fost alimentată de framework‑uri puternice precum React, Vue.js și Svelte. Acestea folosesc un Virtual DOM sau compilare la build‑time pentru a actualiza doar părțile necesare din pagină. Bundlerele și transpiler-ele (Webpack, Rollup, Vite, Babel) permit utilizarea sintaxelor moderne (ES6+, TypeScript) și împachetarea optimizată a resurselor.
+
+Un alt salt major l-a fost adoptarea arhitecturii headless și a JAMstack-ului (JavaScript, APIs, Markup), care separă complet front‑end‑ul de back‑end. Site‑urile statice pre‑generate (Gatsby, Hugo) se încărcă instant, iar funcționalitățile dinamice sunt servite prin API‑uri serverless (AWS Lambda, Cloudflare Workers), CDN-uri și baze de date fără server (Firebase, FaunaDB).
+
+WebAssembly (WASM) a deschis acum noi perspective: cod compilat din Rust, C/C++ sau Go rulează în browser la performanțe apropiate de native, cu acces controlat la memorie. În front‑end, WASM se folosește pentru module de procesare grafică (WebGPU), editare media și criptografie; pe back‑end, WASI (WebAssembly System Interface) permite rularea serviciilor WASM în containere ușoare, edge computing sau funcții serverless.
+
+În prezent, webul converge spre aplicații hibride—unde front‑end-ul React/Vue/Svelte interacționează cu module WASM scrise în Rust—ș i către soluții complet descentralizate (blockchain, IPFS). Standardele Web Components și Module Federation (Webpack) facilitează partajarea componentelor între proiecte, iar integrarea AI la nivel client (TensorFlow.js, ONNX.js) aduce inferență direct în browser. Aplicația ta, scrisă în Rust și compilată în WASM, este un exemplu clar al acestei sinergii: logica intensivă de procesare și securitate rulează în WASM, iar interfața, state‑manager‑ul și navigarea sunt gestionate de JavaScript sau cadre SPA moderne, oferind o experiență rapidă, sigură și portabilă pe toate platformele web.
+
+\subsection{Dezvoltarea emulatoarelor}
+
+Emulatoarele au apărut la începutul anilor ’60, când cercetătorii au început să simuleze pe un calculator arhitecturi hardware diferite pentru a testa programe fără a avea acces fizic la acele mașini. Primele soluții erau pur software și extrem de lente, deoarece fiecare instrucțiune a procesorului țintă trebuia tradusă pas cu pas pe procesorul gazdă.
+
+În anii ’80 – ’90, odată cu popularizarea calculatoarelor personale, au apărut emulatoare dedicate de console și computere clasice: SoftPC/SoftWindows emula PC‑ul pe Mac sau Unix, iar proiecte ca MAME au început să reproducă circuitele arcade. Pentru performanță, se foloseau tehnici de „dynamic recompilation” (recompilare dinamică) care traduceau blocuri de cod mașină în cod nativ al gazdei în timp real.
+
+La începutul anilor 2000, proiecte precum QEMU au introdus emulare completă a sistemelor, dar și virtualizare asistată hardware (KVM, HAXM), permițând rularea mașinilor virtuale la viteze apropiate de cele native. Pe partea de console, Dolphin (GameCube/Wii) și PCSX2 (PlayStation 2) au obținut compatibilitate ridicată, folosind hibrid de emulare software și API‑uri grafice moderne (OpenGL, Vulkan).
+
+Recent, emulatoarele au migrat și în hardware: platforme FPGA precum MiSTer și Evercade folosesc descrieri HDL ale circuitelor originale pentru a obține un comportament identic la nivel de semnal, fără penalizări de performanță software. În paralel, containerele și orchestrarea cu Docker/Kubernetes facilitează distribuția și rularea automată a mediilor emulate pentru testare și dezvoltare.
+
+Astăzi, emulatoarele sunt indispensabile atât pentru conservarea digitală (retro gaming, arhivare), cât și pentru dezvoltare (testare cross-platform, CI/CD), iar tendințele viitoare vizează integrarea AI pentru optimizarea dinamică a recompilării și portarea instantanee a sistemelor între arhitecturi.
+
+Emulatoarele au evoluat printr‑o serie de tehnici din ce în ce mai sofisticate pentru a reproduce fidel arhitecturi hardware străine pe procesoare gazdă moderne:
+
+\paragraph{1. Interpretare instrucțiune cu instrucțiune}  
+Primele emulatoare implementau un \emph{interpreter} pur: la fiecare ciclu de ceas al mașinii țintă, se citea codul mașină, se decoda și se executa un echivalent în codul procesorului gazdă. Această abordare avea latențe mari (40–100× slowdown), dată de costul ridicat al decodării şi dispatcher‑ului de instrucțiuni.
+
+\paragraph{2. Recompilare dinamică (Dynamic Binary Translation)}  
+Emulatoarele au introdus \emph{dynamic recompilation} (DBT): blocuri contigue de cod mașină („translation blocks”) erau traduse la prima execuție într‑un segment de cod nativ, optimizat şi plasat într‑o „code cache”. La apeluri viitoare, emulatorul sări direct în blocul tradus, reducând dramatic costul dispatcher‑ului. Exemplu: QEMU foloseşte \emph{Tiny Code Generator} (TCG) pentru a realiza DBT între sute de arhitecturi ţintă şi x86/\-ARM gazdă.
+
+\paragraph{3. Virtualizare asistată hardware}  
+Odată cu apariția extensiilor de virtualizare (Intel VT‑x, AMD‑V), s‑a putut combina emularea cu \emph{hardware virtualization}: anumite instrucțiuni privilegiate sunt executate direct de procesorul gazdă în mod \texttt{root}, iar restul codului rulează în mod \texttt{guest}, cu trap‑uri minime. Hypervisor‑e precum KVM (în Linux) şi Xen oferă \emph{full virtualization} cu overhead sub 5\% față de bare‑metal.
+
+\paragraph{4. Emulare de nivel înalt (\emph{High‑Level Emulation})}  
+Pentru console de jocuri, emularea la nivel de API (HLE) a devenit populară: în loc să se reproducă la nivel de hardware fiecare componentă (GPU, DSP, custom ASIC), se furnizează un set de librării care imită comportamentul la nivel de funcție. Astfel emulatoarele Dolphin (GameCube/Wii) și PCSX2 (PS2) obțin compatibilitate extinsă cu cost redus de dezvoltare.
+
+\paragraph{5. Emulare hardware pe FPGA}  
+Proiecte precum MiSTer folosesc \emph{Field‑Programmable Gate Array} pentru a implementa descrieri HDL (Verilog/VHDL) ale circuitelor originale. Aceasta permite emulare \emph{cycle‑accurate} cu latență foarte mică, apropiată de comportamentul hardware‑ului real, consumând doar resurse FPGA fără traducere software.
+
+\paragraph{6. Optimizări moderne şi tendințe}  
+\begin{itemize}
+  \item \textbf{Profile‑guided DBT}: colectarea de profiluri runtime pentru a reordona şi optimiza translation blocks.  
+  \item \textbf{Speculative translation}: generare proactivă a codului nativ pentru funcții pre­vizibile.  
+  \item \textbf{Parallel JIT}: traducere concurentă a mai multor blocuri de cod pentru procesoare multi‑core.  
+  \item \textbf{Accelerare GPU}: delegarea în GPU a unor operații de procesare masivă (încărcare grafică, decodare video) prin API‑uri precum Vulkan.  
+\end{itemize}
+
+Astăzi, emulatoarele combină multiple straturi (interpreter, DBT, hardware virtualization) şi tehnologii (FPGA, HLE, JIT), oferind atât flexibilitate extinsă pentru dezvoltare şi cercetare, cât şi performanțe aproape native pe hardware modern.
 
 \section{Cercetare}
 Pentru a putea realiza acest proiect, a fost necesara o cercetare amanuntita a din capitolele de mai jos.
@@ -155,7 +263,10 @@ Structura acestora se poate vedea si in Figura \ref{fig:z80registers}.
     \label{fig:z80registers}
 \end{figure}
 
-Registrul F este un registru de flaguri, acesta contine informatii despre rezultatele operatiilor aritmetice si logice.
+Registrul SP, varful stivei, este initializat cu 0xFFFF, valoarea acestuia scazand la instructiunile de PUSH si crescand la cele de POP
+
+Registrul PC este initializat cu 0x0000.
+
 Structura acestuia se poate vedea si in Tabela \ref{tab:z80flags}.
 \begin{table}[h]
     \centering
@@ -394,7 +505,7 @@ De asemenea, datorita faptului ca fiecare container are acces doar la resursele 
 Aceasta izolare ofera un nivel de securitate mai mare, chiar daca aplicatia este vulnerabila, aceasta nu poate afecta restul sistemului.
 
 Un bonus al folosirii Docker este faptul ca acesta ofera un nivel de portabilitate mai mare. Odata ce o imagine este creata, aceasta poate fi rulata pe orice sistem care are Docker instalat.
-Deoarece Docker este un standard de facto in industrie, majoritatea sistemelor ofera suport pentru acesta, acest lucru facandu-l un standard de facto in industrie.
+Deoarece Docker este un standard de facto in industrie, majoritatea sistemelor ofera suport pentru acesta.
 
 \section{Implementare}
 This is the conclusion.

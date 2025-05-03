@@ -10,6 +10,7 @@ RUN apk add --no-cache texmf-dist-fontsrecommended
 RUN apk add --no-cache texlive-xetex
 RUN apk add --no-cache msttcorefonts-installer
 RUN update-ms-fonts
+RUN apk add --no-cache texmf-dist-context
 
 WORKDIR /doc
 RUN mkdir /out
