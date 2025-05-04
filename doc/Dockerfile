@@ -8,6 +8,7 @@ RUN apk add --no-cache texmf-dist-bibtexextra
 RUN apk add --no-cache texmf-dist-fontsextra
 RUN apk add --no-cache texmf-dist-fontsrecommended
 RUN apk add --no-cache texlive-xetex
+RUN apk add --no-cache font-jetbrains-mono
 
 WORKDIR /doc
 RUN mkdir /out

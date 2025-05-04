@@ -1,4 +1,5 @@
 \documentclass[titlepage,12pt]{article}
+\usepackage{csquotes}
 \usepackage[romanian]{babel}
 %FONT SIMILAR TO TIMES NEW ROMAN
 \usepackage{fontspec}
@@ -13,10 +14,11 @@
 \usepackage{listings, listings-rust, docker}
 \usepackage{xcolor}
 \usepackage{multicol}
+\setmonofont{JetBrains Mono}
 
 %SETTINGS FOR CODE
 \lstset{
-    basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n},
+    basicstyle=\fontsize{10}{12}\selectfont\ttfamily,
     keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
     commentstyle=\color{green}, % Comments in green
     stringstyle=\color{red}, % Strings in red
@@ -53,6 +55,7 @@
 \crefformat{table}{[Tabela #2#1#3]}
 \crefname{table}{Tabela}{Tabele}
 \renewcommand{\baselinestretch}{1.0}
+\DeclareRobustCommand{\code}[1]{{\ttfamily\small #1}}
 % use [Ref n] instead of [n]
 \DeclareFieldFormat{labelnumber}{Ref~\thefield{labelnumber}}
 %spacing 1
@@ -239,7 +242,7 @@ Primele emulatoare implementau un \emph{interpreter} pur: la fiecare ciclu de ce
 Emulatoarele au introdus \emph{dynamic recompilation} (DBT): blocuri contigue de cod mașină („translation blocks”) erau traduse la prima execuție într‑un segment de cod nativ, optimizat şi plasat într‑o „code cache”. La apeluri viitoare, emulatorul sări direct în blocul tradus, reducând dramatic costul dispatcher‑ului. Exemplu: QEMU foloseşte \emph{Tiny Code Generator} (TCG) pentru a realiza DBT între sute de arhitecturi ţintă şi x86/\-ARM gazdă.
 
 \paragraph{3. Virtualizare asistată hardware}
-Odată cu apariția extensiilor de virtualizare (Intel VT‑x, AMD‑V), s‑a putut combina emularea cu \emph{hardware virtualization}: anumite instrucțiuni privilegiate sunt executate direct de procesorul gazdă în mod \texttt{root}, iar restul codului rulează în mod \texttt{guest}, cu trap‑uri minime. Hypervisor‑e precum KVM (în Linux) şi Xen oferă \emph{full virtualization} cu overhead sub 5\% față de bare‑metal.
+Odată cu apariția extensiilor de virtualizare (Intel VT‑x, AMD‑V), s‑a putut combina emularea cu \emph{hardware virtualization}: anumite instrucțiuni privilegiate sunt executate direct de procesorul gazdă ca utilizatorul \code{root}, iar restul codului rulează în mod \code{guest}, cu trap‑uri minime. Hypervisor‑e precum KVM (în Linux) şi Xen oferă \emph{full virtualization} cu overhead sub 5\% față de bare‑metal.
 
 \paragraph{4. Emulare de nivel înalt (\emph{High‑Level Emulation})}
 Pentru console de jocuri, emularea la nivel de API (HLE) a devenit populară: în loc să se reproducă la nivel de hardware fiecare componentă (GPU, DSP, custom ASIC), se furnizează un set de librării care imită comportamentul la nivel de funcție. Astfel emulatoarele Dolphin (GameCube/Wii) și PCSX2 (PS2) obțin compatibilitate extinsă cu cost redus de dezvoltare.
@@ -369,7 +372,7 @@ Alta instructiune permite portului sa fie specificat de registrul C.
 Un avantaj mare in a folosi portul C, este ca permite unei functii sa fie refolosita pentru orice port.
 Acest lucru nu ar fi posibil daca portul ar fi specificat de al doilea byte al instructiunii.
 O buna caracteristica a acestor instructiuni este ca modifica automat flagurile in functie de rezultatul operatiei.
-Din acest motiv nu este necesar sa se faca verificari suplimentare pentru a testa rezultatul operatiei. Exemplu: flagul de semn este setat daca rezultatul operatiei este negativ.\\
+Din acest motiv nu este necesar sa se faca verificari suplimentare pentru a testa rezultatul operatiei. Exemplu: flagul de semn este setat daca rezultatul operatiei este negativ.
 
 \ac {Z80} include instructiuni care sunt capabile sa mute blocuri intregi de date (pana la 256 byte) automata intre orice port \ac {IO} si memorie
 Impreuna cu setul dual de registrii cu scop general, aceste instructiuni faciliteaza transferuri rapide de rate cu dispozitivele externe.
@@ -469,7 +472,7 @@ Datorita avansarii rapide in tehnologie, acum se pot gasi pe piata frigidere si 
 
 Un alt avantaj al aplicatiilor web este faptul ca acestea pot fi rulate fara a fi instalate, acest lucru fiind un avantaj major in cazul unui emulator.
 Mare parte din emulatoarele existente necesita instalare, acest lucru fiind un inconvenient pentru utilizatorii care nu doresc sau nu pot sa faca acest lucru.
-Deoarece aplicatia este ruleata din browser, utilizatorul nu risca sa descarce un virus, aplicatia web neavand access direct asupra calculatorului.
+Deoarece aplicatia este rulata din browser, utilizatorul nu risca sa descarce un virus, aplicatia web neavand access direct asupra calculatorului.
 Un alt avantaj a creari unei aplicatii web este ca emulatorul va fi capabil sa ruleze pe orice arhitectura de procesor sau sistem de operare, atat timp cat acesta are un browser web modern.
 
 Desi aplicatia web va fi capabila sa functioneze in mod standalone, complet offline, aceasta va putea fi integrata si in alte aplicatii web, oferind un nivel de control mai mare asupra acesteia.
@@ -516,7 +519,7 @@ Scopul principal al Docker este de a facilita rularea aplicațiilor într-un mod
 
 Un container Docker este o instanță rulabilă a unei imagini (image) Docker.
 Imaginile sunt fișiere read-only ce conțin tot ceea ce este necesar pentru rularea unei aplicații: codul sursă, biblioteci, instrumente de sistem, fișiere de configurare și un runtime.
-Aceste imagini sunt construite pornind de la un fișier special denumit \texttt{Dockerfile}, care conține instrucțiuni pas cu pas pentru configurarea mediului de execuție.
+Aceste imagini sunt construite pornind de la un fișier special denumit \code{Dockerfile}, care conține instrucțiuni pas cu pas pentru configurarea mediului de execuție.
 
 Fiecare container este izolat de celelalte și de sistemul gazdă, având propriile procese, rețele, sisteme de fișiere și spații de nume.
 Spre deosebire de mașinile virtuale tradiționale, containerele împart același kernel al sistemului de operare, ceea ce le face mult mai eficiente în termeni de resurse.
@@ -567,7 +570,7 @@ CMD ["cargo", "run"]
 \end{lstlisting}
 
 În exemplul din \cref{lst:dockerfile}, se construiește o imagine Docker pentru o aplicație Rust.
-Aceasta este compilată în mod optimizat (\texttt{--release}) și apoi rulată automat la pornirea containerului.
+Aceasta este compilată în mod optimizat (\code{--release}) și apoi rulată automat la pornirea containerului.
 
 \subsection{Version Control (Git)}
 
@@ -587,11 +590,11 @@ Principalele caracteristici ale Git sunt:
 
 Un flux de lucru tipic cu Git implică următoarele etape:
 \begin{enumerate}
-\item \textbf{Clonarea depozitului}: Dezvoltatorul își clonează depozitul central pe mașina locală folosind comanda \texttt{git clone}.
+\item \textbf{Clonarea depozitului}: Dezvoltatorul își clonează depozitul central pe mașina locală folosind comanda \code{git clone}.
 \item \textbf{Crearea unei ramuri}: Dezvoltatorul creează o ramură de lucru pentru a dezvolta o caracteristică sau a rezolva o problemă.
-\item \textbf{Comiterea modificărilor}: După ce au fost efectuate modificări, dezvoltatorul le adaugă în zona de stagiu (staging area) folosind comanda \texttt{git add}, iar apoi le salvează în depozitul local cu comanda \texttt{git commit}.
-\item \textbf{Împingerea modificărilor}: După ce modificările sunt comise, acestea pot fi trimise la depozitul central folosind comanda \texttt{git push}.
-\item \textbf{Îmbinarea modificărilor}: Dacă mai mulți dezvoltatori lucrează pe aceeași ramură, modificările lor pot fi combinate folosind comanda \texttt{git merge}.
+\item \textbf{Comiterea modificărilor}: După ce au fost efectuate modificări, dezvoltatorul le adaugă în zona de stagiu (staging area) folosind comanda \code{git add}, iar apoi le salvează în depozitul local cu comanda \code{git commit}.
+\item \textbf{Împingerea modificărilor}: După ce modificările sunt comise, acestea pot fi trimise la depozitul central folosind comanda \code{git push}.
+\item \textbf{Îmbinarea modificărilor}: Dacă mai mulți dezvoltatori lucrează pe aceeași ramură, modificările lor pot fi combinate folosind comanda \code{git merge}.
 \end{enumerate}
 
 Comparativ cu alte sisteme de control al versiunilor, cum ar fi SVN (Subversion), Git oferă o mai mare flexibilitate și performanță. De exemplu, SVN este un sistem de control al versiunilor centralizat, ceea ce înseamnă că există un depozit central unde toate modificările sunt stocate. Git, pe de altă parte, este un sistem distribuit, permițând fiecărui dezvoltator să aibă o copie completă a întregului proiect, ceea ce îl face mai eficient în lucrul cu proiecte mari și echipe distribuite. Git este, de asemenea, mult mai rapid în gestionarea ramurilor și în combinarea modificărilor, fiind ideal pentru dezvoltarea de software agil.
@@ -599,28 +602,28 @@ Comparativ cu alte sisteme de control al versiunilor, cum ar fi SVN (Subversion)
 \section{Implementare}
 \subsection{Librarie emulator}
 Implementarea emulatorului a fost realizata in limbajul de programare Rust, acesta fiind un limbaj modern, rapid si sigur. Deoarece se doreste o modularitate cat mai mare si posibilitatea de a integra proiectul in altele, nucleul emulatorului a fost realizat ca o librarie.
-Libraria in sine va contine toate structurile necesare (Emulator, CPU, Io ...etc), cat si implementarea acestora. Impachetand nucleul emulatorului intr-o librarie permite utilizatorilor sa o extinda, cum ar fi sa isi creeze propri dispozitive virtuale sau sa adauge suport pentru alte procesoare.
+Libraria in sine va contine toate structurile necesare (\code{Emulator}, \code{CPU}, \code{Io} ...etc), cat si implementarea acestora. Impachetand nucleul emulatorului intr-o librarie permite utilizatorilor sa o extinda, cum ar fi sa isi creeze propri dispozitive virtuale sau sa adauge suport pentru alte procesoare.
 
 \subsubsection{Structuri de date}
 
-Pentru crearea emulatorului diferite structuri de date au fost create, fiecare avand rolul ei in cadrul emulatorului.
+Pentru crearea emulatorului diferite structuri de date au fost create, unele din acestea imitand componente din realitete (memorie, rom, ram, Z80 ...etc), altele fiind structuri de date care ajuta la implementarea acestora (ex: ExecutableInstruction).
 
-\paragraph{Emulator} Structura ce va coordona executia procesorului, memoriei si a sistemului IO
+\paragraph{\code{Emulator}} Structura ce va coordona executia procesorului, memoriei si a sistemului IO
 
 \begin{lstlisting}[language=Rust,caption={Structura Emulator},label={lst:emulator_struct}]
 pub struct Emulator<T: Cpu> {
-pub memory: Memory,
-pub cpu: T,
-pub breakpoints: Vec<u16>,
-pub io: IO,
-pub cycle_counter: usize,
-pub instruction_counter: usize,
+    pub memory: Memory,
+    pub cpu: T,
+    pub breakpoints: Vec<u16>,
+    pub io: IO,
+    pub cycle_counter: usize,
+    pub instruction_counter: usize,
 }
 \end{lstlisting}
 
-Aceasta structura va contine alte trei structuri: Memory, Cpu si IO. Deoarece emulatorul se vrea cat mai extensibil, structura procesorului nu este una fixa, orice structura de date care implementeaza traitul Cpu va putea fi folosita. Un mare avantaj al acestui lucra este ca permite implementarea pe viitor a mai multor arhitecturi de procesor.
+Aceasta structura va contine alte trei structuri: \code{Memory}, \code{Cpu} si \code{IO}. Deoarece emulatorul se vrea cat mai extensibil, structura procesorului nu este una fixa, orice structura de date care implementeaza traitul \code{Cpu} va putea fi folosita. Un mare avantaj al acestui lucra este ca permite implementarea pe viitor a mai multor arhitecturi de procesor.
 
-Pentru a fi capabili sa monitorizam executia programului, in structura Emulator a fost adaugat un vector de breakpoints. Acestea vor fi folosite pentru a opri executia programului la o anumita adresa de memorie aleasa de utilizator.
+Pentru a fi capabili sa monitorizam executia programului, in structura \code{Emulator} a fost adaugat un vector de breakpoints. Acestea vor fi folosite pentru a opri executia programului la o anumita adresa de memorie aleasa de utilizator.
 
 Deoarece se doreste o monitorizare cat mai amanunita, aici se va contoriza si numarul de intructiuni executate cat si cel de ciclii executati.
 
@@ -628,39 +631,39 @@ Principala functie care va fi folosita in aceasta structura va fi cea de step \c
 
 \begin{lstlisting}[language=Rust,caption={Functia step a emulatorului},label={lst:emulator_step}]
 pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
-if self.cpu.halted() {
-return Err("CPU is halted".to_string());
-}
-self.memory.clear_changes();
-let instruction = self.cpu.step(&mut self.memory, &mut self.io);
-self.io.step();
-if let Ok(instruction) = &instruction {
-self.cycle_counter += instruction.common().cycles as usize;
-self.instruction_counter += 1;
-}
-instruction
+    if self.cpu.halted() {
+        return Err("CPU is halted".to_string());
+    }
+    self.memory.clear_changes();
+    let instruction = self.cpu.step(&mut self.memory, &mut self.io);
+    self.io.step();
+    if let Ok(instruction) = &instruction {
+        self.cycle_counter += instruction.common().cycles as usize;
+        self.instruction_counter += 1;
+    }
+    instruction
 }
 \end{lstlisting}
-Aceasta functie cand va fi apelata va emula executia a unei singure instructiuni. Acest lucru este facut prin a apela instructiunea de step a structurii Cpu. Cand se va face acest apel, controlul memoriei si al IO va fi momentan pasat catre functia apelata. Dupa executarea functiei, contoarele vor creste corespunzator.
+Aceasta functie cand va fi apelata va emula executia a unei singure instructiuni. Acest lucru este facut prin a apela instructiunea de step a structurii \code{Cpu}. Cand se va face acest apel, controlul memoriei si al \code{IO} va fi momentan pasat catre functia apelata. Dupa executarea functiei, contoarele vor creste corespunzator.
 
-\paragraph{Memory} Memoria emulatorului
+\paragraph{\code{Memory}} Memoria emulatorului
 
 Aceasta structura \cref{lst:memory_struct} reprezinta intreaga memorie accesibila de emulator.
 
 \begin{lstlisting}[language=Rust,caption={Structura Memorie},label={lst:memory_struct}]
 pub struct Memory {
-data: Vec<Box<dyn MemoryDevice>>,
-changes: Option<Vec<u16>>,
-readcallback: Option<fn(u16, u8)>,
-writecallback: Option<fn(u16, u8)>,
+    data: Vec<Box<dyn MemoryDevice>>,
+    changes: Option<Vec<u16>>,
+    readcallback: Option<fn(u16, u8)>,
+    writecallback: Option<fn(u16, u8)>,
 }
 \end{lstlisting}
 
 Memoria permite setarea unor functii de callback apelate la fiecare citire sau scriere. Acesst lucru putand fi util utilizatorului, daca doreste anumite actiuni sa se intample doar la scrieri sau citiri din memorie.
 
-In proiectarea memoriei initial s-a mers pe idea de a crea un vector de 65536 valori a cate un byte. Dupa mai multa experimentare, aceasta s-a dovedit a fi insuficienta deoarece facea maparea dispozitivelor IO in memorie dificila. Din acest motiv, structura Memory contine un vector de structuri abstracte MemoryDevice.
-Structurile de baza aduse de emulator care implementeaza MemoryDevice sunt structurile ROM si RAM, acestea emuland un ROM si un RAM adevarat. Pe langa ROM/RAM, pot fi create si alte dispozitive mapate la memorie cum ar fi monitoare, senzori ...etc.
-Deoarece structure Memory este facuta din unul sau mai multe MemoryDevice, acest lucru permite o mapare a memoriei foarte dinamica si adaptiva in functie de preferinte. Un exemplu de initializare a memoriei se poate vedea in \cref{lst:memory-init-ex} unde prima zona de 0x4000 bytes este ROM iau urmatoarea zona de 0xC000 va fi RAM, aceasta mapare ocupand toata zona de memorie accesibila \cref{tab:memory-mapping-ex}.
+In proiectarea memoriei initial s-a mers pe idea de a crea un vector de 65536 valori a cate un byte. Dupa mai multa experimentare, aceasta s-a dovedit a fi insuficienta deoarece facea maparea dispozitivelor \code{IO} in memorie dificila. Din acest motiv, structura Memory contine un vector de structuri ce implementeaza \code{MemoryDevice}.
+Structurile de baza aduse de emulator care implementeaza \code{MemoryDevice} sunt structurile \code{ROM} si \code{RAM}, acestea emuland un ROM si un RAM adevarat. Pe langa ROM/RAM, pot fi create si alte dispozitive mapate la memorie cum ar fi monitoare, senzori ...etc.
+Deoarece structura \code{Memory} este facuta din unul sau mai multe \code{MemoryDevice}, acest lucru permite o mapare a memoriei foarte dinamica si adaptiva in functie de preferinte. Un exemplu de initializare a memoriei se poate vedea in \cref{lst:memory-init-ex} unde prima zona de 0x4000 bytes este ROM iau urmatoarea zona de 0xC000 va fi RAM, aceasta mapare ocupand toata zona de memorie accesibila \cref{tab:memory-mapping-ex}.
 \begin{lstlisting}[language=Rust,caption={Exemplu initializare memorie},label={lst:memory-init-ex}]
 let mut mem = Memory::new();
 mem.add_device(Box::new(memdevices::ROM::new(0x4000)));
@@ -684,52 +687,299 @@ mem.add_device(Box::new(memdevices::RAM::new(0xC000)));
 
 Memoria de asemenea tine un record al modificarilor aduse acesteia, acest lucru fiind util in cazul in care utilizatorul doreste sa vada ce locatii din memorie au fost modificate dupa executarea unei instructiuni.
 
-\paragraph{CPU} Structura ce va contine registrii si instructiunile procesorului
+Implementarea unui dispozitiv propriu de memorie este foarte simpla, singurele functii necesare pentru implementarea acesteia fiind \code{size}, \code{read\_8}, \code{write\_8} si \code{write\_8\_force}. Functia \code{write\_8\_force} face un lucru care normal nu este posibil in realitate, scrierea unei valori cu forta chiar daca acest lucru normal nu ar fi permis, cum ar fi in \code{ROM}.
+In \ref{lst:rom-struct} se poate observa cum este implementata structura \code{ROM}, aceasta fiind la baza un vector de bytes, functia \code{size} returnand marimea acestuia si \code{read\_8}, \code{write\_8}, \code{write\_8\_force} scriind valori in al. Deoarece normal scrierea in \code{ROM} este normal imposibila, functia \code{write\_8} va returna o erroare \code{MemoryWriteError::ReadOnly}, in timp ce \code{write\_8\_force} va scrie in ROM fara a verifica daca acest lucru este permis sau nu. Acest lucru este util si faciliteaza depanarea aplicatiilor, permitand utilizatorului sa scrie in \code{ROM} pentru a modifica valorile din acesta.
+Pentru un nivel inalt de siguranta la citiri si scrieri se face o verificare a adresei, aceasta fiind verificata sa nu depaseasca dimensiunea memoriei. In cazul in care acest lucru se intampla, se va returna o eroare \code{MemoryRWCommonError::OutOfBounds}.
+Pentru ca dorim sa fim capabili sa clonam structura \code{ROM} in cazul in care este nevoie, aceasta structura va implementa si traitul \code{Clone}. Acesta facand orice structura capabila de a fi clonata automat, daca toate structurile din interiorul ei sunt de asemenea capabile de a fi clonate.
+Crearea unui \code{ROM} se face prin functia \code{new}, aceasta primind ca parametru dimensiunea dorita a \code{ROM}-ului. Aceasta functie va returna un \code{ROM} cu dimensiunea dorita, initializat cu 0x00 in fiecare locatie de memorie. Pe langa aceasta, deoarece este implementat traitul \code{From<Vec<u8>>}, \code{ROM}-ul poate fi creat si dintr-un vector de bytes.
 
-Cpu este definit ca un trait \cref{lst:cpu_trait}, acest lucru permitand ca orice structura care implementeaza acest trait sa fie folosita ca procesor.
+\begin{lstlisting}[language=Rust,caption={Structura ROM},label={lst:rom-struct}]
+#[derive(Debug, Clone)]
+pub struct ROM {
+    data: Vec<u8>,
+}
+
+impl ROM {
+    pub fn new(size: usize) -> ROM {
+        ROM {
+            data: vec![0; size],
+        }
+    }
+}
+
+impl MemoryDevice for ROM {
+    fn size(&self) -> usize {
+        self.data.len()
+    }
+    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
+        match self.data.get(addr as usize) {
+            None => Err(MemoryRWCommonError::OutOfBounds(addr).into()),
+            Some(val) => Ok(*val),
+        }
+    }
+    fn write_8(&mut self, addr: u16, _: u8) -> Result<(), MemoryWriteError> {
+        Err(MemoryWriteError::ReadOnly(addr))
+    } 
+
+    fn write_8_force(&mut self, addr: u16, data: u8) 
+    -> Result<(), MemoryWriteError> {
+        let val = self
+        .data
+        .get_mut(addr as usize)
+        .ok_or(MemoryRWCommonError::OutOfBounds(addr))?;
+        *val = data;
+        Ok(())
+    }
+}
+
+impl From<Vec<u8>> for ROM {
+    fn from(data: Vec<u8>) -> ROM {
+        ROM { data }
+    }
+}
+\end{lstlisting}
+
+Singura diferenta in structura \code{RAM} este ca aceasta implementeaza alta functie de scriere, \code{write\_8} va avea aceeasi implementare ca \code{write\_8\_force}, permițând scrierea.
+
+\paragraph{\code{CPU}} Structura ce va contine registrii si instructiunile procesorului
+
+\code{Cpu} este definit ca un trait \cref{lst:cpu_trait} care reprezinta un microprocesor, acest lucru permitand ca orice structura care implementeaza acest trait sa fie folosita in emulator.
 \begin{lstlisting}[language=Rust,caption={Trait CPU},label={lst:cpu_trait}]
 pub trait Cpu:
 Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {
-fn step(
-&mut self,
-memory: &mut Memory,
-io: &mut IO,
-) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
-fn parser(&self) -> &dyn InstructionParser<Self>;
-fn registers(&self) -> AllRegisters;
-fn registers_mut(&mut self) -> AllMutRegisters;
-fn pc(&self) -> u16;
-fn halted(&self) -> bool;
-fn set_halted(&mut self, halted: bool);
+    fn step(&mut self, memory: &mut Memory, io: &mut IO,)
+    -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+    fn parser(&self) -> &dyn InstructionParser<Self>;
+    fn registers(&self) -> AllRegisters;
+    fn registers_mut(&mut self) -> AllMutRegisters;
+    fn pc(&self) -> u16;
+    fn halted(&self) -> bool;
+    fn set_halted(&mut self, halted: bool);
 }
 \end{lstlisting}
-Orice structura ce implementeaza toate functiile traitului Cpu va putea fi folosita ca procesor pentru emulator. Principala implementare a acestui trait este pentru structura Z80, functia de step a acestuia fiind vizibila in \cref{lst:z80_step}
+Orice structura ce implementeaza toate functiile traitului \code{Cpu} va putea fi folosita ca procesor pentru emulator. Principala implementare prezentata in proiect a acestui trait este pentru structura \code{Z80}, functia de step a acestuia fiind vizibila in \cref{lst:z80_step}
 \begin{lstlisting}[language=Rust,caption={Functia step Z80},label={lst:z80_step}]
-fn step(
-&mut self,
-memory: &mut Memory,
-io: &mut IO,
-) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
-let res = self.handle_interrupt(memory, io)?;
-let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
-Some(instruction) => instruction,
-None => parser::Z80_PARSER
-.ins_from_machinecode(memory, self.registers.pc)
-.map_err(|e| e.to_string())?,
-};
-instruction.execute(memory, self, io)?;
-let common = instruction.common();
-self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
-if common.increment_pc {
-let inst_length = common.length;
-let new_pc = self.registers.pc.wrapping_add(inst_length);
-self.registers.pc = new_pc;
+fn step(&mut self, memory: &mut Memory, io: &mut IO,)
+-> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
+    let res = self.handle_interrupt(memory, io)?;
+    let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
+        Some(instruction) => instruction,
+        None => parser::Z80_PARSER
+        .ins_from_machinecode(memory, self.registers.pc)
+        .map_err(|e| e.to_string())?,
+    };
+    instruction.execute(memory, self, io)?;
+    let common = instruction.common();
+    self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
+    if common.increment_pc {
+    let inst_length = common.length;
+    let new_pc = self.registers.pc.wrapping_add(inst_length);
+    self.registers.pc = new_pc;
 }
 Ok(instruction)
 }
 \end{lstlisting}
 
 Aceasta functie va verifica prima oara daca trebuie sa se intample o intrerupere, in caz contrar instructiunea din PC va fi decodata. Dupa decodarea instructiunii registrul ascuns R va fi incrementat. De asemenea, daca este cazul, si registrul PC va creste.
+
+\paragraph{\code{Z80Registers}} Structura reprezinta registrii procesorului Z80
+
+In aceasta structura \cref{lst:z80registers-struct} sunt reprezentati toti registrii prezenti intr-un Z80. Pentru a reprezenta cele doua grupuri de registrii cu scop general a fost folosita alta structura \code{GPByteRegisters} \cref{lst:gpbyteregisters-struct}. Aceasta structura contine 8 registrii de cate un byte. De asemenea, in aceasta structura se afla si structura cu flag-urile procesorului, acestea fiind reprezentate prin structura \code{Flags} \cref{lst:flags-struct}.
+
+\begin{lstlisting}[language=Rust,caption={Structura Z80Registers},label={lst:z80registers-struct}]
+pub struct Z80Registers {
+    pub gp: GPByteRegisters,
+    pub gp_alt: GPByteRegisters,
+    pub ix: u16,
+    pub iy: u16,
+    pub i: u8,
+    pub r: u8,
+    pub sp: u16,
+    pub pc: u16,
+}
+\end{lstlisting}
+
+\code{GPByteRegisters} \cref{lst:gpbyteregisters-struct} reprezinta 8 registrii de cate un byte, accesibili prin \code{a}, \code{b}, \code{c}, \code{d}, \code{e}, \code{h}, \code{l}.
+Deoarece se doreste un nivel cat mai inalt de accessibilitate, prin implementarea traitului \code{Deref} structura \code{GPByteRegisters} poate fi dereferentiata si ca \code{GPWordRegisters}, permitand accesul la registrii de cate 2 bytes prin \code{bc}, \code{de}, \code{hl}.
+
+\begin{lstlisting}[language=Rust,caption={Structura GPByteRegisters},label={lst:gpbyteregisters-struct}]
+pub struct GPByteRegisters {
+    pub f: Flags,
+    pub a: u8,
+    pub c: u8,
+    pub b: u8,
+    pub e: u8,
+    pub d: u8,
+    pub l: u8,
+    pub h: u8,
+}
+
+pub struct GPWordRegisters {
+    pub af: u16,
+    pub bc: u16,
+    pub de: u16,
+    pub hl: u16,
+}
+
+impl Deref for GPByteRegisters {
+    type Target = GPWordRegisters;
+    fn deref(&self) -> &Self::Target {
+        unsafe { std::mem::transmute(self) }
+}
+\end{lstlisting}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Structura} & \textbf{Byte 0} & \textbf{Byte 1} & \textbf{Byte 2} & \textbf{Byte 3} & \textbf{Byte 4} & \textbf{Byte 5} & \textbf{Byte 6} & \textbf{Byte 7} \\
+\hline
+\texttt{GPByteRegisters} & f & a & c & b & e & d & l & h \\
+\hline
+\texttt{GPWordRegisters} & \multicolumn{2}{c|}{af} & \multicolumn{2}{c|}{bc} & \multicolumn{2}{c|}{de} & \multicolumn{2}{c|}{hl} \\
+\hline
+\end{tabular}
+\caption{Suprapunerea structuriilor \code{GPByteRegisters} si \code{GPWordRegisters} in memorie}
+\end{table}
+
+Pentru a face dereferentierea de la \code{GPByteRegisters} la \code{GPWordRegisters} am fost nevoiti sa facem o operatiune unsafe, aceasta fiind necesara deoarece compilerul Rust considera nesigura aceasta transformare intre structuri. Motivul pentru care este sigura in cazul prezent este ca suntem siguri de dimensiunile structurilor si felul cum acestea sunt compatibile.
+Ambele structuri vor avea aceasi reprezentare binara, singura diferenta fiind felul in care sunt accesate datele. Din acest motiv una poate fi transformata in alta fara a fi nevoie de o copiere a datelor.
+
+Structura \code{Flags} \cref{lst:flags-struct} este un bitfield, acest lucru pentru a face fiecare variabila interioara sa ocupe un singur bit. Deoarece aceasta contine 8 variabile, toata structura va ocupa un singur byte. Din toate flagurile din acest registru, bitul 3 si bitul 5 nu sunt documentati/folositi dar tot sunt reprezentati in structura.
+
+\begin{lstlisting}[language=Rust,caption={Structura Flags},label={lst:flags-struct}]
+#[bitfield(u8)]
+#[derive(PartialEq, Eq, Serialize, Deserialize)]
+pub struct Flags {
+    pub carry: bool,           //C
+    pub add_sub: bool,         //N
+    pub parity_overflow: bool, //P/V
+    pub bit3: bool,            //3
+    pub half_carry: bool,      //H
+    pub bit5: bool,            //5
+    pub zero: bool,            //Z
+    pub sign: bool,            //S
+}
+\end{lstlisting}
+
+\paragraph{\code{ExecutableInstruction}} Trait folosit de toate instructiunile procesorului.
+Pentru instructiuni au fost implementate 2 traituri, \code{BaseInstruction} si \code{ExecutableInstruction}.
+
+\code{BaseInstruction} \cref{lst:baseinstruction-trait} contine functiile necesare pentru a decoda o instructiune. Din aceasta, functia common este responsabila pentru a returna un obiect de tip \code{InstructionCommon}, care contine informatii despre instructiuni cum ar fi: lungime, cicluri si daca incrementeaza PC-ul. Functia \code{to\_bytes} va returna un vector de bytes ce reprezinta instructiunea in codul de masina.
+
+\begin{lstlisting}[language=Rust,caption={Trait BaseInstruction},label={lst:baseinstruction-trait}]
+pub struct InstructionCommon {
+    pub length: u16,
+    pub cycles: u16,
+    pub increment_pc: bool,
+}
+
+pub trait BaseInstruction: Display + Debug + Send + Sync + 'static {
+    fn common(&self) -> &InstructionCommon;
+    fn to_bytes(&self) -> Vec<u8>;
+}
+\end{lstlisting}
+Pentru a putea vizualiza instructionile in format text, traitul \code{BaseInstruction} va depinde de traitul \code{Display}, acest necesitand implementarea functiei \code{fmt} ce va returna un string cu instructiunea intr-un format usor de citit (ex: \code{LD (HL), A}).
+
+Pentru a putea executa instructiunea, traitul \code{ExecutableInstruction} \cref{lst:executableinstruction-trait} va contine functia execute care va primi ca parametrii memoria, procesorul si IO-ul. Aceasta functie va returna un \code{Result}, in cazul in care instructiunea a fost executata cu succes, va returna \code{Ok}, in caz contrar va returna un mesaj de eroare. Acest trait este dependent de traitul \code{BaseInstruction}, acest lucru fiind necesar pentru ca orice instructiune executabila trebuie sa poata fi si decodata.
+
+\begin{lstlisting}[language=Rust,caption={Trait ExecutableInstruction},label={lst:executableinstruction-trait}]
+pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
+    fn execute(&mut self, memory: &mut Memory, cpu: &mut T, io: &mut IO)
+        -> Result<(), String>;
+}
+\end{lstlisting}
+
+Un exemplu complet de instructiune care implementeaza cele doua traituri poate fi vazut in \cref{lst:instruction-rlca}.
+\begin{lstlisting}[language=Rust,caption={Exemplu instructiune},label={lst:instruction-rlca}]
+#[derive(Debug)]
+pub struct RLCA {
+    common: InstructionCommon,
+}
+
+impl RLCA {
+    pub fn new() -> RLCA {
+        RLCA {
+            common: InstructionCommon::new(1, 4, true),
+        }
+    }
+}
+
+impl Display for RLCA {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "RLCA")
+    }
+}
+
+impl BaseInstruction for RLCA {
+    fn common(&self) -> &InstructionCommon {
+        &self.common
+    }
+    fn to_bytes(&self) -> Vec<u8> {
+        vec![0x07]
+    }
+}
+
+impl ExecutableInstruction<Z80> for RLCA {
+    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO)
+    -> Result<(), String> {
+        let carry = cpu.registers.gp.a >> 7;
+        cpu.registers.gp.f.set_carry(carry != 0);
+        let a = (cpu.registers.gp.a << 1) | carry;
+        cpu.registers.gp.a = a;
+        cpu.registers.gp.f.set_add_sub(false);
+        cpu.registers.gp.f.set_half_carry(false);
+        cpu.registers.gp.f.set_bit3((a >> 3) & 1 == 1);
+        cpu.registers.gp.f.set_bit5((a >> 5) & 1 == 1);
+        Ok(())
+    }
+}
+\end{lstlisting}
+
+In implementarea \code{RLCA}, se poate vedea cum aceasta este initializata cu lungimea 1, ciclurile 4 si true pentru incrementarea PC-ului. Functiile \code{fmt}, \code{common}, \code{to\_bytes} au implementarea necesara pentru a decoda instructiunea.
+Functia execute va executa instructiunea, modificand registrul A si flag-urile corespunzatoare.
+
+\paragraph{\code{IO}} Structura ce va ocupa de interactiunile cu dispozitivele interne si externe.
+
+Aceastra structura \cref{lst:io-struct} va contine un \code{HashMap port\_map} care va face maparea intre fiecare port si dispozitivul corespunzator. De asemenea, aceasta structura va contine un vector de dispozitive interne devices, care vor fi folosite pentru a simula dispozitivele interne ale procesorului (ex: timer, serial port ...etc).
+Variabilele \code{iff1} si \code{iff2} vor fi folosite pentru a gestiona intreruperile, felul in care emulatorul va raspunde la intreruperi fiind dictat de aceste variabile.
+Deoarece fiecare dispozitiv este reprezentat de un trait \code{IODevice}, acest lucru permite adaugarea a noi dispozitive cu usurinta. Diferite dispozitive cum ar fi: tastatura, mouse, timer, serial ...etc. pot fi create si adaugate in emulator fara a fi nevoie de modificari in codul sursa al emulatorului.
+
+\begin{lstlisting}[language=Rust,caption={Structura IO},label={lst:io-struct}]
+pub struct IO {
+    pub port_map: HashMap<u8, Weak<Mutex<Box<dyn IODevice>>>>,
+    devices: Vec<Arc<Mutex<Box<dyn IODevice>>>>,
+    pub iff1: bool,
+    pub iff2: bool,
+}
+\end{lstlisting}
+
+Intreruperile in Z80 pot fi mascabile sau ne-mascabile. Cele ne-mascabile sunt cele care nu pot fi oprite de catre program, este un lucru acceptat ca acestea vor avea mereu prioritate. Interuperile sunt in general rezervate anumitor functionalitati pe care programul le poate porni si opri selectiv.
+
+Scopul lui \code{iff1} este sa determine cand se vor executa intreruperile mascabile, \code{iff2} va fi folosit pentru a stoca temporar valoarea lui \code{iff1}.
+Cand microprocesorul este resetat \code{iff1} si \code{iff2} vor deveni 0. Interuperile putand fi activate oricand de catre program prin instructiunea \code{EI} (\emph{Enable Interrupts}). \code{EI} va seta \code{iff1} si \code{iff2} la 1, activand astfel intreruperile mascabile. In cazul in care un program doreste sa dezactiveze intreruperile mascabile, acesta va folosi instructiunea \code{DI} (\emph{Disable Interrupts}). Aceasta va seta \code{iff1} si \code{iff2} la 0, dezactivand astfel intreruperile mascabile.
+
+In cazul in care o intrerupere mascabila este acceptata, \code{iff1} va fi setat la 0, acest lucru prevenind alte intreruperi mascabile sa fie acceptate pana la finalizarea celei curente. Daca programatorul totusi doreste, acesta poate folosi \code{EI} pentru a reactiva intreruperile mascabile in timpul executiei altei intreruperi mascabile.
+La intructiunile \code{RETI} si \code{RETN}, \code{iff1} va fi setat la valoarea lui \code{iff2}, permitand astfel intreruperile mascabile sa fie acceptate din nou.
+\cref{tab:iff1iff2-interaction} arata cum \code{iff1} si \code{iff2} sunt afectate de interuperi si instructiuni.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|l|}
+\hline
+\textbf{Intrerupere / Instructiune} & \textbf{IFF1} & \textbf{IFF2} & \textbf{Notes} \\
+\hline
+\texttt{DI}                   & 0            & 0             & Opreste intreruperile mascabile \\
+\texttt{EI}                   & 1            & 1             & Porneste intreruperile mascabile \\
+\texttt{RETN/RETI}            & IFF2     & neschimbat     & Restaureaza IFF1 $\leftarrow$ IFF2 \\
+\hline
+\texttt{Intrerupere nemascabila} & 0         & neschimbat     & Opreste intreruperile \\
+\texttt{Intrerupere mascabila}   & 0         & neschimbat     & Opreste intreruperile \\
+\hline
+\end{tabular}
+\caption{Comportamentul \code{IFF1} si \code{IFF2}}
+\label{tab:iff1iff2-interaction}
+\end{table}
 
 \subsubsection{Arhitectura}
 \subsubsection{Testare automata}
