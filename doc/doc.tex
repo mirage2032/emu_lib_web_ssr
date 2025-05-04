@@ -16,14 +16,14 @@
 
 %SETTINGS FOR CODE
 \lstset{
-    basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n}
+    basicstyle=\fontsize{10}{12}\selectfont\ttfamily\usefont{T1}{zi4}{m}{n},
     keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
     commentstyle=\color{green}, % Comments in green
     stringstyle=\color{red}, % Strings in red
     backgroundcolor=\color{lightgray}, % Light gray background
     frame=single, % Frame around the code
     numbers=left, % Line numbers on the left
-    stepnumber=1, % Step between line numbers
+    stepnumber=1, % Step between line numberssada
     numberstyle=\tiny\color{gray}, % Style for line numbers
 }
 %\usepackage{fontspec}
@@ -45,8 +45,14 @@ right=2cm]{geometry}
 \usepackage{acronym}
 \usepackage{float}
 \usepackage{wrapfig}
+\usepackage{cleveref}
+\crefformat{listing}{[Cod #2#1#3]}
+\crefname{listing}{Cod}{Coduri}
+\crefformat{figure}{[Figura #2#1#3]}
+\crefname{figure}{Figura}{Figuri}
+\crefformat{table}{[Tabela #2#1#3]}
+\crefname{table}{Tabela}{Tabele}
 \renewcommand{\baselinestretch}{1.0}
-%\renewcommand{\ttfamily}{\fontsize{10pt}{12pt}\selectfont}
 % use [Ref n] instead of [n]
 \DeclareFieldFormat{labelnumber}{Ref~\thefield{labelnumber}}
 %spacing 1
@@ -65,6 +71,7 @@ right=2cm]{geometry}
 \renewcommand{\listtablename}{Lista tabelelor}
 \renewcommand{\figurename}{Figura}
 \renewcommand{\tablename}{Tabela}
+\renewcommand{\lstlistingname}{Cod}
 % Table of Contents
 \tableofcontents
 \clearpage  
@@ -179,13 +186,13 @@ Accessul la dispozitivele IO se poate face in 2 feluri:
   \resizebox{\textwidth}{!}{%
     \begin{tabular}{lccc}
       \hline
-      Caracteristică           & Intel 8080      & MOS 6502        & Zilog Z80      \\
+      Caracteristică           & Intel 8080      & MOS 6502        & Zilog Z80      \\
       \hline
       Anul lansării            & 1974            & 1975            & 1976           \\
-      Frecvenţă ceas           & 2 MHz           & 1 - 3 MHz           & 2.5 - 8.0 MHz        \\
+      Frecvenţă ceas           & 2 MHz           & 1 - 3 MHz           & 2.5 - 8.0 MHz        \\
       Registre generale        & A, B, C, D, E, H, L & A, X, Y        & A, B, C, D, E, H, L, IX, IY \\
-      Spaţiu adresabil         & 64 KB           & 64 KB           & 64 KB          \\
-      Instrucţiuni             & 256            & 151            & ≈ 698          \\
+      Spaţiu adresabil         & 64 KB           & 64 KB           & 64 KB          \\
+      Instrucţiuni             & 256            & 151            & ≈ 698          \\
       \hline
     \end{tabular}%
   }
@@ -208,7 +215,7 @@ Un alt salt major l-a fost adoptarea arhitecturii headless și a JAMstack-ului (
 
 WebAssembly (WASM) a deschis acum noi perspective: cod compilat din Rust, C/C++ sau Go rulează în browser la performanțe apropiate de native, cu acces controlat la memorie. În front‑end, WASM se folosește pentru module de procesare grafică (WebGPU), editare media și criptografie; pe back‑end, WASI (WebAssembly System Interface) permite rularea serviciilor WASM în containere ușoare, edge computing sau funcții serverless.
 
-În prezent, webul converge spre aplicații hibride—unde front‑end-ul React/Vue/Svelte interacționează cu module WASM scrise în Rust—ș i către soluții complet descentralizate (blockchain, IPFS). Standardele Web Components și Module Federation (Webpack) facilitează partajarea componentelor între proiecte, iar integrarea AI la nivel client (TensorFlow.js, ONNX.js) aduce inferență direct în browser. Aplicația ta, scrisă în Rust și compilată în WASM, este un exemplu clar al acestei sinergii: logica intensivă de procesare și securitate rulează în WASM, iar interfața, state‑manager‑ul și navigarea sunt gestionate de JavaScript sau cadre SPA moderne, oferind o experiență rapidă, sigură și portabilă pe toate platformele web.
+În prezent, webul converge spre aplicații hibride—unde front‑end-ul React/Vue/Svelte interacționează cu module WASM scrise în Rust și către soluții complet descentralizate (blockchain, IPFS). Standardele Web Components și Module Federation (Webpack) facilitează partajarea componentelor între proiecte, iar integrarea AI la nivel client (TensorFlow.js, ONNX.js) aduce inferență direct în browser. Aplicația ta, scrisă în Rust și compilată în WASM, este un exemplu clar al acestei sinergii: logica intensivă de procesare și securitate rulează în WASM, iar interfața, state‑manager‑ul și navigarea sunt gestionate de JavaScript sau cadre SPA moderne, oferind o experiență rapidă, sigură și portabilă pe toate platformele web.
 
 \subsection{Dezvoltarea emulatoarelor}
 
@@ -242,7 +249,7 @@ Proiecte precum MiSTer folosesc \emph{Field‑Programmable Gate Array} pentru a 
 \paragraph{6. Optimizări moderne şi tendințe}  
 \begin{itemize}
   \item \textbf{Profile‑guided DBT}: colectarea de profiluri runtime pentru a reordona şi optimiza translation blocks.  
-  \item \textbf{Speculative translation}: generare proactivă a codului nativ pentru funcții pre­vizibile.  
+  \item \textbf{Speculative translation}: generare proactivă a codului nativ pentru funcții previzibile.
   \item \textbf{Parallel JIT}: traducere concurentă a mai multor blocuri de cod pentru procesoare multi‑core.  
   \item \textbf{Accelerare GPU}: delegarea în GPU a unor operații de procesare masivă (încărcare grafică, decodare video) prin API‑uri precum Vulkan.  
 \end{itemize}
@@ -254,7 +261,7 @@ Pentru a putea realiza acest proiect, a fost necesara o cercetare amanuntita a d
 Prin aceasta cercetare s-a putut pune la punct o arhitectura structurala a proiectului, pregatita de faza de implementare.
 
 \subsection{\ac {Z80}}
-Procesorul Z80 (Fig~\ref{fig:z80}) este un procesor pe 8 biti, produs de Zilog in 1976. Acesta este unul dintre cele mai populare procesoare din istorie, fiind utilizat in multe aplicatii, de la calculatoare personale la console de jocuri.
+Procesorul Z80 \cref{fig:z80} este un procesor pe 8 biti, produs de Zilog in 1976. Acesta este unul dintre cele mai populare procesoare din istorie, fiind utilizat in multe aplicatii, de la calculatoare personale la console de jocuri.
 \ac {Z80} este un procesor CISC, acesta avand un set de 158 de instructiuni oficiale, dar exista si altele care nu au fost documentate oficial de Zilog.
 
 \begin{figure}[H]
@@ -278,7 +285,7 @@ Rolul registrilor:
     \par \hspace{1em} \textit{Acesta este incrementat cu 1 la fiecare instructiune executata.}
     \item AF, BC, DE si HL sunt registrii de uz general pe 16 biti, fiecare fiind format de 2 registrii pe 8 biti.
 \end{itemize}
-Structura acestora se poate vedea si in Figura \ref{fig:z80registers}.
+Structura acestora se poate vedea si in Figura \cref{fig:z80registers}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/z80registers.jpg}
@@ -290,7 +297,7 @@ Registrul SP, varful stivei, este initializat cu 0xFFFF, valoarea acestuia scaza
 
 Registrul PC este initializat cu 0x0000.
 
-Structura acestuia se poate vedea si in Tabela \ref{tab:z80flags}.
+Structura acestuia se poate vedea si in Tabela \cref{tab:z80flags}.
 \begin{table}[h]
     \centering
     \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
@@ -421,7 +428,7 @@ Exemplu: Un utilizator ar putea sa creeze un dispozitiv care sa simuleze un ecra
 \subsection{Decizie limbaj de programare}
 
 In procesul de alegere a limbajului de programare, s-au luat in considerare mai multe aspecte, cum ar fi:
-performanta, documentatie si securitate.
+:qperformanta, documentatie si securitate.
 
 Performanta este un aspect important, deoarece emulatorul va trebui sa ruleze cat mai fluid si cat mai apropiat de un Z80 real.
 Un emulator eficient putand fi capabil sa ruleze in functie de nevoie chiar mai rapid.
@@ -495,50 +502,127 @@ Server apoi la fiecare request va verifica daca tokenul este valid si daca este,
 
 \subsection {Docker}
 
-Docker\cite{ref:docker} este o platforma ce permite dezvoltarea, livrarea si rularea aplicatiilor.
-Docker ofera posibilitatea de a separa aplicatia de infrastructura, acest lucru permitand rularea acesteia pe orice sistem care are Docker instalat.
-Un container Docker este o unitate standard de software care incorporeaza codul aplicatiei, librariile si dependintele acesteia, impreuna cu un mediu de runtime bazat de obicei pe un sistem de operare Linux.
-Fiecare container este complet izolat de celelalte, acest lucru permitand rularea mai multor aplicatii pe acelasi sistem fara a interfera intre ele.
-Desi fiecare container este izolat, acesta pot fi configurate sa comunice cu alte containere sau cu sistemul gazda, acest lucru permitand crearea de aplicatii complexe.
-
-Desi containerele par similare cu masinile virtuale, acestea sunt mult mai mici, rapide si eficiente.
-Un container va rula pe acelasi kernel ca si sistemul gazda, acest lucru facandu-l mult mai eficient decat o masina virtuala.
+Docker\cite{ref:docker} este o platformă open-source destinată automatizării procesului de creare, livrare și rulare a aplicațiilor într-un mediu izolat numit container.
+Scopul principal al Docker este de a facilita rularea aplicațiilor într-un mod reproductibil și portabil, indiferent de sistemul de operare gazdă.
+\paragraph{Arhitectura Docker}
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/dockerstructure}
-    \caption{Structura Docker.}
-    \label{fig:containerstructure}
+\centering
+\includegraphics[width=0.6\textwidth]{images/dockerstructure}
+\caption{Structura Docker.}
+\label{fig:containerstructure}
 \end{figure}
 
-In cazul aplicatiilor cu trafic mare, Docker ofera posibilitatea de a scala aplicatia pe mai multe containere, fiecare container ruland o parte din aplicatie.
-In cazul cresterea traficului, Docker va putea rula mai multe containere, fiecare container ruland o parte din aplicatie.
+Un container Docker este o instanță rulabilă a unei imagini (image) Docker.
+Imaginile sunt fișiere read-only ce conțin tot ceea ce este necesar pentru rularea unei aplicații: codul sursă, biblioteci, instrumente de sistem, fișiere de configurare și un runtime.
+Aceste imagini sunt construite pornind de la un fișier special denumit \texttt{Dockerfile}, care conține instrucțiuni pas cu pas pentru configurarea mediului de execuție.
 
-Docker este folosit in acest proiect pentru a facilita rularea aplicatiei pe orice sistem, fara a fi nevoie de a instala toate dependintele manual.
-Pentru a configura un container docker, o imagine trebuie sa fie creata.
-Aceasta imagine continand tot ce este necesar pentru a rula aplicatia.
-Imaginile sunt create folosind un fisier de configurare numit Dockerfile.
-Acest fisier de configurare contine instructiuni pentru a crea o imagine, cum ar fi ce baza de date sa fie folosita, ce librarii sa fie instalate si cum sa fie configurata aplicatia.
+Fiecare container este izolat de celelalte și de sistemul gazdă, având propriile procese, rețele, sisteme de fișiere și spații de nume.
+Spre deosebire de mașinile virtuale tradiționale, containerele împart același kernel al sistemului de operare, ceea ce le face mult mai eficiente în termeni de resurse.
+
+Arhitectura Docker este compusă din mai multe componente-cheie:
+
+\begin{itemize}
+\item \textbf{Docker Engine} – serviciul care rulează pe sistemul gazdă și permite crearea, rularea și gestionarea containerelor.
+\item \textbf{Imagini Docker (Docker Images)} – șabloane read-only folosite pentru a crea containere.
+\item \textbf{Registrul Docker (Docker Registry)} – un sistem de tip repository pentru stocarea și partajarea imaginilor (ex: Docker Hub, GitHub Container Registry).
+\item \textbf{Containere (Containers)} – instanțe izolate ale imaginilor, ce rulează aplicația propriu-zisă.
+\item \textbf{Volume} – mecanism de persistență a datelor între mai multe rulări de containere.
+\item \textbf{Rețele Docker (Docker Networks)} – oferă containerelor capacitatea de a comunica între ele sau cu lumea exterioară.
+\end{itemize}
+
+\paragraph{Avantajele utilizării Docker}
+
+Docker oferă numeroase beneficii în dezvoltarea și livrarea aplicațiilor:
+
+\begin{itemize}
+\item \textbf{Portabilitate} – o aplicație containerizată poate fi rulată identic pe orice sistem cu Docker instalat, indiferent de mediul de execuție.
+\item \textbf{Eficiență} – spre deosebire de mașinile virtuale, containerele au un overhead foarte redus și pornesc în câteva milisecunde.
+\item \textbf{Izolare} – fiecare container rulează într-un spațiu izolat, ceea ce crește securitatea și stabilitatea aplicației.
+\item \textbf{Scalabilitate} – Docker este integrat ușor cu sisteme de orchestrare precum Kubernetes sau Docker Swarm, permițând scalarea automată a aplicațiilor.
+\item \textbf{Consistență} – mediile de dezvoltare, testare și producție pot fi standardizate, reducând riscul de erori cauzate de diferențe de configurație.
+\end{itemize}
+
+\paragraph{Docker în context DevOps și CI/CD}
+
+În cadrul metodologiilor DevOps, Docker joacă un rol esențial în crearea unor pipeline-uri de livrare continuă (CI/CD).
+De exemplu, codul sursă poate fi testat, construit și containerizat automat folosind instrumente precum GitHub Actions, GitLab CI, Jenkins sau Azure Pipelines.
+Astfel, la fiecare commit, o nouă imagine poate fi generată, testată automat și livrată într-un mediu de staging sau producție.
+
+\paragraph{Persistența datelor și comunicația între containere}
+
+Pentru aplicațiile care necesită stocarea de date persistente, Docker oferă volume, care sunt directoare montate din exteriorul containerului.
+Acestea permit salvarea datelor și după ce un container este oprit sau recreat.
+
+Comunicarea între containere este posibilă prin rețele Docker dedicate.
+Astfel, o aplicație web rulată într-un container poate comunica direct cu o bază de date aflată într-un alt container, fără a expune aceste servicii în exterior.
+
 \begin{lstlisting}[language=docker,caption={Exemplu Dockerfile},label={lst:dockerfile}]
-    FROM rust:1.52
-    WORKDIR /usr/src/myapp
-    COPY . .
-    RUN cargo build --release
-    CMD ["cargo", "run"]
+FROM rust:1.52
+WORKDIR /usr/src/myapp
+COPY . .
+RUN cargo build --release
+CMD ["cargo", "run"]
 \end{lstlisting}
-In (Lst~\ref{lst:dockerfile}) se poate vedea un exemplu de Dockerfile ce copiaza si compileaza o aplicatie Rust.
-Folosirea unei astfel de imagini, permite o migrare usoara a aplicatiei intre diferite medii, fie ca este vorba de un server local sau un server cloud.
 
-Alt avantaj al folosirii Docker este faptul ca acesta ofera un nivel de securitate mai mare.
-Datorita faptului ca fiecare container este izolat, acesta nu poate afecta alte containere sau sistemul gazda.
-De asemenea, datorita faptului ca fiecare container are acces doar la resursele pe care le are nevoie, acesta nu poate afecta alte resurse.
-Aceasta izolare ofera un nivel de securitate mai mare, chiar daca aplicatia este vulnerabila, aceasta nu poate afecta restul sistemului.
+În exemplul din \cref{lst:dockerfile}, se construiește o imagine Docker pentru o aplicație Rust.
+Aceasta este compilată în mod optimizat (\texttt{--release}) și apoi rulată automat la pornirea containerului.
 
-Un bonus al folosirii Docker este faptul ca acesta ofera un nivel de portabilitate mai mare. Odata ce o imagine este creata, aceasta poate fi rulata pe orice sistem care are Docker instalat.
-Deoarece Docker este un standard de facto in industrie, majoritatea sistemelor ofera suport pentru acesta.
+\subsection{Version Control (Git)}
+
+Controlul versiunilor este un sistem esențial în gestionarea codului sursă pe parcursul dezvoltării software. Acesta permite urmărirea modificărilor aduse fișierelor de-a lungul timpului, facilitând gestionarea mai multor versiuni ale unui proiect, colaborarea între dezvoltatori și asigurarea integrității și consistenței codului sursă.
+
+Git este un sistem de control al versiunilor distribuit, creat de Linus Torvalds în 2005 pentru a sprijini dezvoltarea kernel-ului Linux. Spre deosebire de sistemele de control al versiunilor centralizate, Git oferă fiecărei instanțe a depozitului (repository) o copie completă a întregii istorii a proiectului. Acest lucru înseamnă că fiecare dezvoltator poate lucra în mod independent și local, iar modificările pot fi sincronizate ulterior cu depozitul central.
+
+Principalele caracteristici ale Git sunt:
+
+\begin{itemize}
+\item \textbf{Sistem distribuit}: Fiecare dezvoltator are o copie completă a întregului proiect, inclusiv istoricul său, pe mașina locală. Aceasta permite lucrul offline și îmbunătățește performanța.
+\item \textbf{Măcinarea și ramificarea ușoară}: Git permite crearea de ramuri (branches) ușor, care sunt esențiale pentru dezvoltarea paralelă a funcționalităților noi sau pentru testarea unor idei.
+\item \textbf{Fazele fluxului de lucru}: Modificările sunt gestionate prin trei zone: Working Directory, Staging Area și Repository. Aceste zone permit dezvoltatorilor să adauge, să verifice și să stocheze modificările înainte de a le trimite în depozitul central.
+\item \textbf{Performanță ridicată}: Git este extrem de rapid la operații comune, cum ar fi comiterea, schimbarea ramurilor sau unirea acestora.
+\item \textbf{Securitate}: Git folosește un sistem de hash criptografic (SHA-1) pentru a verifica integritatea fișierelor și istoricului, protejând astfel datele împotriva corupției.
+\end{itemize}
+
+Un flux de lucru tipic cu Git implică următoarele etape:
+\begin{enumerate}
+\item \textbf{Clonarea depozitului}: Dezvoltatorul își clonează depozitul central pe mașina locală folosind comanda \texttt{git clone}.
+\item \textbf{Crearea unei ramuri}: Dezvoltatorul creează o ramură de lucru pentru a dezvolta o caracteristică sau a rezolva o problemă.
+\item \textbf{Comiterea modificărilor}: După ce au fost efectuate modificări, dezvoltatorul le adaugă în zona de stagiu (staging area) folosind comanda \texttt{git add}, iar apoi le salvează în depozitul local cu comanda \texttt{git commit}.
+\item \textbf{Împingerea modificărilor}: După ce modificările sunt comise, acestea pot fi trimise la depozitul central folosind comanda \texttt{git push}.
+\item \textbf{Îmbinarea modificărilor}: Dacă mai mulți dezvoltatori lucrează pe aceeași ramură, modificările lor pot fi combinate folosind comanda \texttt{git merge}.
+\end{enumerate}
+
+Comparativ cu alte sisteme de control al versiunilor, cum ar fi SVN (Subversion), Git oferă o mai mare flexibilitate și performanță. De exemplu, SVN este un sistem de control al versiunilor centralizat, ceea ce înseamnă că există un depozit central unde toate modificările sunt stocate. Git, pe de altă parte, este un sistem distribuit, permițând fiecărui dezvoltator să aibă o copie completă a întregului proiect, ceea ce îl face mai eficient în lucrul cu proiecte mari și echipe distribuite. Git este, de asemenea, mult mai rapid în gestionarea ramurilor și în combinarea modificărilor, fiind ideal pentru dezvoltarea de software agil.
 
 \section{Implementare}
-This is the conclusion.
+\subsection{Librarie emulator}
+Implementarea emulatorului a fost realizata in limbajul de programare Rust, acesta fiind un limbaj modern, rapid si sigur. Deoarece se doreste o modularitate cat mai mare si posibilitatea de a integra proiectul in altele, nucleul emulatorului a fost realizat ca o librarie.
+Libraria in sine va contine toate structurile necesare (Emulator, CPU, Io ...etc), cat si implementarea acestora. Impachetand nucleul emulatorului intr-o librarie permite utilizatorilor sa o extinda, cum ar fi sa isi creeze propri dispozitive virtuale sau sa adauge suport pentru alte procesoare.
+
+\subsubsection{Structuri de date}
+
+Pentru crearea emulatorului diferite structuri de date au fost create, fiecare avand rolul ei in cadrul emulatorului.
+
+\paragraph{Emulator} Structura ce va coordona executia procesorului, memoriei si a sistemului IO
+
+\begin{lstlisting}[language=Rust,caption={Structura Emulator},label={lst:emulator_struct}]
+pub struct Emulator<T: Cpu> {
+    pub memory: Memory,
+    pub cpu: T,
+    pub breakpoints: Vec<u16>,
+    pub io: IO,
+    pub cycle_counter: usize,
+    pub instruction_counter: usize,
+}
+\end{lstlisting}
+
+\subsubsection{Arhitectura}
+\subsubsection{Testare automata}
+\subsection{Interfata web}
+\subsubsection{Frontend}
+\subsubsection{Backend}
+\subsection{Containerizare}
 
 \section{Rezultate experimentale}
 This is the conclusion.
