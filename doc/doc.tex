@@ -3,12 +3,12 @@
 %FONT SIMILAR TO TIMES NEW ROMAN
 \usepackage{fontspec}
 \setmainfont{texgyretermes}[
-  UprightFont = *-regular ,
-  BoldFont = *-bold ,
-  ItalicFont = *-italic ,
-  BoldItalicFont = *-bolditalic ,
-  Extension = .otf ,
-  Scale = 1.0 ]
+    UprightFont = *-regular ,
+    BoldFont = *-bold ,
+    ItalicFont = *-italic ,
+    BoldItalicFont = *-bolditalic ,
+    Extension = .otf ,
+    Scale = 1.0 ]
 \usepackage[backend=biber]{biblatex}
 \usepackage{listings, listings-rust, docker}
 \usepackage{xcolor}
@@ -24,17 +24,17 @@
     frame=single, % Frame around the code
     numbers=left, % Line numbers on the left
     stepnumber=1, % Step between line numberssada
-    numberstyle=\tiny\color{gray}, % Style for line numbers
+    numberstyle=\tiny\color{gray}, % Style for line numbers/
 }
 %\usepackage{fontspec}
 %\setmainfont{Times New Roman}
 %\def\ttdefault{blg}
 \addbibresource{doc.bib}
 \usepackage[
-top=2cm,
-bottom=2cm,
-left=2cm,
-right=2cm]{geometry}
+    top=2cm,
+    bottom=2cm,
+    left=2cm,
+    right=2cm]{geometry}
 \geometry{a4paper}
 
 \usepackage{setspace}
@@ -61,149 +61,150 @@ right=2cm]{geometry}
 
 \begin{document}
 % Title
-\title{Licenta}
-\author{Popescu Ionut-Alexandru}
-\date{\today}
+    \title{Licenta}
+    \author{Popescu Ionut-Alexandru}
+    \date{\today}
 
-\maketitle
-\renewcommand{\contentsname}{Cuprins}
-\renewcommand{\listfigurename}{Lista figurilor} 
-\renewcommand{\listtablename}{Lista tabelelor}
-\renewcommand{\figurename}{Figura}
-\renewcommand{\tablename}{Tabela}
-\renewcommand{\lstlistingname}{Cod}
+    \maketitle
+    \renewcommand{\contentsname}{Cuprins}
+    \renewcommand{\listfigurename}{Lista figurilor}
+    \renewcommand{\listtablename}{Lista tabelelor}
+    \renewcommand{\figurename}{Figura}
+    \renewcommand{\tablename}{Tabela}
+    \renewcommand{\lstlistingname}{Cod}
 % Table of Contents
-\tableofcontents
-\clearpage  
-\listoffigures
-\clearpage
-\listoftables
-\clearpage
-\section*{Lista acronimelor} % Use \section* to avoid it being numbered
-\begin{acronym}  
-    \acro {Z80}       {Microcontroler Zilog Z80}
-    \acro {I8080}     {Intel 8080}
-    \acro {IO}        {Input/Output}
-    \acro {ROM}       {Read Only Memory}
-    \acro {RAM}       {Random Access Memory}
-    \acro {Rust}      {Limbajul de programare Rust}
-    \acro {WASM}      {Web Assembly}
-    \acro {DARPA}     {Defense Advanced Research Projects Agency}
-    \acro {GPR}       {General Purpose Register}
+    \tableofcontents
+    \clearpage
+    \listoffigures
+    \clearpage
+    \listoftables
+    \clearpage
+    \section*{Lista acronimelor} % Use \section* to avoid it being numbered
+    \begin{acronym}
+        \acro {Z80}       {Microcontroler Zilog Z80}
+        \acro {I8080}     {Intel 8080}
+        \acro {IO}        {Input/Output}
+        \acro {ROM}       {Read Only Memory}
+        \acro {RAM}       {Random Access Memory}
+        \acro {Rust}      {Limbajul de programare Rust}
+        \acro {WASM}      {Web Assembly}
+        \acro {DARPA}     {Defense Advanced Research Projects Agency}
+        \acro {GPR}       {General Purpose Register}
     \end{acronym}
-\clearpage
+    \clearpage
 % Sections
 
-\section{Introducere}
-Acest proiect reprezinta un emulator complet functional pentru un \ac {Z80}, implementat complet in \ac {Rust}.
-Emulatorul este conceput sa functioneze ca o librarie flexibila ce poate fi inclusa cu usurinta in alte proiecte scrise Rust. Acest lucru permite utilizatorilor sa il adapteze la propriile necesitati.
 
-\ac {Z80} este un procesor pe 8 biti, produs din 1976 de catre firma Zilog. Desi acest procesor are magistrala de adrese de 16 biti, magistrala de adrese este de 8 biti.
-Desi registrii procesorului functioneaza pe 8 biti, acesta poate face operatiuni pe valori de 16biti prin folosirea registrilor combinati(BC,DE,HL).
-Z80 are are un set de 158 tipuri de instructioni considerate oficiale, dar exista si altele care nu au fost documentate oficial de Zilog. Instructiunile pot face o multime de operatiuni cum ar fi: transfer de date, interschimbare, operatiuni aritmetice/logice, rotiri/shiftari, instructiuni la nivel de bit si comunicare cu porturile I/O.
+    \section{Introducere}
+    Acest proiect reprezinta un emulator complet functional pentru un \ac {Z80}, implementat complet in \ac {Rust}.
+    Emulatorul este conceput sa functioneze ca o librarie flexibila ce poate fi inclusa cu usurinta in alte proiecte scrise Rust. Acest lucru permite utilizatorilor sa il adapteze la propriile necesitati.
 
-Impreuna cu libraria ce se ocupa strict cu partea de emulate, proiectul contine si o aplicatie web bazata pe aceasta librarie.
-Aceasta aplicatie web este de asemenea scrisa in Rust, apoi compilata in \ac {WASM}. Deoarece \ac {WASM} este mai preformant decat JavaScript, aceasta compilare din Rust va aduce un bonus de performanta, un lucru necesar pentru o emulare cat mai fluida.
-Principalul avantaj compilarii programului in \ac {WASM} a fost avantajul dat de faptul ca acest lucru ii va permite sa ruleze din orice browser web modern.
-Aplicatia web este de tipul server-client insa ofera si capacitatea de a rula standalone, putand fi utilizate si fara server in modul offline.
+    \ac {Z80} este un procesor pe 8 biti, produs din 1976 de catre firma Zilog. Desi acest procesor are magistrala de adrese de 16 biti, magistrala de adrese este de 8 biti.
+    Desi registrii procesorului functioneaza pe 8 biti, acesta poate face operatiuni pe valori de 16biti prin folosirea registrilor combinati(BC,DE,HL).
+    Z80 are are un set de 158 tipuri de instructioni considerate oficiale, dar exista si altele care nu au fost documentate oficial de Zilog. Instructiunile pot face o multime de operatiuni cum ar fi: transfer de date, interschimbare, operatiuni aritmetice/logice, rotiri/shiftari, instructiuni la nivel de bit si comunicare cu porturile I/O.
 
-Motivatia principala a acestui proiect a fost lipsa unui astfel de emulator, acestea fiind putine, reprezentan uneori dificultati la instalare sau unele fiind chiar incomplete.
-Acest proiect isi propune sa ofere o solutie completa, accesibila si usor de folosit si de integrat in alte proiecte. Un alt scop de asemene al acestei lucrari, poate fi unul educativ, oferind un mediu usor de dezvoltare si testare.
+    Impreuna cu libraria ce se ocupa strict cu partea de emulate, proiectul contine si o aplicatie web bazata pe aceasta librarie.
+    Aceasta aplicatie web este de asemenea scrisa in Rust, apoi compilata in \ac {WASM}. Deoarece \ac {WASM} este mai preformant decat JavaScript, aceasta compilare din Rust va aduce un bonus de performanta, un lucru necesar pentru o emulare cat mai fluida.
+    Principalul avantaj compilarii programului in \ac {WASM} a fost avantajul dat de faptul ca acest lucru ii va permite sa ruleze din orice browser web modern.
+    Aplicatia web este de tipul server-client insa ofera si capacitatea de a rula standalone, putand fi utilizate si fara server in modul offline.
 
-Emulatorul ar trebui sa faciliteze utilizatorului un mod cat mai usor de a dezvolta aplicatii pe platforma Z80.
-Libraria permite direct scrierea de cod in Assembly iar apoi rularea acestuia in cadrul emulatorului. Acest lucru va permite utilizatorului sa testeze si sa depaneze aplicatia fara a avea nevoie de un hardware real.
-Pe langa faptul ca utilizatorul poate sa puna pauza executiei in orice moment si sa vizualizeze registrii, este de asemenea posibila si modificarea acestora.
-Acest control fin asupra executiei aplcatiei, ar trebui sa confere un avantaj in dezvoltarea aplicatiilor, permitand o monitorizare cat mai buna asupra cursului executiei.
+    Motivatia principala a acestui proiect a fost lipsa unui astfel de emulator, acestea fiind putine, reprezentan uneori dificultati la instalare sau unele fiind chiar incomplete.
+    Acest proiect isi propune sa ofere o solutie completa, accesibila si usor de folosit si de integrat in alte proiecte. Un alt scop de asemene al acestei lucrari, poate fi unul educativ, oferind un mediu usor de dezvoltare si testare.
 
-Pentru o simulare cat mai corecta si apropiata de un Zilog Z80 adevarat, toate instructiunile acestuia au fost implementate. 
-Executarea instructiunilor se face cat mai realist si tinand cont de factori cum ar fi: lungimea instructiunii, ciclurile acesteia si a vitezei de ceas(clock) aleasa.
-Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind \ac {ROM}/\ac {RAM} sau chiar nealocata.
+    Emulatorul ar trebui sa faciliteze utilizatorului un mod cat mai usor de a dezvolta aplicatii pe platforma Z80.
+    Libraria permite direct scrierea de cod in Assembly iar apoi rularea acestuia in cadrul emulatorului. Acest lucru va permite utilizatorului sa testeze si sa depaneze aplicatia fara a avea nevoie de un hardware real.
+    Pe langa faptul ca utilizatorul poate sa puna pauza executiei in orice moment si sa vizualizeze registrii, este de asemenea posibila si modificarea acestora.
+    Acest control fin asupra executiei aplcatiei, ar trebui sa confere un avantaj in dezvoltarea aplicatiilor, permitand o monitorizare cat mai buna asupra cursului executiei.
+
+    Pentru o simulare cat mai corecta si apropiata de un Zilog Z80 adevarat, toate instructiunile acestuia au fost implementate.
+    Executarea instructiunilor se face cat mai realist si tinand cont de factori cum ar fi: lungimea instructiunii, ciclurile acesteia si a vitezei de ceas(clock) aleasa.
+    Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind \ac {ROM}/\ac {RAM} sau chiar nealocata.
 
 
-\section{Stadiul actual}
-This is the introduction.
+    \section{Stadiul actual}
+    This is the introduction.
 
-\section{Fundamentare teoretica}
-In aceasta sectiune se va discuta despre fundamentele teoretice ale proiectului, cum ar fi microcontrolerul Z80, emulatorul si limbajul de programare ales.
 
-Aceste detalii vor reprezenta baza teoretica a proiectului, oferind o intelegere mai buna a modului in care functioneaza emulatorul si cum poate fi folosit.
-\subsection{Microrocesoarele pe 8 biti}
+    \section{Fundamentare teoretica}
+    In aceasta sectiune se va discuta despre fundamentele teoretice ale proiectului, cum ar fi microcontrolerul Z80, emulatorul si limbajul de programare ales.
 
-Microprocesoarele pe 8 biți reprezintă una dintre cele mai importante etape din evoluția calculatoarelor și a sistemelor electronice. Aceste componente au capacitatea de a prelucra date în cuvinte de 8 biți, ceea ce înseamnă că registrele interne, magistrala de date și instrucțiunile sunt proiectate pentru a lucra cu unități de 8 biți. Deși în prezent există procesoare mult mai avansate, cele pe 8 biți sunt încă relevante în anumite contexte datorită simplității și eficienței lor.
+    Aceste detalii vor reprezenta baza teoretica a proiectului, oferind o intelegere mai buna a modului in care functioneaza emulatorul si cum poate fi folosit.
 
-Primele microprocesoare pe 8 biți, precum Intel 8080, MOS Technology 6502 sau Zilog Z80, au fost utilizate în computerele personale timpurii, console de jocuri și dispozitive electronice de larg consum. De exemplu, Intel 8080 a fost inima calculatorului Altair 8800, în timp ce 6502 a fost folosit în Apple II și consola NES. Aceste procesoare ofereau o combinație remarcabilă de performanță și cost redus, fiind accesibile pentru dezvoltatorii și pasionații vremii.
+    \subsection{Microrocesoarele pe 8 biti}
 
-Caracteristicile generale ale acestor microprocesoare includ o magistrală de date de 8 biți, o magistrală de adrese de obicei de 16 biți (permițând accesul la 64 KB memorie), un set de instrucțiuni relativ restrâns și un consum energetic scăzut. Toate acestea le-au făcut ideale pentru aplicații embedded, unde cerințele de calcul sunt limitate, dar fiabilitatea este esențială.
+    Microprocesoarele pe 8 biți reprezintă una dintre cele mai importante etape din evoluția calculatoarelor și a sistemelor electronice. Aceste componente au capacitatea de a prelucra date în cuvinte de 8 biți, ceea ce înseamnă că registrele interne, magistrala de date și instrucțiunile sunt proiectate pentru a lucra cu unități de 8 biți. Deși în prezent există procesoare mult mai avansate, cele pe 8 biți sunt încă relevante în anumite contexte datorită simplității și eficienței lor.
 
-Chiar și astăzi, microprocesoarele pe 8 biți sunt utilizate pe scară largă în sisteme încorporate, cum ar fi controlerele Arduino (cu cipuri precum ATmega328P), în telecomenzi, jucării, echipamente medicale de bază și electrocasnice. Longevitatea acestor procesoare demonstrează versatilitatea și eficiența lor în aplicații în care puterea de calcul ridicată nu este o necesitate.
+    Primele microprocesoare pe 8 biți, precum Intel 8080, MOS Technology 6502 sau Zilog Z80, au fost utilizate în computerele personale timpurii, console de jocuri și dispozitive electronice de larg consum. De exemplu, Intel 8080 a fost inima calculatorului Altair 8800, în timp ce 6502 a fost folosit în Apple II și consola NES. Aceste procesoare ofereau o combinație remarcabilă de performanță și cost redus, fiind accesibile pentru dezvoltatorii și pasionații vremii.
 
-Prin urmare, microprocesoarele pe 8 biți nu sunt doar relicve ale trecutului, ci componente esențiale în arhitectura multor sisteme moderne. Ele continuă să joace un rol vital în educație, prototipare rapidă și industrie, dovedind că simplitatea poate fi un avantaj strategic în multe domenii tehnologice.
+    Caracteristicile generale ale acestor microprocesoare includ o magistrală de date de 8 biți, o magistrală de adrese de obicei de 16 biți (permițând accesul la 64 KB memorie), un set de instrucțiuni relativ restrâns și un consum energetic scăzut. Toate acestea le-au făcut ideale pentru aplicații embedded, unde cerințele de calcul sunt limitate, dar fiabilitatea este esențială.
 
-\subsubsection{Registrii}
+    Chiar și astăzi, microprocesoarele pe 8 biți sunt utilizate pe scară largă în sisteme încorporate, cum ar fi controlerele Arduino (cu cipuri precum ATmega328P), în telecomenzi, jucării, echipamente medicale de bază și electrocasnice. Longevitatea acestor procesoare demonstrează versatilitatea și eficiența lor în aplicații în care puterea de calcul ridicată nu este o necesitate.
 
-Un registru este o zona de memorie interna a procesorului care este utilizata pentru a stoca date temporar. Acestea sunt folosite pentru a efectua operatiuni aritmetice si logice, precum si pentru a stoca adresele de memorie.
-Registrii sunt foarte rapizi, deoarece sunt situati in interiorul procesorului si pot fi accesati mult mai repede decat memoria externa, ceea ce contribuie la cresterea performantei globale.
+    Prin urmare, microprocesoarele pe 8 biți nu sunt doar relicve ale trecutului, ci componente esențiale în arhitectura multor sisteme moderne. Ele continuă să joace un rol vital în educație, prototipare rapidă și industrie, dovedind că simplitatea poate fi un avantaj strategic în multe domenii tehnologice.
 
-Acesti registrii se pot categoriza dupa mai multe criterii, unul dintre ele fiind tipul acestora:
-\begin{itemize}
-    
-    \item \ac {GPR}, acesta este folosit pentru operatiuni aritmetice, logice si pentru indexare. In arhitecturi comune pe 8 biti exista adesea 4-8 astfel de registre (ex: A,B,C,D in familia Intel 8080).
-    \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero, semn, carry, overflow, semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
-    \item Registrii cu scop special.
+    \subsubsection{Registrii}
+
+    Un registru este o zona de memorie interna a procesorului care este utilizata pentru a stoca date temporar. Acestea sunt folosite pentru a efectua operatiuni aritmetice si logice, precum si pentru a stoca adresele de memorie.
+    Registrii sunt foarte rapizi, deoarece sunt situati in interiorul procesorului si pot fi accesati mult mai repede decat memoria externa, ceea ce contribuie la cresterea performantei globale.
+
+    Acesti registrii se pot categoriza dupa mai multe criterii, unul dintre ele fiind tipul acestora:
     \begin{itemize}
-        \item PC(Program Counter), acest registru are 16 biti (in majoritatea procesoarelor pe 8 biti), care contine adresa urmatoarei instructiuni ce urmeaza a fi executata.
-        \item SP(Stack Pointer), acest registru are de asemenea 16 biti si contine varful stivei in memoria RAM.
+
+        \item \ac {GPR}, acesta este folosit pentru operatiuni aritmetice, logice si pentru indexare. In arhitecturi comune pe 8 biti exista adesea 4-8 astfel de registre (ex: A,B,C,D in familia Intel 8080).
+        \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero, semn, carry, overflow, semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
+        \item Registrii cu scop special.
+        \begin{itemize}
+            \item PC(Program Counter), acest registru are 16 biti (in majoritatea procesoarelor pe 8 biti), care contine adresa urmatoarei instructiuni ce urmeaza a fi executata.
+            \item SP(Stack Pointer), acest registru are de asemenea 16 biti si contine varful stivei in memoria RAM.
+        \end{itemize}
+
     \end{itemize}
 
-\end{itemize}
+    Microprocesorul functioneaza prin a rula secvential instructiunile aflate la adresa stocata in PC.
+    In majoritatea cazurilor dupa ce se ruleaza o instructiune, PC este incrementat cu lungimea instructiunii executate.
+    In cazul salturilor(ex: JMP), ramificatiilor(ex: CMP), sau instructiunilor de apel(ex: CALL), PC este setat la o alta adresa.
 
-Microprocesorul functioneaza prin a rula secvential instructiunile aflate la adresa stocata in PC.
-In majoritatea cazurilor dupa ce se ruleaza o instructiune, PC este incrementat cu lungimea instructiunii executate.
-In cazul salturilor(ex: JMP), ramificatiilor(ex: CMP), sau instructiunilor de apel(ex: CALL), PC este setat la o alta adresa.
+    Procesorul de asemenea foloseste o stiva pentru a stoca date temporare. Un astfel de tip de date salvate temporar pe stiva sunt adresele de returnare.
+    Cand o functie este apelata(CALL), adresa de returnare(urmataoarea instructiuni) este salvata in stiva. La returnare(RET), valoarea de returnare va fi extrasa din stiva si apoi plasta in PC.
 
-Procesorul de asemenea foloseste o stiva pentru a stoca date temporare. Un astfel de tip de date salvate temporar pe stiva sunt adresele de returnare.
-Cand o functie este apelata(CALL), adresa de returnare(urmataoarea instructiuni) este salvata in stiva. La returnare(RET), valoarea de returnare va fi extrasa din stiva si apoi plasta in PC.
+    \subsubsection{I/O}
 
-\subsubsection{I/O}
+    Pentru a putea interactiona cu un microprocesor, acesta trebuie sa aiba un sistem de intrare/iesire (I/O).
+    Acest sistem permite procesorului sa comunice cu alte dispozitive externe, cum ar fi tastaturi, ecrane sau dispozitive de stocare.
+    In majoritatea cazurilor comunicarea cu dispozitivele externe se face prin porturi/pini fizici conectati la procesor.
 
-Pentru a putea interactiona cu un microprocesor, acesta trebuie sa aiba un sistem de intrare/iesire (I/O).
-Acest sistem permite procesorului sa comunice cu alte dispozitive externe, cum ar fi tastaturi, ecrane sau dispozitive de stocare.
-In majoritatea cazurilor comunicarea cu dispozitivele externe se face prin porturi/pini fizici conectati la procesor.
+    Multe microporcesoare au de asemenea si un sistem de intreruperi. Acesta permite procesorului sa fie notificat atunci cand un dispozitiv extern are nevoie de atentie.
+    Acest sistem de inreruperi creste eficienta unui microprocesor, deoarece acesta nu trebuie sa verifice constant starea dispozitivelor externe.
 
-Multe microporcesoare au de asemenea si un sistem de intreruperi. Acesta permite procesorului sa fie notificat atunci cand un dispozitiv extern are nevoie de atentie.
-Acest sistem de inreruperi creste eficienta unui microprocesor, deoarece acesta nu trebuie sa verifice constant starea dispozitivelor externe.
+    Accessul la dispozitivele IO se poate face in 2 feluri:
+    \begin{itemize}
+        \item \textbf{Mapat pe memorie}, accessul la dispozitivul extern se face prin acelasi tip de instructiuni de citire/scriere ca pentru memorie.
+        \item \textbf{Prin porturi}, accessul se va face prin instructiuni speciale IN si OUT.
+    \end{itemize}
 
-Accessul la dispozitivele IO se poate face in 2 feluri:
-\begin{itemize}
-    \item \textbf{Mapat pe memorie}, accessul la dispozitivul extern se face prin acelasi tip de instructiuni de citire/scriere ca pentru memorie.
-    \item \textbf{Prin porturi}, accessul se va face prin instructiuni speciale IN si OUT.
-\end{itemize}
+    \subsubsection{Date tehnice și comparaţie între modele}
 
-\subsubsection{Date tehnice și comparaţie între modele}
+    \begin{table}[htb]
+        \centering
+        \resizebox{\textwidth}{!}{%
+            \begin{tabular}{lccc}
+                \hline
+                Caracteristică    & Intel 8080          & MOS 6502  & Zilog Z80                   \\
+                \hline
+                Anul lansării     & 1974                & 1975      & 1976                        \\
+                Frecvenţă ceas    & 2 MHz               & 1 - 3 MHz & 2.5 - 8.0 MHz               \\
+                Registre generale & A, B, C, D, E, H, L & A, X, Y   & A, B, C, D, E, H, L, IX, IY \\
+                Spaţiu adresabil  & 64 KB               & 64 KB     & 64 KB                       \\
+                Instrucţiuni      & 256                 & 151       & ≈ 698                       \\
+                \hline
+            \end{tabular}%
+        }
+        \caption{Date tehnice și comparaţie între modele}
+    \end{table}
 
-\begin{table}[htb]
-  \centering
-  \resizebox{\textwidth}{!}{%
-    \begin{tabular}{lccc}
-      \hline
-      Caracteristică           & Intel 8080      & MOS 6502        & Zilog Z80      \\
-      \hline
-      Anul lansării            & 1974            & 1975            & 1976           \\
-      Frecvenţă ceas           & 2 MHz           & 1 - 3 MHz           & 2.5 - 8.0 MHz        \\
-      Registre generale        & A, B, C, D, E, H, L & A, X, Y        & A, B, C, D, E, H, L, IX, IY \\
-      Spaţiu adresabil         & 64 KB           & 64 KB           & 64 KB          \\
-      Instrucţiuni             & 256            & 151            & ≈ 698          \\
-      \hline
-    \end{tabular}%
-  }
-  \caption{Date tehnice și comparaţie între modele}
-\end{table}
+    \subsection{Evoluția webului}
 
-
-
-\subsection{Evoluția webului}
-
-De la primele pagini statice publicate la începutul anilor ’90 până la aplicațiile interactive și descentralizate de astăzi, webul a parcurs câteva etape majore de evoluție. În faza inițială, denumită adesea Web 1.0, site-urile erau în esență documente HTML simple, statice, fără posibilitatea interacțiunii avansate cu utilizatorul. Conținutul era creat și actualizat manual, iar navigarea se baza pe hyperlink-uri elementare. Browserele timpurii (Netscape Navigator, Internet Explorer) interpretau fragmente de HTML și imagini GIF, fără suport pentru CSS sau JavaScript.
+    De la primele pagini statice publicate la începutul anilor ’90 până la aplicațiile interactive și descentralizate de astăzi, webul a parcurs câteva etape majore de evoluție. În faza inițială, denumită adesea Web 1.0, site-urile erau în esență documente HTML simple, statice, fără posibilitatea interacțiunii avansate cu utilizatorul. Conținutul era creat și actualizat manual, iar navigarea se baza pe hyperlink-uri elementare. Browserele timpurii (Netscape Navigator, Internet Explorer) interpretau fragmente de HTML și imagini GIF, fără suport pentru CSS sau JavaScript.
 
 Odată cu apariția limbajelor de scripting pe server (PHP, ASP.NET, JSP) și a bazelor de date relaționale (MySQL, PostgreSQL), webul a început să devină dinamic: paginile erau generate on‑the‑fly, iar datele utilizatorilor puteau fi stocate și prelucrate. Aceasta a deschis calea către Web 2.0, unde site‑urile s-au transformat în platforme participative—bloguri, forumuri, rețele sociale—în care conținutul era creat și moderat chiar de utilizatori. Tehnici precum AJAX au permis încărcarea asincronă a datelor, reducând timpul de așteptare și eliminând refresh‑ul complet al paginilor.
 
@@ -231,27 +232,27 @@ Astăzi, emulatoarele sunt indispensabile atât pentru conservarea digitală (re
 
 Emulatoarele au evoluat printr‑o serie de tehnici din ce în ce mai sofisticate pentru a reproduce fidel arhitecturi hardware străine pe procesoare gazdă moderne:
 
-\paragraph{1. Interpretare instrucțiune cu instrucțiune}  
+\paragraph{1. Interpretare instrucțiune cu instrucțiune}
 Primele emulatoare implementau un \emph{interpreter} pur: la fiecare ciclu de ceas al mașinii țintă, se citea codul mașină, se decoda și se executa un echivalent în codul procesorului gazdă. Această abordare avea latențe mari (40–100× slowdown), dată de costul ridicat al decodării şi dispatcher‑ului de instrucțiuni.
 
-\paragraph{2. Recompilare dinamică (Dynamic Binary Translation)}  
+\paragraph{2. Recompilare dinamică (Dynamic Binary Translation)}
 Emulatoarele au introdus \emph{dynamic recompilation} (DBT): blocuri contigue de cod mașină („translation blocks”) erau traduse la prima execuție într‑un segment de cod nativ, optimizat şi plasat într‑o „code cache”. La apeluri viitoare, emulatorul sări direct în blocul tradus, reducând dramatic costul dispatcher‑ului. Exemplu: QEMU foloseşte \emph{Tiny Code Generator} (TCG) pentru a realiza DBT între sute de arhitecturi ţintă şi x86/\-ARM gazdă.
 
-\paragraph{3. Virtualizare asistată hardware}  
+\paragraph{3. Virtualizare asistată hardware}
 Odată cu apariția extensiilor de virtualizare (Intel VT‑x, AMD‑V), s‑a putut combina emularea cu \emph{hardware virtualization}: anumite instrucțiuni privilegiate sunt executate direct de procesorul gazdă în mod \texttt{root}, iar restul codului rulează în mod \texttt{guest}, cu trap‑uri minime. Hypervisor‑e precum KVM (în Linux) şi Xen oferă \emph{full virtualization} cu overhead sub 5\% față de bare‑metal.
 
-\paragraph{4. Emulare de nivel înalt (\emph{High‑Level Emulation})}  
+\paragraph{4. Emulare de nivel înalt (\emph{High‑Level Emulation})}
 Pentru console de jocuri, emularea la nivel de API (HLE) a devenit populară: în loc să se reproducă la nivel de hardware fiecare componentă (GPU, DSP, custom ASIC), se furnizează un set de librării care imită comportamentul la nivel de funcție. Astfel emulatoarele Dolphin (GameCube/Wii) și PCSX2 (PS2) obțin compatibilitate extinsă cu cost redus de dezvoltare.
 
-\paragraph{5. Emulare hardware pe FPGA}  
+\paragraph{5. Emulare hardware pe FPGA}
 Proiecte precum MiSTer folosesc \emph{Field‑Programmable Gate Array} pentru a implementa descrieri HDL (Verilog/VHDL) ale circuitelor originale. Aceasta permite emulare \emph{cycle‑accurate} cu latență foarte mică, apropiată de comportamentul hardware‑ului real, consumând doar resurse FPGA fără traducere software.
 
-\paragraph{6. Optimizări moderne şi tendințe}  
+\paragraph{6. Optimizări moderne şi tendințe}
 \begin{itemize}
-  \item \textbf{Profile‑guided DBT}: colectarea de profiluri runtime pentru a reordona şi optimiza translation blocks.  
-  \item \textbf{Speculative translation}: generare proactivă a codului nativ pentru funcții previzibile.
-  \item \textbf{Parallel JIT}: traducere concurentă a mai multor blocuri de cod pentru procesoare multi‑core.  
-  \item \textbf{Accelerare GPU}: delegarea în GPU a unor operații de procesare masivă (încărcare grafică, decodare video) prin API‑uri precum Vulkan.  
+\item \textbf{Profile‑guided DBT}: colectarea de profiluri runtime pentru a reordona şi optimiza translation blocks.
+\item \textbf{Speculative translation}: generare proactivă a codului nativ pentru funcții previzibile.
+\item \textbf{Parallel JIT}: traducere concurentă a mai multor blocuri de cod pentru procesoare multi‑core.
+\item \textbf{Accelerare GPU}: delegarea în GPU a unor operații de procesare masivă (încărcare grafică, decodare video) prin API‑uri precum Vulkan.
 \end{itemize}
 
 Astăzi, emulatoarele combină multiple straturi (interpreter, DBT, hardware virtualization) şi tehnologii (FPGA, HLE, JIT), oferind atât flexibilitate extinsă pentru dezvoltare şi cercetare, cât şi performanțe aproape native pe hardware modern.
@@ -265,32 +266,32 @@ Procesorul Z80 \cref{fig:z80} este un procesor pe 8 biti, produs de Zilog in 197
 \ac {Z80} este un procesor CISC, acesta avand un set de 158 de instructiuni oficiale, dar exista si altele care nu au fost documentate oficial de Zilog.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/z80.jpg}
-    \caption{Microprocesor Z80.}
-    \label{fig:z80}
+\centering
+\includegraphics[width=0.5\textwidth]{images/z80.jpg}
+\caption{Microprocesor Z80.}
+\label{fig:z80}
 \end{figure}
 
 \subsubsection{Registrii}
 \cite{ref:z80instructions}Procesorul are 10 registrii pe 8 biti,8 din care sunt pentru uz general, si 4 registrii pe 16 biti.
 Rolul registrilor:
 \begin{itemize}
-    \item A,B,C,D,E,H,L sunt registrii de uz general pe 8 biti.
-    \item F este un registru de flaguri.
-    \item PC este un registru pe 16 biti care contine adresa instructiunii curente.
-    \item SP este un registru pe 16 biti care contine adresa stivei.
-    \item IX si IY sunt registrii pe 16 biti folositi pentru indexare.
-    \item I este un registru pe 8 biti folosit pentru intreruperi.
-    \item R este un registru pe 8 biti folosit pentru temporizare.
-    \par \hspace{1em} \textit{Acesta este incrementat cu 1 la fiecare instructiune executata.}
-    \item AF, BC, DE si HL sunt registrii de uz general pe 16 biti, fiecare fiind format de 2 registrii pe 8 biti.
+\item A,B,C,D,E,H,L sunt registrii de uz general pe 8 biti.
+\item F este un registru de flaguri.
+\item PC este un registru pe 16 biti care contine adresa instructiunii curente.
+\item SP este un registru pe 16 biti care contine adresa stivei.
+\item IX si IY sunt registrii pe 16 biti folositi pentru indexare.
+\item I este un registru pe 8 biti folosit pentru intreruperi.
+\item R este un registru pe 8 biti folosit pentru temporizare.
+\par \hspace{1em} \textit{Acesta este incrementat cu 1 la fiecare instructiune executata.}
+\item AF, BC, DE si HL sunt registrii de uz general pe 16 biti, fiecare fiind format de 2 registrii pe 8 biti.
 \end{itemize}
 Structura acestora se poate vedea si in Figura \cref{fig:z80registers}.
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{images/z80registers.jpg}
-    \caption{Structura registrii Z80. \cite{ref:z80registers}}
-    \label{fig:z80registers}
+\centering
+\includegraphics[width=0.5\textwidth]{images/z80registers.jpg}
+\caption{Structura registrii Z80. \cite{ref:z80registers}}
+\label{fig:z80registers}
 \end{figure}
 
 Registrul SP, varful stivei, este initializat cu 0xFFFF, valoarea acestuia scazand la instructiunile de PUSH si crescand la cele de POP
@@ -299,16 +300,16 @@ Registrul PC este initializat cu 0x0000.
 
 Structura acestuia se poate vedea si in Tabela \cref{tab:z80flags}.
 \begin{table}[h]
-    \centering
-    \begin{tabular}{|c|c|c|c|c|c|c|c|c|}
-    \hline
-    \textbf{Bit} & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
-    \hline
-    \textbf{Flag} & S & Z & F5 & H & F3 & P/V & N & C \\
-    \hline
-    \end{tabular}
-    \caption{Z80 Flags}
-    \label{tab:z80flags}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Bit} & 7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\hline
+\textbf{Flag} & S & Z & F5 & H & F3 & P/V & N & C \\
+\hline
+\end{tabular}
+\caption{Z80 Flags}
+\label{tab:z80flags}
 \end{table}
 
 \subsubsection{Memorie}
@@ -324,14 +325,14 @@ Un exemplu de astfel de dispozitiv ar putea fi un ecran extern, fiecare pixel de
 Modelul oficial al \ac {Z80} contine 158 de instructiuni. Luand in considerare fiecare variatie a acestora, numarul total de instructiuni este de 696.
 Instructiunile sunt impartite in 8 categorii principale:
 \begin{itemize}
-    \item Load si Exchange
-    \item Transfer bloc de date si cautare
-    \item Aritmetice si logice
-    \item Rotiri/Shiftari
-    \item Instructiuni la nivel de bit
-    \item Jump/Call/Return
-    \item \ac {IO}
-    \item Control
+\item Load si Exchange
+\item Transfer bloc de date si cautare
+\item Aritmetice si logice
+\item Rotiri/Shiftari
+\item Instructiuni la nivel de bit
+\item Jump/Call/Return
+\item \ac {IO}
+\item Control
 \end{itemize}
 
 Instructiunile de tip Load sunt cele care copiaza datele intern intre registrii sau intre registrii si memoria externa.
@@ -446,10 +447,10 @@ Un mare avantaj al \ac {Rust} este sistemul sau de tipuri si de ownership,
 acesta putand preveni multe buguri comune din C/C++ cum ar fi race conditions, memory leaks sau dereferentierea unui pointer null.
 
 \begin{wrapfigure}{r}{0.4\textwidth}
-    \centering
-    \includegraphics[width=0.4\textwidth]{images/rust_gear_logo.png}
-    \caption{Logo Rust}
-    \label{fig:rust-logo}
+\centering
+\includegraphics[width=0.4\textwidth]{images/rust_gear_logo.png}
+\caption{Logo Rust}
+\label{fig:rust-logo}
 \end{wrapfigure}
 
 In \ac {Rust} nu exista pointeri null, acest lucru fiind inlocuit de tipul Option<T>,acesta fiind un enum care poate fi Some(T) sau None.
@@ -608,12 +609,12 @@ Pentru crearea emulatorului diferite structuri de date au fost create, fiecare a
 
 \begin{lstlisting}[language=Rust,caption={Structura Emulator},label={lst:emulator_struct}]
 pub struct Emulator<T: Cpu> {
-    pub memory: Memory,
-    pub cpu: T,
-    pub breakpoints: Vec<u16>,
-    pub io: IO,
-    pub cycle_counter: usize,
-    pub instruction_counter: usize,
+pub memory: Memory,
+pub cpu: T,
+pub breakpoints: Vec<u16>,
+pub io: IO,
+pub cycle_counter: usize,
+pub instruction_counter: usize,
 }
 \end{lstlisting}
 
@@ -627,18 +628,18 @@ Principala functie care va fi folosita in aceasta structura va fi cea de step \c
 
 \begin{lstlisting}[language=Rust,caption={Functia step a emulatorului},label={lst:emulator_step}]
 pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
-        if self.cpu.halted() {
-            return Err("CPU is halted".to_string());
-        }
-        self.memory.clear_changes();
-        let instruction = self.cpu.step(&mut self.memory, &mut self.io);
-        self.io.step();
-        if let Ok(instruction) = &instruction {
-            self.cycle_counter += instruction.common().cycles as usize;
-            self.instruction_counter += 1;
-        }
-        instruction
-    }
+if self.cpu.halted() {
+return Err("CPU is halted".to_string());
+}
+self.memory.clear_changes();
+let instruction = self.cpu.step(&mut self.memory, &mut self.io);
+self.io.step();
+if let Ok(instruction) = &instruction {
+self.cycle_counter += instruction.common().cycles as usize;
+self.instruction_counter += 1;
+}
+instruction
+}
 \end{lstlisting}
 Aceasta functie cand va fi apelata va emula executia a unei singure instructiuni. Acest lucru este facut prin a apela instructiunea de step a structurii Cpu. Cand se va face acest apel, controlul memoriei si al IO va fi momentan pasat catre functia apelata. Dupa executarea functiei, contoarele vor creste corespunzator.
 
@@ -648,10 +649,10 @@ Aceasta structura \cref{lst:memory_struct} reprezinta intreaga memorie accesibil
 
 \begin{lstlisting}[language=Rust,caption={Structura Memorie},label={lst:memory_struct}]
 pub struct Memory {
-    data: Vec<Box<dyn MemoryDevice>>,
-    changes: Option<Vec<u16>>,
-    readcallback: Option<fn(u16, u8)>,
-    writecallback: Option<fn(u16, u8)>,
+data: Vec<Box<dyn MemoryDevice>>,
+changes: Option<Vec<u16>>,
+readcallback: Option<fn(u16, u8)>,
+writecallback: Option<fn(u16, u8)>,
 }
 \end{lstlisting}
 
@@ -659,52 +660,73 @@ Memoria permite setarea unor functii de callback apelate la fiecare citire sau s
 
 In proiectarea memoriei initial s-a mers pe idea de a crea un vector de 65536 valori a cate un byte. Dupa mai multa experimentare, aceasta s-a dovedit a fi insuficienta deoarece facea maparea dispozitivelor IO in memorie dificila. Din acest motiv, structura Memory contine un vector de structuri abstracte MemoryDevice.
 Structurile de baza aduse de emulator care implementeaza MemoryDevice sunt structurile ROM si RAM, acestea emuland un ROM si un RAM adevarat. Pe langa ROM/RAM, pot fi create si alte dispozitive mapate la memorie cum ar fi monitoare, senzori ...etc.
+Deoarece structure Memory este facuta din unul sau mai multe MemoryDevice, acest lucru permite o mapare a memoriei foarte dinamica si adaptiva in functie de preferinte. Un exemplu de initializare a memoriei se poate vedea in \cref{lst:memory-init-ex} unde prima zona de 0x4000 bytes este ROM iau urmatoarea zona de 0xC000 va fi RAM, aceasta mapare ocupand toata zona de memorie accesibila \cref{tab:memory-mapping-ex}.
+\begin{lstlisting}[language=Rust,caption={Exemplu initializare memorie},label={lst:memory-init-ex}]
+let mut mem = Memory::new();
+mem.add_device(Box::new(memdevices::ROM::new(0x4000)));
+mem.add_device(Box::new(memdevices::RAM::new(0xC000)));
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Adresă de început} & \textbf{Adresă de sfârșit} & \textbf{Tip memorie} & \textbf{Dimensiune} \\
+\hline
+\texttt{0x0000} & \texttt{0x3FFF} & ROM & \texttt{0x4000} (16 KiB) \\
+\hline
+\texttt{0x4000} & \texttt{0xFFFF} & RAM & \texttt{0xC000} (48 KiB) \\
+\hline
+\end{tabular}
+\caption{Exemplu mapare memorie}
+\label{tab:memory-mapping-ex}
+\end{table}
 
 Memoria de asemenea tine un record al modificarilor aduse acesteia, acest lucru fiind util in cazul in care utilizatorul doreste sa vada ce locatii din memorie au fost modificate dupa executarea unei instructiuni.
 
 \paragraph{CPU} Structura ce va contine registrii si instructiunile procesorului
 
-Cpu este definit ca un trait \cref{lst:cpu_trait}, acest lucru permitand ca orice structura care implementeaza acest trait sa fie folosita ca procesor. 
+Cpu este definit ca un trait \cref{lst:cpu_trait}, acest lucru permitand ca orice structura care implementeaza acest trait sa fie folosita ca procesor.
 \begin{lstlisting}[language=Rust,caption={Trait CPU},label={lst:cpu_trait}]
-    pub trait Cpu:
-    Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {
-    fn step(
-        &mut self,
-        memory: &mut Memory,
-        io: &mut IO, 
-    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
-    fn parser(&self) -> &dyn InstructionParser<Self>;
-    fn registers(&self) -> AllRegisters;
-    fn registers_mut(&mut self) -> AllMutRegisters;
-    fn pc(&self) -> u16;
-    fn halted(&self) -> bool;
-    fn set_halted(&mut self, halted: bool);
+pub trait Cpu:
+Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {
+fn step(
+&mut self,
+memory: &mut Memory,
+io: &mut IO,
+) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+fn parser(&self) -> &dyn InstructionParser<Self>;
+fn registers(&self) -> AllRegisters;
+fn registers_mut(&mut self) -> AllMutRegisters;
+fn pc(&self) -> u16;
+fn halted(&self) -> bool;
+fn set_halted(&mut self, halted: bool);
 }
 \end{lstlisting}
 Orice structura ce implementeaza toate functiile traitului Cpu va putea fi folosita ca procesor pentru emulator. Principala implementare a acestui trait este pentru structura Z80, functia de step a acestuia fiind vizibila in \cref{lst:z80_step}
 \begin{lstlisting}[language=Rust,caption={Functia step Z80},label={lst:z80_step}]
 fn step(
-        &mut self,
-        memory: &mut Memory,
-        io: &mut IO,
-    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
-        let res = self.handle_interrupt(memory, io)?;
-        let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
-            Some(instruction) => instruction,
-            None => parser::Z80_PARSER
-                .ins_from_machinecode(memory, self.registers.pc)
-                .map_err(|e| e.to_string())?,
-        };
-        instruction.execute(memory, self, io)?;
-        let common = instruction.common();
-        self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
-        if common.increment_pc {
-            let inst_length = common.length;
-            let new_pc = self.registers.pc.wrapping_add(inst_length);
-            self.registers.pc = new_pc;
-        }
-        Ok(instruction)
-    }
+&mut self,
+memory: &mut Memory,
+io: &mut IO,
+) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
+let res = self.handle_interrupt(memory, io)?;
+let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
+Some(instruction) => instruction,
+None => parser::Z80_PARSER
+.ins_from_machinecode(memory, self.registers.pc)
+.map_err(|e| e.to_string())?,
+};
+instruction.execute(memory, self, io)?;
+let common = instruction.common();
+self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
+if common.increment_pc {
+let inst_length = common.length;
+let new_pc = self.registers.pc.wrapping_add(inst_length);
+self.registers.pc = new_pc;
+}
+Ok(instruction)
+}
 \end{lstlisting}
 
 Aceasta functie va verifica prima oara daca trebuie sa se intample o intrerupere, in caz contrar instructiunea din PC va fi decodata. Dupa decodarea instructiunii registrul ascuns R va fi incrementat. De asemenea, daca este cazul, si registrul PC va creste.
