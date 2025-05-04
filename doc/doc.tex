@@ -148,7 +148,7 @@ Acesti registrii se pot categoriza dupa mai multe criterii, unul dintre ele fiin
 \begin{itemize}
     
     \item \ac {GPR}, acesta este folosit pentru operatiuni aritmetice, logice si pentru indexare. In arhitecturi comune pe 8 biti exista adesea 4-8 astfel de registre (ex: A,B,C,D in familia Intel 8080).
-    \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero,semn,carry,overflow,semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
+    \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero, semn, carry, overflow, semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
     \item Registrii cu scop special.
     \begin{itemize}
         \item PC(Program Counter), acest registru are 16 biti (in majoritatea procesoarelor pe 8 biti), care contine adresa urmatoarei instructiuni ce urmeaza a fi executata.
@@ -339,28 +339,28 @@ Toate aceste instructiuni specifica o locatie sursa de unde sa fie copiata valoa
 Locatia sursa nu este afectata de aceste instructiuni, aceasta fiind doar citita.
 Exemple de asfel de instructiuni sunt cele care copiaza valoarea dintr-un registru in altul "LD A,B" sau cele care copiaza valoarea dintr-o locatie de memorie in registru "LD A,(HL)".
 
-Instructiunile de tip exchange sunt cele care interschimba valorile dintre registrii.\\
+Instructiunile de tip exchange sunt cele care interschimba valorile dintre registrii.
 
 Un set unic de instructiuni de transfer al blocurilor de date sunt include in \ac {Z80}.
 Cu o singura instruciune, un bloc din memorie de orice marime poate fi mutat in orice alta locatie din memorie.
 Aceste instructiuni sunt foarte folositoare in procesarea sirurilor de caractere.
 Cu o singura instructiuni, un bloc intreg de de memorie de orice marime poate fi cautat dupa un anumit byte.
 Cand valoarea este gasita sau se ajunge la sfarsitul blocului, instructiunea se opreste automat.
-Instructiunile de acest tip permit intreruperile sa fie procesate in timpul executiei lor, astfel incat procesorul nu este blocat pentru perioade lungi de timp.\\
+Instructiunile de acest tip permit intreruperile sa fie procesate in timpul executiei lor, astfel incat procesorul nu este blocat pentru perioade lungi de timp.
 
 Instructiunile aritmetice si logice opereaza pe datele stocate in acumulator si alti registrii sau valori din memorie.
 Rezultatul operatiei este stocat in acumulator.
-De asemenea registrul de flaguri este actualizat in functie de rezultatul operatiei.\\
+De asemenea registrul de flaguri este actualizat in functie de rezultatul operatiei.
 
-Rotate si Shift sunt grupuri de instructiuni care permit registrilor cat si valorilor din memorie sa fie rotite sau shiftate la stanga sau dreapta, cu sau fara carry.\\
+Rotate si Shift sunt grupuri de instructiuni care permit registrilor cat si valorilor din memorie sa fie rotite sau shiftate la stanga sau dreapta, cu sau fara carry.
 
-Operatiunile la nivel de bit permit oricarui bit din acumulator, alt registru sau o locatie din memorie sa fie setat, resetat sau testat.\\
+Operatiunile la nivel de bit permit oricarui bit din acumulator, alt registru sau o locatie din memorie sa fie setat, resetat sau testat.
 
 Jump, Call si Return sunt tipuri de instructiuni care transfera executia programului la o alta locatie din memorie.
 Aceste instructiuni folosesc mai multe metode diferite de a transfera controlul programului.
 Instructiunea Reset este un tip special de Call care permite saltul la doar 8 locatii diferite din memorie.
 Alte instructiuni permit incarcarea Program Counter (PC) direct cu o valoare din memorie specificata de HL, IX sau IY.
-Aceste instructiuni permit un nivel de control foarte inalt asupra executiei programului.\\
+Aceste instructiuni permit un nivel de control foarte inalt asupra executiei programului.
 
 Instructiunile de \ac {IO} permit un spectru larg de transferuri de date intre microprocesor si dispozitivele externe.
 O instructiune de acest tip foloseste ca port in transfer al doilea byte al instructiunii.
@@ -371,7 +371,7 @@ O buna caracteristica a acestor instructiuni este ca modifica automat flagurile 
 Din acest motiv nu este necesar sa se faca verificari suplimentare pentru a testa rezultatul operatiei. Exemplu: flagul de semn este setat daca rezultatul operatiei este negativ.\\
 
 \ac {Z80} include instructiuni care sunt capabile sa mute blocuri intregi de date (pana la 256 byte) automata intre orice port \ac {IO} si memorie
-Impreuna cu setul dual de registrii cu scop general, aceste instructiuni faciliteaza transferuri rapide de rate cu dispozitivele externe.\\
+Impreuna cu setul dual de registrii cu scop general, aceste instructiuni faciliteaza transferuri rapide de rate cu dispozitivele externe.
 
 Instructiunile de control sunt instructiuni care controleaza mici aspecte ale microprocesorului.
 Unele instructiuni de acest tip sunt cele care activeaza sau dezactiveaza intreruperile, sau cele care controleaza modul de raspuns la intreruperi.
@@ -616,6 +616,98 @@ pub struct Emulator<T: Cpu> {
     pub instruction_counter: usize,
 }
 \end{lstlisting}
+
+Aceasta structura va contine alte trei structuri: Memory, Cpu si IO. Deoarece emulatorul se vrea cat mai extensibil, structura procesorului nu este una fixa, orice structura de date care implementeaza traitul Cpu va putea fi folosita. Un mare avantaj al acestui lucra este ca permite implementarea pe viitor a mai multor arhitecturi de procesor.
+
+Pentru a fi capabili sa monitorizam executia programului, in structura Emulator a fost adaugat un vector de breakpoints. Acestea vor fi folosite pentru a opri executia programului la o anumita adresa de memorie aleasa de utilizator.
+
+Deoarece se doreste o monitorizare cat mai amanunita, aici se va contoriza si numarul de intructiuni executate cat si cel de ciclii executati.
+
+Principala functie care va fi folosita in aceasta structura va fi cea de step \cref{lst:emulator_step}
+
+\begin{lstlisting}[language=Rust,caption={Functia step a emulatorului},label={lst:emulator_step}]
+pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
+        if self.cpu.halted() {
+            return Err("CPU is halted".to_string());
+        }
+        self.memory.clear_changes();
+        let instruction = self.cpu.step(&mut self.memory, &mut self.io);
+        self.io.step();
+        if let Ok(instruction) = &instruction {
+            self.cycle_counter += instruction.common().cycles as usize;
+            self.instruction_counter += 1;
+        }
+        instruction
+    }
+\end{lstlisting}
+Aceasta functie cand va fi apelata va emula executia a unei singure instructiuni. Acest lucru este facut prin a apela instructiunea de step a structurii Cpu. Cand se va face acest apel, controlul memoriei si al IO va fi momentan pasat catre functia apelata. Dupa executarea functiei, contoarele vor creste corespunzator.
+
+\paragraph{Memory} Memoria emulatorului
+
+Aceasta structura \cref{lst:memory_struct} reprezinta intreaga memorie accesibila de emulator.
+
+\begin{lstlisting}[language=Rust,caption={Structura Memorie},label={lst:memory_struct}]
+pub struct Memory {
+    data: Vec<Box<dyn MemoryDevice>>,
+    changes: Option<Vec<u16>>,
+    readcallback: Option<fn(u16, u8)>,
+    writecallback: Option<fn(u16, u8)>,
+}
+\end{lstlisting}
+
+Memoria permite setarea unor functii de callback apelate la fiecare citire sau scriere. Acesst lucru putand fi util utilizatorului, daca doreste anumite actiuni sa se intample doar la scrieri sau citiri din memorie.
+
+In proiectarea memoriei initial s-a mers pe idea de a crea un vector de 65536 valori a cate un byte. Dupa mai multa experimentare, aceasta s-a dovedit a fi insuficienta deoarece facea maparea dispozitivelor IO in memorie dificila. Din acest motiv, structura Memory contine un vector de structuri abstracte MemoryDevice.
+Structurile de baza aduse de emulator care implementeaza MemoryDevice sunt structurile ROM si RAM, acestea emuland un ROM si un RAM adevarat. Pe langa ROM/RAM, pot fi create si alte dispozitive mapate la memorie cum ar fi monitoare, senzori ...etc.
+
+Memoria de asemenea tine un record al modificarilor aduse acesteia, acest lucru fiind util in cazul in care utilizatorul doreste sa vada ce locatii din memorie au fost modificate dupa executarea unei instructiuni.
+
+\paragraph{CPU} Structura ce va contine registrii si instructiunile procesorului
+
+Cpu este definit ca un trait \cref{lst:cpu_trait}, acest lucru permitand ca orice structura care implementeaza acest trait sa fie folosita ca procesor. 
+\begin{lstlisting}[language=Rust,caption={Trait CPU},label={lst:cpu_trait}]
+    pub trait Cpu:
+    Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {
+    fn step(
+        &mut self,
+        memory: &mut Memory,
+        io: &mut IO, 
+    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+    fn parser(&self) -> &dyn InstructionParser<Self>;
+    fn registers(&self) -> AllRegisters;
+    fn registers_mut(&mut self) -> AllMutRegisters;
+    fn pc(&self) -> u16;
+    fn halted(&self) -> bool;
+    fn set_halted(&mut self, halted: bool);
+}
+\end{lstlisting}
+Orice structura ce implementeaza toate functiile traitului Cpu va putea fi folosita ca procesor pentru emulator. Principala implementare a acestui trait este pentru structura Z80, functia de step a acestuia fiind vizibila in \cref{lst:z80_step}
+\begin{lstlisting}[language=Rust,caption={Functia step Z80},label={lst:z80_step}]
+fn step(
+        &mut self,
+        memory: &mut Memory,
+        io: &mut IO,
+    ) -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
+        let res = self.handle_interrupt(memory, io)?;
+        let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
+            Some(instruction) => instruction,
+            None => parser::Z80_PARSER
+                .ins_from_machinecode(memory, self.registers.pc)
+                .map_err(|e| e.to_string())?,
+        };
+        instruction.execute(memory, self, io)?;
+        let common = instruction.common();
+        self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
+        if common.increment_pc {
+            let inst_length = common.length;
+            let new_pc = self.registers.pc.wrapping_add(inst_length);
+            self.registers.pc = new_pc;
+        }
+        Ok(instruction)
+    }
+\end{lstlisting}
+
+Aceasta functie va verifica prima oara daca trebuie sa se intample o intrerupere, in caz contrar instructiunea din PC va fi decodata. Dupa decodarea instructiunii registrul ascuns R va fi incrementat. De asemenea, daca este cazul, si registrul PC va creste.
 
 \subsubsection{Arhitectura}
 \subsubsection{Testare automata}
