@@ -16,12 +16,12 @@ opt-level = 3
 #debug = 2
 
 [workspace.dependencies]
-stylance = { version="0.5.4", features = ["nightly"] }
-leptos = { version="0.8.0-beta", features = ["nightly","islands"] }
-leptos_meta = { version="0.8.0-beta" }
-leptos_router = { version="0.8.0-beta", features = ["nightly"] }
-leptos_axum = { version="0.8.0-beta" }
-server_fn = {version="0.8.0-beta" }
+stylance = { version="0.6.0", features = ["nightly"] }
+leptos = { version="0.8.1", features = ["nightly","islands"] }
+leptos_meta = { version="0.8.1" }
+leptos_router = { version="0.8.1", features = ["nightly"] }
+leptos_axum = { version="0.8.1" }
+server_fn = {version="0.8.1" }
 leptos-use = { version="0.16.0-beta" }
 wasm-bindgen = "0.2.100"
 axum = { version= "0.8.3",features=["macros"] }
