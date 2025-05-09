@@ -1,104 +1,122 @@
-use axum::Extension;
-use http::StatusCode;
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::db::models::program::Program;
-use crate::emulator::editor::EditorContext;
-use leptos::logging::log;
+use http::StatusCode;
 use leptos::prelude::*;
-use leptos::task::spawn_local;
+use serde::{Deserialize, Serialize};
 
-struct AccountLoadables {
+#[derive(Serialize, Deserialize, Clone)]
+pub struct AccountLoadables {
     pub c_programs: Vec<Program>,
 }
 
 #[server(GetAccountLoadables, endpoint = "/account_loadable")]
-pub async fn get_account_loadables() -> Result<AccountLoadables, String> {
+pub async fn get_account_loadables() -> Result<AccountLoadables, ServerFnError<String>> {
     use crate::db::models::user::UserData;
     use crate::db::AppState;
+    use axum::Extension;
     use leptos_axum::{extract, ResponseOptions};
     let state = expect_context::<AppState>();
     let response = expect_context::<ResponseOptions>();
     let userdata: Result<Extension<UserData>, _> = extract().await;
     match userdata {
-        Ok(userdata) => {
-            Ok(AccountLoadables {
-                c_programs: Program::get_by_owner_id(userdata.id,&state.pool).map_err(|e| e.to_string())?,
-            })
-        }
+        Ok(userdata) => Ok(AccountLoadables {
+            c_programs: Program::get_by_owner_id(userdata.id, &state.pool)
+                .map_err(|e| e.to_string())?,
+        }),
         Err(_) => {
             response.set_status(StatusCode::UNAUTHORIZED);
-            Err("Unauthorized".to_string())
+            Err(ServerFnError::ServerError("Unauthorized".to_string()))
         }
     }
 }
 
-pub enum EmuLoadable {
-    CProgram(String),
-    EmuState(String),
-}
-
-impl EmuLoadable {
-    pub fn load(&mut self, emu_ctx: &mut EmulatorContext, editor_ctx: &mut EditorContext) {
-        match self {
-            EmuLoadable::CProgram(data) => {
-                editor_ctx.c_buffer = data.clone();
-                log!("Loading C program: {}", data);
-            }
-            EmuLoadable::EmuState(data) => {
-                if let Err(err) = emu_ctx.emu.load(data.clone().into(), true, true) {
-                    log!("Error loading emulator state: {}", err);
-                } else {
-                    log!("Emulator state loaded successfully");
-                }
-            }
-        }
-    }
-}
-
-enum TreeEntryData {
-    Loadable(EmuLoadable),
-    Directory(Vec<TreeEntry>),
-}
-
-struct TreeEntry {
+#[derive(Serialize, Deserialize,Clone)]
+struct Directory {
     name: String,
-    data: TreeEntryData,
+    open: bool,
+    loadables: Vec<Loadable>,
 }
 
-impl From<AccountLoadables> for TreeEntry {
-    fn from(loadables: AccountLoadables) -> Self {
-        let mut entries = vec![];
-        let mut programs_entry = TreeEntry {
-            name: "C Programs".to_string(),
-            data: TreeEntryData::Directory(
-                loadables.c_programs
-                    .iter()
-                    .map(|program| TreeEntry {
-                        name: program.name.clone(),
-                        data: TreeEntryData::Loadable(EmuLoadable::CProgram(program.data.clone())),
-                    })
-                    .collect(),
-            ),
-        };
-        entries.push(programs_entry);
-        TreeEntry {
-            name: "Loadables".to_string(),
-            data: TreeEntryData::Directory(entries),
+#[derive(Serialize, Deserialize,Clone)]
+enum Loadable {
+    CProgram(Program),
+    Directory(Directory),
+}
+
+impl Loadable {
+    fn new_dir(name: String, loadables: Vec<Loadable>) -> Self {
+        Self::Directory(Directory {
+            name,
+            open: false,
+            loadables,
+        })
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct LoadablesTree {
+    root: Loadable,
+}
+impl LoadablesTree {
+    fn new(account_loadables: Option<AccountLoadables>) -> Self {
+        if let Some(account_loadables) = account_loadables {
+            let c_loadables = account_loadables
+                .c_programs
+                .into_iter()
+                .map(|program| Loadable::CProgram(program))
+                .collect::<Vec<_>>();
+            let c_loadables_dir = Loadable::new_dir("C Programs".to_string(), c_loadables);
+            let emu_states_dir = Loadable::new_dir("Emulator States".to_string(), vec![]);;
+            let root_dir = Loadable::new_dir(
+                "Account".to_string(),
+                vec![c_loadables_dir, emu_states_dir],
+            );
+            LoadablesTree {
+                root: root_dir,
+            }
+        }
+        else {
+            LoadablesTree {
+                root: Loadable::new_dir("Account".to_string(), vec![]),
+            }
         }
     }
 }
+
+#[island]
+pub fn AccountMenu(loadable:LoadablesTree) -> impl IntoView {
+    // let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    // let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    view! {
+    }
+}
+
 #[island]
 pub fn Account() -> impl IntoView {
-    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
-    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let loadables_resource = Resource::new(
-        ||(),
-        move |_| async move { get_account_loadables().await }
-    );
+    let loadable_resources =
+        Resource::new(|| (), move |_| async move { get_account_loadables().await });
     view! {
         <div class=emu_style::account>
             <div class=emu_style::sectop>
-                <span>Account</span>    
+                <span>Account</span>
+                <Transition
+                    fallback=move || { "".to_string() }>
+                {
+                    move || Suspend::new(async move{
+                    let d = loadable_resources.await;
+                    match d {
+                        Ok(d) => {
+                            let loadables = LoadablesTree::new(Some(d));
+                            view! { <AccountMenu loadable=loadables /> }.into_any()
+                        }
+                        Err(_) => {
+                            let loadables = LoadablesTree::new(None);
+                            view! { <AccountMenu loadable=loadables /> }.into_any()
+                        }
+                    }
+                })
+                }
+                </Transition>
             </div>
         </div>
     }
