@@ -4,6 +4,7 @@ mod editor;
 mod info;
 mod memory;
 mod registers;
+mod account;
 
 use crate::emulator::disassembler::DisassemblerContext;
 use crate::emulator::editor::{Editor, EditorContext};
@@ -18,6 +19,7 @@ use info::Info;
 use leptos::prelude::*;
 use leptos_meta::Title;
 use memory::Memory;
+use crate::emulator::account::Account;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
 
@@ -92,6 +94,7 @@ pub fn EmulatorInner() -> impl IntoView {
         <div class=emu_style::emulator>
             <EmulatorNoTitle />
             <Editor />
+            <Account />
         </div>
     }
 }

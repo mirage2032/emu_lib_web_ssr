@@ -160,10 +160,17 @@ $mc-border: #dee2e6; // Borders
 .emulator {
   display: flex;
 
+  .account{
+
+  }
+
   .editor {
     width: 100%;
     display: flex;
     flex-direction: column;
+    .sectop{
+      border-right: 1px solid $mc-border;
+    }
     .editortop {
       background-color: $color-3;
       display: flex;
@@ -192,6 +199,7 @@ $mc-border: #dee2e6; // Borders
     .editorta {
       background-color: $mc-row-odd;
       height: 100%;
+      width: 100%;
       min-width: 25rem;
       display: flex;//just an item i want centered on v and h
       flex-direction: column;
