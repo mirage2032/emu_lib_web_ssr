@@ -216,9 +216,15 @@ pub fn EditorTop() -> impl IntoView {
     };
     view! {
         <div class=emu_style::editortop>
-            <button on:click=on_compile>"Compile"</button>
-            <button on:click=on_format>"Format"</button>
-            <button on:click=on_syntax_check>"Syntax Check"</button>
+            <div class=emu_style::editortopbtns>
+                <button on:click=on_compile>"Compile"</button>
+                <button on:click=on_format>"Format"</button>
+                <button on:click=on_syntax_check>"Syntax Check"</button>
+            </div>
+            <div class=emu_style::editortoplang>
+                <img width="96" height="96" src="https://img.icons8.com/color/96/assembly.png" alt="assembly"/>
+                <img width="96" height="96" src="https://img.icons8.com/color/96/c-programming.png" alt="c-programming"/>
+            </div>
         </div>
     }
 }

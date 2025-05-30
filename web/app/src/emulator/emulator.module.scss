@@ -166,6 +166,16 @@ $mc-border: #dee2e6; // Borders
     flex-direction: column;
     .editortop{
       background-color: $color-3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .editortopbtns{
+
+      }
+      .editortoplang{
+
+      }
     }
     .editorta {
       background-color: $mc-row-odd;
