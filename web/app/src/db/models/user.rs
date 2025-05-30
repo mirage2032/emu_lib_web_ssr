@@ -95,7 +95,8 @@ impl EmailNoPasswordLogin {
         EmailNoPasswordLogin { email }
     }
 
-    pub fn authenticate(
+    //Marked UNSAFE, just to make sure developer uses it carefully
+    pub unsafe fn authenticate(
         &self,
         pool: &DbPool,
         duration: time::Duration,

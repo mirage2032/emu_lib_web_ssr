@@ -65,6 +65,11 @@ pub fn LoginForm() -> impl IntoView {
                 />
             </div>
             <input type="submit" value="Login" />
+            <div id="g_id_onload"
+                data-client_id="184771194000-v77fl8gs8pi0k1757nuuethp3ta3jlqo.apps.googleusercontent.com"
+                data-ux_mode="redirect"
+                data-login_uri="http://localhost:3000/api/google_login_callback"
+            ></div>
             <div><div class="g_id_signin" data-type="standard"></div></div>
         </ActionForm>
     }
@@ -74,12 +79,6 @@ pub fn Login() -> impl IntoView {
     view! {
         <Title text="Login" />
         <Script src="https://accounts.google.com/gsi/client" defer="true" async_="true"/>
-        <div id="g_id_onload"
-            data-client_id="184771194000-v77fl8gs8pi0k1757nuuethp3ta3jlqo.apps.googleusercontent.com"
-            data-ux_mode="redirect"
-            data-login_uri="http://localhost:3000/api/google_login_callback"
-            >
-        </div>
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Login".to_string() />
             <div class=auth_style::authmaincontainer>

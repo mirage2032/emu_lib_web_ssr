@@ -40,8 +40,9 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     }
 }
 
+//marked UNSAFE, just to make sure developer uses it carefully
 #[cfg(not(target_arch = "wasm32"))]
-pub async fn login_email_no_password(
+pub async unsafe fn login_email_no_password(
     email: String,
 ) -> Result<(), ServerFnError> {
     use server_imports::*;
@@ -50,7 +51,7 @@ pub async fn login_email_no_password(
     let pool = &state.pool;
     let duration = time::Duration::seconds(60 * 60 * 24);
     let email_no_password_login = EmailNoPasswordLogin::new(email.clone());
-    match email_no_password_login.authenticate(&pool, duration) {
+    match unsafe { email_no_password_login.authenticate(&pool, duration) } {
         Ok((_, session)) => {
             cookie::server::set(&CookieKey::Session, &session.token, duration, &response)?;
             // leptos_axum::redirect("/");
@@ -80,36 +81,25 @@ pub async fn google_login_callback(
     g_csrf_token: String,
     credential: String,
 ) -> Result<(), ServerFnError> {
-    use google_oauth::AsyncClient;
     use server_imports::*;
-    let RawQuery(raw_query): RawQuery = extract().await?;
-    if let Some(raw_query) = &raw_query {
-        let raw_params: HashMap<String, String> = form_urlencoded::parse(raw_query.as_bytes())
-            .into_owned()
-            .collect();
-        log!("Received rawQuery = {:?}", raw_params);
-    }
-    log!("Received clientId = {}", clientId);
-    log!("Received client_id = {}", client_id);
-    log!("Received select_by = {}", select_by);
-    log!("Received g_csrf_token = {}", g_csrf_token);
-    log!("Received credential = {}", credential);
+    use google_oauth::AsyncClient;
     let oauth_client = AsyncClient::new(clientId);
     let payload = oauth_client
         .validate_id_token(credential)
         .await
         .expect("Could not validate payload");
-    log! {"{payload:?}"};
     if let Some(email) = payload.email {
         if email_exists(email.clone()).await? == true {
-            login_email_no_password(email).await
+            unsafe { login_email_no_password(email).await }
         }
         else {
             //create random password
-            let password = format!("{}-{}", client_id, g_csrf_token);;
+            let random_password: String = (0..16)
+                .map(|_| rand::random::<char>())
+                .collect();
             if let Some(name) = payload.name {
-                if let Ok(()) = register(name,email.clone(),password.clone()).await{
-                    login(email,password).await
+                if let Ok(()) = register(name,email.clone(),random_password.clone()).await{
+                    login(email,random_password).await
                 }else{
                     Err(ServerFnError::Response(format!("Failed to register user with email: {}", email)))
                 }

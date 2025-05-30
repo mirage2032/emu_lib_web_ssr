@@ -42,6 +42,7 @@ gloo-net = { version = "0.6.0", features = ["json"] }
 send_wrapper = "0.6.0"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rand = { version = "0.9.1"}
 form_urlencoded = "1.2.1"
 google-oauth = { version = "1.11.3" }
 reqwest.workspace = true
