@@ -1,10 +1,12 @@
-use super::api::{LoginApi, LoginExistsApi};
+use super::api::{google_login_callback, GoogleLoginCallbackApi, LoginApi, LoginExistsApi};
 use super::auth_style;
 use super::AuthBackground;
 use crate::header::SimpleHeader;
+use leptos::attr::defer;
 use leptos::logging::log;
 use leptos::prelude::*;
-use leptos_meta::Title;
+use leptos::task::spawn_local;
+use leptos_meta::{Meta, Script, ScriptProps, Title};
 use serde_json::to_string;
 use std::time::Duration;
 use stylance::classes;
@@ -12,13 +14,11 @@ use stylance::classes;
 #[island]
 pub fn LoginForm() -> impl IntoView {
     let login = ServerAction::<LoginApi>::new();
-
     Effect::new(move || {
         if let Some(Ok(())) = login.value().get().as_ref() {
             let _ = window().location().set_href("/dashboard");
         }
     });
-
     let (password_read, password_write) = signal(String::new());
     let login_valid_action = ServerAction::<LoginExistsApi>::new();
     let login_valid_class = move || {
@@ -65,6 +65,7 @@ pub fn LoginForm() -> impl IntoView {
                 />
             </div>
             <input type="submit" value="Login" />
+            <div><div class="g_id_signin" data-type="standard"></div></div>
         </ActionForm>
     }
 }
@@ -72,6 +73,13 @@ pub fn LoginForm() -> impl IntoView {
 pub fn Login() -> impl IntoView {
     view! {
         <Title text="Login" />
+        <Script src="https://accounts.google.com/gsi/client" defer="true" async_="true"/>
+        <div id="g_id_onload"
+            data-client_id="184771194000-v77fl8gs8pi0k1757nuuethp3ta3jlqo.apps.googleusercontent.com"
+            data-ux_mode="redirect"
+            data-login_uri="http://localhost:3000/api/google_login_callback"
+            >
+        </div>
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Login".to_string() />
             <div class=auth_style::authmaincontainer>

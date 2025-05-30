@@ -1,12 +1,17 @@
 use http::HeaderMap;
 use leptos::logging::log;
 use leptos::prelude::*;
+use leptos::server_fn::codec::PostUrl;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
     pub use crate::db::models::user::{NewUser, User, UserLogin};
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
+    pub use axum::extract::RawQuery;
+    pub use axum_extra::extract::Query;
     pub use http::StatusCode;
     pub use leptos_axum::extract;
     pub use leptos_axum::ResponseOptions;
@@ -33,6 +38,45 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
             Err(ServerFnError::Response(msg))
         }
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct GoogleCBQuery {
+    foo: Option<String>,
+    bar: Option<String>,
+}
+
+#[server(GoogleLoginCallbackApi, endpoint = "/google_login_callback")]
+pub async fn google_login_callback(
+    clientId: String,
+    client_id: String,
+    select_by: String,
+    g_csrf_token: String,
+    credential: String,
+) -> Result<(), ServerFnError> {
+    use google_oauth::AsyncClient;
+    use server_imports::*;
+    let RawQuery(raw_query): RawQuery = extract().await?;
+    if let Some(raw_query) = &raw_query {
+        let raw_params: HashMap<String, String> = form_urlencoded::parse(raw_query.as_bytes())
+            .into_owned()
+            .collect();
+        log!("Received rawQuery = {:?}", raw_params);
+    }
+    log!("Received clientId = {}", clientId);
+    log!("Received client_id = {}", client_id);
+    log!("Received select_by = {}", select_by);
+    log!("Received g_csrf_token = {}", g_csrf_token);
+    log!("Received credential = {}", credential);
+    let oauth_client = AsyncClient::new(clientId);
+    let payload = oauth_client
+        .validate_id_token(credential)
+        .await
+        .expect("Could not validate payload");
+    log! {"{payload:?}"};
+    //let Query(params): Query<GoogleCBQuery> = extract().await?;
+    //log!("Received query = {:?}", params);
+    return Ok(()); // TODO: Implement Google login callback
 }
 
 #[server(UserExistsApi, endpoint = "/username_exists")]

@@ -1,6 +1,8 @@
 #![recursion_limit = "256"]
+
 use app::db::{establish_connection, AppState};
 use app::*;
+use axum::http::{HeaderValue, Method};
 use axum::middleware::from_fn_with_state;
 use axum::Router;
 use fileserv::file_and_error_handler;
@@ -9,14 +11,30 @@ use leptos_axum::{generate_route_list, LeptosRoutes};
 use reqwest::Client;
 use tower_http::compression::predicate::{NotForContentType, SizeAbove};
 use tower_http::compression::{CompressionLayer, Predicate};
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::set_header::SetResponseHeaderLayer;
 use tower_http::CompressionLevel;
-
 // mod api;
 pub mod fileserv;
 mod middleware;
 
 #[tokio::main]
 async fn main() {
+    let cors = CorsLayer::new()
+        .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+        .allow_methods(Any)
+        .allow_headers(Any);
+    //.allow_methods([Method::GET, Method::POST])
+    //.allow_headers([CONTENT_TYPE]);
+    let coop_layer = SetResponseHeaderLayer::if_not_present(
+        axum::http::header::HeaderName::from_static("cross-origin-opener-policy"),
+        HeaderValue::from_static("same-origin-allow-popups"),
+    );
+
+    let coep_layer = SetResponseHeaderLayer::if_not_present(
+        axum::http::header::HeaderName::from_static("cross-origin-embedder-policy"),
+        HeaderValue::from_static("credentialless"),
+    );
     simple_logger::init_with_level(log::Level::Debug).expect("couldn't initialize logging");
     let pool = establish_connection().await;
     let predicate = SizeAbove::new(1500) // files smaller than 1501 bytes are not compressed, since the MTU (Maximum Transmission Unit) of a TCP packet is 1500 bytes
@@ -57,6 +75,9 @@ async fn main() {
             },
         )
         .fallback(leptos_axum::file_and_error_handler(shell))
+        .layer(cors)
+        //.layer(coop_layer)
+        //.layer(coep_layer)
         .layer(from_fn_with_state(
             state.clone(),
             middleware::auth_middleware,

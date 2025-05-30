@@ -16,7 +16,7 @@ opt-level = 3
 #debug = 2
 
 [workspace.dependencies]
-stylance = { version="0.5.4", features = ["nightly"] }
+stylance = { version="0.6.0", features = ["nightly"] }
 leptos = { version="0.8.0-beta", features = ["nightly","islands"] }
 leptos_meta = { version="0.8.0-beta" }
 leptos_router = { version="0.8.0-beta", features = ["nightly"] }
@@ -36,7 +36,7 @@ thiserror = "2.0.11"
 tokio = { version = "1.33.0" }
 tower = { version = "0.5.2", features = ["full"] }
 tower-http = { version = "0.6.2", features = ["full"] }
-axum-extra = {version = "0.10.0", features = ["cookie","typed-header"] }
+axum-extra = {version = "0.10.0", features = ["cookie","typed-header","query"] }
 
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 
