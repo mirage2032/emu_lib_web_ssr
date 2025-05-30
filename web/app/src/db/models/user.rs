@@ -42,6 +42,11 @@ pub struct UserLogin {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct EmailNoPasswordLogin{
+    pub email: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserData {
     pub id: i32,
     pub username: String,
@@ -84,6 +89,26 @@ impl UserLogin {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+impl EmailNoPasswordLogin {
+    pub fn new(email: String) -> Self {
+        EmailNoPasswordLogin { email }
+    }
+
+    pub fn authenticate(
+        &self,
+        pool: &DbPool,
+        duration: time::Duration,
+    ) -> Result<(User, Session), Box<dyn Error>> {
+        if let Ok(user) = User::get_by_email(&self.email, pool) {
+            let new_session = NewSession::new(user.id, duration);
+            let session = Session::create(new_session, pool)?;
+            Ok((user, session))
+        } else {
+            Err("User not found".into())
+        }
+    }
+}
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[cfg_attr(not(target_arch = "wasm32"), derive(Insertable))]
 #[cfg_attr(not(target_arch = "wasm32"), diesel (table_name = super::schema::users))]

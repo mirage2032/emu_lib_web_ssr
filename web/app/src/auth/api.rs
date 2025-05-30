@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
-    pub use crate::db::models::user::{NewUser, User, UserLogin};
+    pub use crate::db::models::user::{NewUser, User, UserLogin, EmailNoPasswordLogin};
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
     pub use axum::extract::RawQuery;
@@ -40,12 +40,38 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
+pub async fn login_email_no_password(
+    email: String,
+) -> Result<(), ServerFnError> {
+    use server_imports::*;
+    let response = expect_context::<ResponseOptions>();
+    let state = expect_context::<AppState>();
+    let pool = &state.pool;
+    let duration = time::Duration::seconds(60 * 60 * 24);
+    let email_no_password_login = EmailNoPasswordLogin::new(email.clone());
+    match email_no_password_login.authenticate(&pool, duration) {
+        Ok((_, session)) => {
+            cookie::server::set(&CookieKey::Session, &session.token, duration, &response)?;
+            // leptos_axum::redirect("/");
+            Ok(())
+        }
+        Err(e) => {
+            cookie::server::remove(&CookieKey::Session, &response)?;
+            response.set_status(StatusCode::UNAUTHORIZED);
+            let msg = format!("Failed to login user with email: {}: {}", email, e);
+            Err(ServerFnError::Response(msg))
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct GoogleCBQuery {
     foo: Option<String>,
     bar: Option<String>,
 }
 
+#[allow(non_snake_case)]
 #[server(GoogleLoginCallbackApi, endpoint = "/google_login_callback")]
 pub async fn google_login_callback(
     clientId: String,
@@ -74,9 +100,26 @@ pub async fn google_login_callback(
         .await
         .expect("Could not validate payload");
     log! {"{payload:?}"};
-    //let Query(params): Query<GoogleCBQuery> = extract().await?;
-    //log!("Received query = {:?}", params);
-    return Ok(()); // TODO: Implement Google login callback
+    if let Some(email) = payload.email {
+        if email_exists(email.clone()).await? == true {
+            login_email_no_password(email).await
+        }
+        else {
+            //create random password
+            let password = format!("{}-{}", client_id, g_csrf_token);;
+            if let Some(name) = payload.name {
+                if let Ok(()) = register(name,email.clone(),password.clone()).await{
+                    login(email,password).await
+                }else{
+                    Err(ServerFnError::Response(format!("Failed to register user with email: {}", email)))
+                }
+            }else{
+                Err(ServerFnError::Response("Name is required".to_string()))
+            }
+        }
+    } else {
+        Err(ServerFnError::Response("Email is required".to_string()))
+    }
 }
 
 #[server(UserExistsApi, endpoint = "/username_exists")]
