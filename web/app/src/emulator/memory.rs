@@ -2,12 +2,12 @@ use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::utils::icons::Icon;
 use emu_lib::memory::MemoryDevice;
 use leptos::ev::Event;
-use std::ops::Div;
 use leptos::prelude::*;
 use leptos::web_sys::HtmlInputElement;
 use leptos::{html, IntoView};
 use leptos_use::{on_click_outside_with_options, OnClickOutsideOptions};
 use serde::{Deserialize, Serialize};
+use std::ops::Div;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum MemDisplay {
@@ -229,7 +229,7 @@ fn MemoryTBody() -> impl IntoView {
 }
 
 #[derive(Clone)]
-struct DisplayMemorySettings{
+struct DisplayMemorySettings {
     signal: RwSignal<bool>,
 }
 
@@ -244,8 +244,10 @@ pub fn SettingsInner() -> impl IntoView {
     };
     let should_display = expect_context::<DisplayMemorySettings>();
     let noderef = NodeRef::new();
-    let _ = on_click_outside_with_options(noderef, move |_| {should_display.signal.update(|state| *state = false)},
-                                          OnClickOutsideOptions::default().ignore(["div", ".memsetbtn"]),
+    let _ = on_click_outside_with_options(
+        noderef,
+        move |_| should_display.signal.update(|state| *state = false),
+        OnClickOutsideOptions::default().ignore(["div", ".memsetbtn"]),
     );
 
     view! {

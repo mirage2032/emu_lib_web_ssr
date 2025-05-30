@@ -1,3 +1,5 @@
+use leptos::logging::log;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum LogLevel {
     Info,
@@ -31,6 +33,7 @@ impl LogStore {
             short_message,
             message,
         };
+        log!("Log: {}, {}", short_message, log.message);
         self.logs.push(log);
     }
 

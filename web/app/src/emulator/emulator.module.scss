@@ -164,19 +164,20 @@ $mc-border: #dee2e6; // Borders
     width: 100%;
     display: flex;
     flex-direction: column;
-    .editortop{
+    .editortop {
       background-color: $color-3;
       display: flex;
       justify-content: space-between;
       align-items: center;
 
       .editortopbtns{
-
+        display: inline-block;
       }
+
       .editortoplang{
         display: flex;
         .imgcontainer {
-          padding: 0.9rem 0.9rem;
+          padding: 12px;
           &:hover {
             background: radial-gradient(circle, transparent 48%, #5c6ac0 52%, transparent 56%);
           }

@@ -1,11 +1,11 @@
 use base64::Engine;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
+use server_fn::codec::JsonEncoding;
 use server_fn::error::ServerFnErrorEncoding;
 use thiserror::Error;
-use server_fn::codec::JsonEncoding;
 
-#[derive(Clone,Error, Debug, Serialize, Deserialize)]
+#[derive(Clone, Error, Debug, Serialize, Deserialize)]
 pub enum CompilerError {
     #[error("Unauthorized")]
     Unauthorized,

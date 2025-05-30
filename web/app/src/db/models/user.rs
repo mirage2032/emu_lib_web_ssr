@@ -42,7 +42,7 @@ pub struct UserLogin {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct EmailNoPasswordLogin{
+pub struct EmailNoPasswordLogin {
     pub email: String,
 }
 

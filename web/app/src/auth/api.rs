@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
-    pub use crate::db::models::user::{NewUser, User, UserLogin, EmailNoPasswordLogin};
+    pub use crate::db::models::user::{EmailNoPasswordLogin, NewUser, User, UserLogin};
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
     pub use axum::extract::RawQuery;
@@ -42,9 +42,7 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
 
 //marked UNSAFE, just to make sure developer uses it carefully
 #[cfg(not(target_arch = "wasm32"))]
-pub async unsafe fn login_email_no_password(
-    email: String,
-) -> Result<(), ServerFnError> {
+pub async unsafe fn login_email_no_password(email: String) -> Result<(), ServerFnError> {
     use server_imports::*;
     let response = expect_context::<ResponseOptions>();
     let state = expect_context::<AppState>();
@@ -81,8 +79,8 @@ pub async fn google_login_callback(
     g_csrf_token: String,
     credential: String,
 ) -> Result<(), ServerFnError> {
-    use server_imports::*;
     use google_oauth::AsyncClient;
+    use server_imports::*;
     let oauth_client = AsyncClient::new(clientId);
     let payload = oauth_client
         .validate_id_token(credential)
@@ -91,19 +89,19 @@ pub async fn google_login_callback(
     if let Some(email) = payload.email {
         if email_exists(email.clone()).await? == true {
             unsafe { login_email_no_password(email).await }
-        }
-        else {
+        } else {
             //create random password
-            let random_password: String = (0..16)
-                .map(|_| rand::random::<char>())
-                .collect();
+            let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
             if let Some(name) = payload.name {
-                if let Ok(()) = register(name,email.clone(),random_password.clone()).await{
-                    login(email,random_password).await
-                }else{
-                    Err(ServerFnError::Response(format!("Failed to register user with email: {}", email)))
+                if let Ok(()) = register(name, email.clone(), random_password.clone()).await {
+                    login(email, random_password).await
+                } else {
+                    Err(ServerFnError::Response(format!(
+                        "Failed to register user with email: {}",
+                        email
+                    )))
                 }
-            }else{
+            } else {
                 Err(ServerFnError::Response("Name is required".to_string()))
             }
         }

@@ -182,7 +182,7 @@ pub fn main_table() -> impl IntoView {
 pub fn register() -> impl IntoView {
     view! {
         <Title text="Register" />
-        <Script src="https://accounts.google.com/gsi/client" defer="true" async_="true"/>
+        <Script src="https://accounts.google.com/gsi/client" defer="defer" async_="async" />
         <div class=auth_style::authcontainer>
             <SimpleHeader title="Register".to_string() />
             <div class=auth_style::authmaincontainer>
