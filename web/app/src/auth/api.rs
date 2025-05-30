@@ -1,9 +1,11 @@
 use http::HeaderMap;
 use leptos::logging::log;
 use leptos::prelude::*;
+use crate::utils::ccompiler::{CompilerError, EncSyntaxCheckData, SyntaxCheckData};
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
+    pub use axum::Extension;
     pub use crate::db::models::user::{NewUser, User, UserLogin};
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
@@ -108,6 +110,23 @@ pub async fn register(
             response.set_status(StatusCode::BAD_REQUEST);
             let msg = format!("Failed to register user: {}", e);
             Err(ServerFnError::Response(msg))
+        }
+    }
+}
+
+#[server(IsLoggedIn, endpoint = "/is_logged_in")]
+pub async fn is_logged_in() -> Result<bool, ServerFnError> {
+    use crate::db::models::user::UserData;
+    use server_imports::*;
+    let response = expect_context::<ResponseOptions>();
+    let userdata: Result<Extension<UserData>, _> = extract().await;
+    match userdata {
+        Ok(_) => {
+            Ok(true)
+        }
+        Err(_) => {
+            response.set_status(StatusCode::UNAUTHORIZED);
+            Err(ServerFnError::Response("Unauthorized - user not authenticated".to_string()))
         }
     }
 }

@@ -51,6 +51,13 @@ $mc-border: #dee2e6; // Borders
       border-radius: 0.5rem;
       border: 1px solid $color-2;
       //transform: translateY(-100%);
+      div{
+        padding: 0.2rem 0.5rem;
+        input[type="radio"]{
+          margin: 0 0.3rem;
+          background: $mc-row-even;
+        }
+      }
     }
   }
 }

@@ -1,11 +1,15 @@
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::utils::ccompiler::{c_compile, c_format, c_syntax_check, CompilerError};
-use leptos::ev::{Event, Targeted};
+use leptos::ev::{Event, MouseEvent, Targeted};
 use leptos::logging::log;
 use leptos::prelude::*;
+use leptos::prelude::codee::string::FromToStringCodec;
 use leptos::task::spawn_local;
 use leptos::web_sys::{HtmlInputElement, HtmlTextAreaElement};
+use leptos_use::{use_cookie, use_cookie_with_options, SameSite, UseCookieOptions};
 use serde::{Deserialize, Serialize};
+use crate::auth::api::{is_logged_in, IsLoggedIn};
+
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum CompileLanguage {
     ASM,
@@ -82,7 +86,34 @@ pub fn EditorTextAreas() -> impl IntoView {
 pub fn EditorTop() -> impl IntoView {
     let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
     let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let on_compile = move |_| {
+    let (cookie_get,cookie_write) = use_cookie_with_options::<String, FromToStringCodec>("session_token",
+                                                                                         UseCookieOptions::default()
+                                                                                             .same_site(SameSite::Lax)
+                                                                                             .path("/"));
+    let login_resource = Resource::new(
+        move ||(),
+        |_| async {
+            if let Ok(true) = is_logged_in().await{
+                true
+            } else {
+                false
+            }
+        }
+    );
+    Effect::watch(
+        move || cookie_get.get(),
+        move |_,_,_|{
+            login_resource.refetch();
+        },
+        false
+    );
+    let msg = move || {
+        if login_resource.get().unwrap_or(false) {
+            return "Logged in".to_string();
+        }
+        "Not logged in".to_string()
+    };
+    let on_compile = move |_:MouseEvent| {
         let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {
             let res = c_compile(code).await;
@@ -98,6 +129,7 @@ pub fn EditorTop() -> impl IntoView {
                         return;
                     }
                     emu_ctx.update(|emu_ctx| {
+                        emu_ctx.emu.memory.clear_changes();
                         if let Err(err) = emu_ctx.emu.memory.load(&res.data, true) {
                             emu_cfg_ctx.update(|emu_cfg_ctx| {
                                 emu_cfg_ctx.logstore.log_error(
@@ -138,7 +170,7 @@ pub fn EditorTop() -> impl IntoView {
             }
         });
     };
-    let on_format = move |_| {
+    let on_format = move |_:MouseEvent| {
         let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {
             let res = c_format(code).await;
@@ -173,7 +205,7 @@ pub fn EditorTop() -> impl IntoView {
             }
         });
     };
-    let on_syntax_check = move |_| {
+    let on_syntax_check = move |_:MouseEvent| {
         let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {
             let res = c_syntax_check(code).await;
@@ -218,7 +250,14 @@ pub fn EditorTop() -> impl IntoView {
         <div class=emu_style::editortop>
             <button on:click=on_compile>"Compile"</button>
             <button on:click=on_format>"Format"</button>
-            <button on:click=on_syntax_check>"Syntax Check"</button>
+            <Transition fallback=move ||"">
+                <div
+        on:click=move |_|{
+           cookie_write(None);
+        }
+        >{msg}</div>
+            </Transition>
+            // <button on:click=on_syntax_check>"Syntax Check"</button>
         </div>
     }
 }

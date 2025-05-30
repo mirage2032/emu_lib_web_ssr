@@ -56,7 +56,7 @@ walkdir = "2.5.0"
 [features]
 default = []
 hydrate = ["leptos/hydrate"]
-ssr = ["leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum", "leptos-use/ssr"]
+ssr = ["leptos/ssr", "leptos_meta/ssr", "leptos_router/ssr", "dep:leptos_axum", "leptos-use/ssr","leptos-use/axum"]
 
 [package.metadata.stylance]
 output_dir = "../style/"
