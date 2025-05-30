@@ -4,8 +4,10 @@ use leptos::ev::{Event, Targeted};
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos::web_sys::{HtmlInputElement, HtmlTextAreaElement};
+use leptos::web_sys::HtmlTextAreaElement;
 use serde::{Deserialize, Serialize};
+use stylance::classes;
+
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Eq, PartialEq)]
 pub enum CompileLanguage {
     ASM,
@@ -214,6 +216,18 @@ pub fn EditorTop() -> impl IntoView {
             }
         });
     };
+    let lang_class = move |lang: CompileLanguage| {
+        if emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.active_lang) == lang {
+            classes!(emu_style::imgcontainer,emu_style::imgcontaineractive)
+        } else {
+            classes!(emu_style::imgcontainer)
+        }
+    };
+    let set_active_lang = move |lang: CompileLanguage| {
+        emu_cfg_ctx.update(|emu_ctx| {
+            emu_ctx.editor.active_lang = lang;
+        });
+    };
     view! {
         <div class=emu_style::editortop>
             <div class=emu_style::editortopbtns>
@@ -222,8 +236,12 @@ pub fn EditorTop() -> impl IntoView {
                 <button on:click=on_syntax_check>"Syntax Check"</button>
             </div>
             <div class=emu_style::editortoplang>
-                <img width="96" height="96" src="https://img.icons8.com/color/96/assembly.png" alt="assembly"/>
-                <img width="96" height="96" src="https://img.icons8.com/color/96/c-programming.png" alt="c-programming"/>
+                <div on:click=move |_| set_active_lang(CompileLanguage::ASM) class=emu_style::imgcontaineractive>
+                <img width="48" height="48" src="https://img.icons8.com/color/48/assembly.png" alt="assembly"/>
+                </div>
+                <div on:click=move |_| set_active_lang(CompileLanguage::C) class=emu_style::imgcontaineractive>
+                <img width="48" height="48" src="https://img.icons8.com/color/48/c-programming.png" alt="c-programming"/>
+                </div>
             </div>
         </div>
     }
