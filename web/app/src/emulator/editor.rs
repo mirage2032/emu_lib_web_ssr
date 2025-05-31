@@ -25,7 +25,7 @@ pub struct EditorContext {
 impl Default for EditorContext {
     fn default() -> Self {
         EditorContext {
-            active_lang: CompileLanguage::C,
+            active_lang: CompileLanguage::ASM,
             c_buffer: String::new(),
             asm_buffer: String::new(),
         }
@@ -54,7 +54,7 @@ pub fn EditorText(lang: CompileLanguage) -> impl IntoView {
             CompileLanguage::C => emu_ctx.editor.c_buffer.clone(),
         })
     };
-    view! { <textarea spellcheck=false on:input:target=set_buffer prop:value=get_buffer></textarea> }
+    view! { <textarea spellcheck="false" on:input:target=set_buffer prop:value=get_buffer></textarea> }
 }
 
 #[island]
@@ -145,8 +145,8 @@ pub fn EditorTop() -> impl IntoView {
     let on_compile_asm = move || {
         emu_cfg_ctx.update(|emu_cfg_ctx| {
             let mut compiled: Vec<u8> = vec![];
-            for line in emu_cfg_ctx.editor.asm_buffer.lines().map(|s| s.trim()).filter(|s| !s.is_empty()) {
-                if let Ok(instruction) = Z80_PARSER.ins_from_asm_string(line) {
+            for line in emu_cfg_ctx.editor.asm_buffer.lines().map(|s| s.split("//").next().unwrap_or("").trim().to_string()).filter(|s| !s.is_empty()){
+                if let Ok(instruction) = Z80_PARSER.ins_from_asm_string(&line) {
                     compiled.extend(instruction.to_bytes());
                 } else {
                     emu_cfg_ctx.logstore.log_error(
