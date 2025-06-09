@@ -103,14 +103,15 @@ pub fn Account() -> impl IntoView {
         .path("/")
         .same_site(leptos_use::SameSite::Lax);
     let (session_data, set_session_data) = use_cookie_with_options::<String, FromToStringCodec>(CookieKey::Session.into(),cookie_options);
+    let login = move || {
+        let _ = window().location().set_href("/login");
+    };
     let logout = move || {
-        log!("BEFORE");
         set_session_data(None);
-        log!("AFTER");
         loadable_resources.refetch();
         userdata_resource.refetch();
     };
-    let username = Suspend::new(async move {
+    let username = move || Suspend::new(async move {
         let userdata = userdata_resource.await;
         match userdata {
             Ok(data) => data.username,
@@ -118,14 +119,16 @@ pub fn Account() -> impl IntoView {
         }
     });
 
-    let logbutton = Suspend::new(async move {
+    let logbutton = move || Suspend::new(async move {
         if userdata_resource.await.is_ok() {
             view! { <span class=classes!(emu_style::logout,emu_style::log)
                 on:click=move|_| logout()>
                  LogOut</span> }
                 .into_any()
         } else {
-            view! { <span class=classes!(emu_style::login,emu_style::log)>LogIn</span> }.into_any()
+            view! { <span class=classes!(emu_style::login,emu_style::log)
+                on:click=move|_| login()>
+                LogIn</span> }.into_any()
         }
     });
     view! {
