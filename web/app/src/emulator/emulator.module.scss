@@ -161,7 +161,10 @@ $mc-border: #dee2e6; // Borders
   display: flex;
 
   .account{
-
+    .sectop{
+      display:flex;
+      flex-direction: column;
+    }
   }
 
   .editor {

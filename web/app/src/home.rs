@@ -18,7 +18,7 @@ pub fn HomePage() -> impl IntoView {
             <div class=style::buttoncontainer>
                 <A href="login">"Login"</A>
                 <A href="register">"Register"</A>
-                <A href="emulator/z80">"Guest"</A>
+                <A href="emulator/z80">"Emulator"</A>
             </div>
         </div>
     }

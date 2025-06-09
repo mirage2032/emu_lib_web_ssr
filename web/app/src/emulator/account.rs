@@ -3,6 +3,7 @@ use crate::db::models::program::Program;
 use http::StatusCode;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
+use crate::auth::api::UserDataError;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AccountLoadables {
@@ -95,12 +96,41 @@ pub fn AccountMenu(loadable:LoadablesTree) -> impl IntoView {
 pub fn Account() -> impl IntoView {
     let loadable_resources =
         Resource::new(|| (), move |_| async move { get_account_loadables().await });
+    let userdata_resource = Resource::new(
+        || (),
+        move |_| async move {
+            crate::auth::api::userdata().await
+            // let val = crate::auth::api::userdata().await;
+            // match val {
+            //     Ok(data) => data.username,
+            //     Err(_) => "Guest".to_string(),
+            // }
+        }
+    );
+    let username = Suspend::new(async move {
+        let userdata = userdata_resource.await;
+        match userdata {
+            Ok(data) => data.username,
+            Err(_) => "Guest".to_string(),
+        }
+    });
+
+    let logbutton = Suspend::new(async move {
+       if userdata_resource.await.is_ok(){
+           view! {<span>LogOut</span>}.into_any()
+       }
+        else{
+            view! {<span>LogIn</span>}.into_any()
+        }
+    });
     view! {
         <div class=emu_style::account>
             <div class=emu_style::sectop>
                 <span>Account</span>
                 <Transition
                     fallback=move || { "".to_string() }>
+                <span>{{username}}</span>
+                {{logbutton}}
                 {
                     move || Suspend::new(async move{
                     let d = loadable_resources.await;

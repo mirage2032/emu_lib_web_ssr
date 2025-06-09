@@ -25,6 +25,7 @@ pub async fn establish_connection() -> DbPool {
 }
 
 use leptos::prelude::LeptosOptions;
+use crate::db::models::user::UserData;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[derive(Clone)]

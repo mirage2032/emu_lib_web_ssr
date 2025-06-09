@@ -4,6 +4,10 @@ use leptos::prelude::*;
 use leptos::server_fn::codec::PostUrl;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use server_fn::codec::JsonEncoding;
+use thiserror::Error;
+use crate::db::models::user::UserData;
+use crate::utils::ccompiler::{CompileData, CompilerError};
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
@@ -12,6 +16,7 @@ mod server_imports {
     pub use crate::utils::cookie::{self, CookieKey};
     pub use axum::extract::RawQuery;
     pub use axum_extra::extract::Query;
+    pub use axum::Extension;
     pub use http::StatusCode;
     pub use leptos_axum::extract;
     pub use leptos_axum::ResponseOptions;
@@ -93,6 +98,11 @@ pub async fn google_login_callback(
             //create random password
             let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
             if let Some(name) = payload.name {
+                let name = name.split(" ").next();
+                let name = match name {
+                    Some(n) => n.to_string(),
+                    None => return Err(ServerFnError::Response("Could not get name for Google Auth registration".to_string())),
+                };
                 if let Ok(()) = register(name, email.clone(), random_password.clone()).await {
                     login(email, random_password).await
                 } else {
@@ -184,5 +194,31 @@ pub async fn register(
             let msg = format!("Failed to register user: {}", e);
             Err(ServerFnError::Response(msg))
         }
+    }
+}
+
+#[derive(Clone, Error, Debug, Serialize, Deserialize)]
+pub enum UserDataError {
+    #[error("Unauthenticated")]
+    Unauthenticated,
+    #[error("Server error: {0}")]
+    ServerError(String)
+}
+
+impl FromServerFnError for UserDataError {
+    type Encoder = JsonEncoding;
+    fn from_server_fn_error(value: ServerFnErrorErr) -> Self {
+        UserDataError::ServerError(value.to_string())
+    }
+}
+#[server(GetUserData, endpoint = "/userdata")]
+pub async fn userdata() -> Result<UserData, UserDataError> {
+    use server_imports::*;
+    let userdata: Result<Extension<UserData>, _> = extract().await;
+    if let Ok(userdata) = userdata {
+        Ok(userdata.0.clone())
+    } else {
+        log!("User is not authenticated");
+        Err(UserDataError::Unauthenticated)
     }
 }
