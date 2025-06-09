@@ -16,7 +16,7 @@ pub fn LoginForm() -> impl IntoView {
     let login = ServerAction::<LoginApi>::new();
     Effect::new(move || {
         if let Some(Ok(())) = login.value().get().as_ref() {
-            let _ = window().location().set_href("/dashboard");
+            let _ = window().location().set_href("/");
         }
     });
     let (password_read, password_write) = signal(String::new());

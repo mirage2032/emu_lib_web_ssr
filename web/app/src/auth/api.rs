@@ -1,13 +1,13 @@
+use crate::db::models::user::UserData;
+use crate::utils::ccompiler::{CompileData, CompilerError};
 use http::HeaderMap;
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::server_fn::codec::PostUrl;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use server_fn::codec::JsonEncoding;
+use std::collections::HashMap;
 use thiserror::Error;
-use crate::db::models::user::UserData;
-use crate::utils::ccompiler::{CompileData, CompilerError};
 
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
@@ -15,8 +15,8 @@ mod server_imports {
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
     pub use axum::extract::RawQuery;
-    pub use axum_extra::extract::Query;
     pub use axum::Extension;
+    pub use axum_extra::extract::Query;
     pub use http::StatusCode;
     pub use leptos_axum::extract;
     pub use leptos_axum::ResponseOptions;
@@ -101,7 +101,11 @@ pub async fn google_login_callback(
                 let name = name.split(" ").next();
                 let name = match name {
                     Some(n) => n.to_string(),
-                    None => return Err(ServerFnError::Response("Could not get name for Google Auth registration".to_string())),
+                    None => {
+                        return Err(ServerFnError::Response(
+                            "Could not get name for Google Auth registration".to_string(),
+                        ))
+                    }
                 };
                 if let Ok(()) = register(name, email.clone(), random_password.clone()).await {
                     login(email, random_password).await
@@ -202,7 +206,7 @@ pub enum UserDataError {
     #[error("Unauthenticated")]
     Unauthenticated,
     #[error("Server error: {0}")]
-    ServerError(String)
+    ServerError(String),
 }
 
 impl FromServerFnError for UserDataError {

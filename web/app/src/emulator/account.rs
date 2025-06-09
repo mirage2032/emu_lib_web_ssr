@@ -3,7 +3,7 @@ use crate::db::models::program::Program;
 use http::StatusCode;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
-use crate::auth::api::UserDataError;
+use stylance::classes;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AccountLoadables {
@@ -31,14 +31,14 @@ pub async fn get_account_loadables() -> Result<AccountLoadables, ServerFnError<S
     }
 }
 
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 struct Directory {
     name: String,
     open: bool,
     loadables: Vec<Loadable>,
 }
 
-#[derive(Serialize, Deserialize,Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 enum Loadable {
     CProgram(Program),
     Directory(Directory),
@@ -67,16 +67,11 @@ impl LoadablesTree {
                 .map(|program| Loadable::CProgram(program))
                 .collect::<Vec<_>>();
             let c_loadables_dir = Loadable::new_dir("C Programs".to_string(), c_loadables);
-            let emu_states_dir = Loadable::new_dir("Emulator States".to_string(), vec![]);;
-            let root_dir = Loadable::new_dir(
-                "Account".to_string(),
-                vec![c_loadables_dir, emu_states_dir],
-            );
-            LoadablesTree {
-                root: root_dir,
-            }
-        }
-        else {
+            let emu_states_dir = Loadable::new_dir("Emulator States".to_string(), vec![]);
+            let root_dir =
+                Loadable::new_dir("Account".to_string(), vec![c_loadables_dir, emu_states_dir]);
+            LoadablesTree { root: root_dir }
+        } else {
             LoadablesTree {
                 root: Loadable::new_dir("Account".to_string(), vec![]),
             }
@@ -85,11 +80,10 @@ impl LoadablesTree {
 }
 
 #[island]
-pub fn AccountMenu(loadable:LoadablesTree) -> impl IntoView {
+pub fn AccountMenu(loadable: LoadablesTree) -> impl IntoView {
     // let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
     // let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    view! {
-    }
+    view! {}
 }
 
 #[island]
@@ -100,12 +94,7 @@ pub fn Account() -> impl IntoView {
         || (),
         move |_| async move {
             crate::auth::api::userdata().await
-            // let val = crate::auth::api::userdata().await;
-            // match val {
-            //     Ok(data) => data.username,
-            //     Err(_) => "Guest".to_string(),
-            // }
-        }
+        },
     );
     let username = Suspend::new(async move {
         let userdata = userdata_resource.await;
@@ -116,38 +105,39 @@ pub fn Account() -> impl IntoView {
     });
 
     let logbutton = Suspend::new(async move {
-       if userdata_resource.await.is_ok(){
-           view! {<span>LogOut</span>}.into_any()
-       }
-        else{
-            view! {<span>LogIn</span>}.into_any()
+        if userdata_resource.await.is_ok() {
+            view! { <span class=classes!(emu_style::logout,emu_style::log)>LogOut</span> }
+                .into_any()
+        } else {
+            view! { <span class=classes!(emu_style::login,emu_style::log)>LogIn</span> }.into_any()
         }
     });
     view! {
         <div class=emu_style::account>
-            <div class=emu_style::sectop>
-                <span>Account</span>
-                <Transition
-                    fallback=move || { "".to_string() }>
-                <span>{{username}}</span>
-                {{logbutton}}
-                {
-                    move || Suspend::new(async move{
-                    let d = loadable_resources.await;
-                    match d {
-                        Ok(d) => {
-                            let loadables = LoadablesTree::new(Some(d));
-                            view! { <AccountMenu loadable=loadables /> }.into_any()
+            <Transition fallback=move || { "".to_string() }>
+                <div class=emu_style::sectop>
+                    <span>Account</span>
+                </div>
+                <div class=emu_style::secmid>
+                    <span>{{ username }}</span>
+                    {{ logbutton }}
+                </div>
+                <div class=emu_style::secbottom>
+                    {move || Suspend::new(async move {
+                        let d = loadable_resources.await;
+                        match d {
+                            Ok(d) => {
+                                let loadables = LoadablesTree::new(Some(d));
+                                view! { <AccountMenu loadable=loadables /> }.into_any()
+                            }
+                            Err(_) => {
+                                let loadables = LoadablesTree::new(None);
+                                view! { <AccountMenu loadable=loadables /> }.into_any()
+                            }
                         }
-                        Err(_) => {
-                            let loadables = LoadablesTree::new(None);
-                            view! { <AccountMenu loadable=loadables /> }.into_any()
-                        }
-                    }
-                })
-                }
-                </Transition>
-            </div>
+                    })}
+                </div>
+            </Transition>
         </div>
     }
 }

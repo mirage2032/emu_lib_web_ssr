@@ -87,7 +87,7 @@ pub fn AuthBackground() -> impl IntoView {
     });
     view! {
         <div class=auth_style::authbg>
-            <For each=background_lines key=|(id, val)| (*id, val.clone()) let((id, val))>
+            <For each=background_lines key=|(id, val)| (*id, val.clone()) let>
                 <div class=move || instruction_class(id)>{val}</div>
             </For>
         </div>

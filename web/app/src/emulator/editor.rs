@@ -145,7 +145,13 @@ pub fn EditorTop() -> impl IntoView {
     let on_compile_asm = move || {
         emu_cfg_ctx.update(|emu_cfg_ctx| {
             let mut compiled: Vec<u8> = vec![];
-            for line in emu_cfg_ctx.editor.asm_buffer.lines().map(|s| s.split("//").next().unwrap_or("").trim().to_string()).filter(|s| !s.is_empty()){
+            for line in emu_cfg_ctx
+                .editor
+                .asm_buffer
+                .lines()
+                .map(|s| s.split("//").next().unwrap_or("").trim().to_string())
+                .filter(|s| !s.is_empty())
+            {
                 if let Ok(instruction) = Z80_PARSER.ins_from_asm_string(&line) {
                     compiled.extend(instruction.to_bytes());
                 } else {
@@ -160,13 +166,15 @@ pub fn EditorTop() -> impl IntoView {
                 if let Err(err) = emu_ctx.emu.memory.load(&compiled, true) {
                     emu_cfg_ctx.logstore.log_error(
                         "ASM Compilation error",
-                        format!("ASM Compilation error, writting into emulator memory: {:?}", err),
+                        format!(
+                            "ASM Compilation error, writting into emulator memory: {:?}",
+                            err
+                        ),
                     );
                 } else {
                     emu_cfg_ctx.logstore.log_info(
                         "ASM Compilation success",
-                        "ASM Compilation success, program loaded into emulator memory"
-                            .to_string(),
+                        "ASM Compilation success, program loaded into emulator memory".to_string(),
                     );
                 }
             });
@@ -176,12 +184,12 @@ pub fn EditorTop() -> impl IntoView {
         emu_ctx.update(|emu_ctx| {
             emu_ctx.emu.memory.clear_changes();
         });
-        let lang = emu_cfg_ctx.with(|emu_cfg_ctx| {emu_cfg_ctx.editor.active_lang});
-            match lang {
-                CompileLanguage::ASM => on_compile_asm(),
-                CompileLanguage::C => on_compile_c(),
-            }
-        };
+        let lang = emu_cfg_ctx.with(|emu_cfg_ctx| emu_cfg_ctx.editor.active_lang);
+        match lang {
+            CompileLanguage::ASM => on_compile_asm(),
+            CompileLanguage::C => on_compile_c(),
+        }
+    };
     let on_format_c = move |_| {
         let code = emu_cfg_ctx.with(|emu_ctx| emu_ctx.editor.c_buffer.clone());
         spawn_local(async move {

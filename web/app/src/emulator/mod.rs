@@ -1,11 +1,12 @@
+mod account;
 mod control;
 mod disassembler;
 mod editor;
 mod info;
 mod memory;
 mod registers;
-mod account;
 
+use crate::emulator::account::Account;
 use crate::emulator::disassembler::DisassemblerContext;
 use crate::emulator::editor::{Editor, EditorContext};
 use crate::emulator::memory::MemoryContext;
@@ -19,7 +20,6 @@ use info::Info;
 use leptos::prelude::*;
 use leptos_meta::Title;
 use memory::Memory;
-use crate::emulator::account::Account;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
 
