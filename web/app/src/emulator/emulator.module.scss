@@ -156,249 +156,159 @@ $mc-border: #dee2e6; // Borders
     }
   }
 }
-
-.emulator {
-  display: flex;
-
-  .account{
-    //for each child margin 0.5rem
-    display:flex;
-    flex-direction: column;
-    .sectop{
-    }
-    .secmid{
-      display:flex;
-      flex-direction: column;
-      justify-content: space-evenly;
-      background-color: $color-3;
-      height: 80px;
-      > * {
-        margin: 0.3rem;
-        text-align: center;
-      }
-      .log {
-        border-radius: 1rem;
-        padding: 0.3rem;
-        font-family: 'JetBrains Mono', Consolas, monospace;
-        user-select: none;
-        cursor: pointer;
-      }
-      .login{
-        background-color: #31cd0c80;
-      }
-      .logout{
-        background-color: #8c141480;
-        &:hover {
-          background-color: #8c1414;
-        }
-        &:active {
-          background-color: #8c1414;
-          color: white;
-        }
-      }
-    }
-    .secbottom{
-      flex:1;
-      display:flex;
-      flex-direction: column;
-      background-color: $mc-row-odd;
-    }
-  }
-
-  .editor {
-    width: 100%;
+.emumain {
+  display: inline-block;
+  width:100%;
+  min-width: fit-content;
+  .emulator {
     display: flex;
-    flex-direction: column;
-    .sectop{
-      border-right: 1px solid $mc-border;
-    }
-    .editortop {
-      background-color: $color-3;
+
+    .account {
+      //for each child margin 0.5rem
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 80px;
-      flex-shrink: 0;
-
-      .editortopbtns{
-        display: inline-block;
-      }
-
-      .editortoplang{
-        display: flex;
-        .imgcontainer {
-          padding: 12px;
-          &:hover {
-            background: radial-gradient(circle, transparent 48%, #5c6ac0 52%, transparent 56%);
-          }
-        }
-        .imgcontaineractive{
-          //a radial circle, transparent small blue circle then transparent
-          background: radial-gradient(circle, transparent 50%, #0c48a0 52%, transparent 54%) !important;
-        }
-
-      }
-    }
-    .editorta {
-      background-color: $mc-row-odd;
-      height: 100%;
-      width: 100%;
-      min-width: 25rem;
-      display: flex;//just an item i want centered on v and h
       flex-direction: column;
-      //justify-content: center;
-      align-items: center;
-      textarea {
-        margin: 4rem 0 4rem 4rem;
-        height: 30rem;
-        width: 80%;
+
+      .sectop {
+      }
+
+      .secmid {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        background-color: $color-3;
+        height: 80px;
+
+        > * {
+          margin: 0.3rem;
+          text-align: center;
+        }
+
+        .log {
+          border-radius: 1rem;
+          padding: 0.3rem;
+          font-family: 'JetBrains Mono', Consolas, monospace;
+          user-select: none;
+          cursor: pointer;
+        }
+
+        .login {
+          background-color: #31cd0c80;
+        }
+
+        .logout {
+          background-color: #8c141480;
+
+          &:hover {
+            background-color: #8c1414;
+          }
+
+          &:active {
+            background-color: #8c1414;
+            color: white;
+          }
+        }
+      }
+
+      .secbottom {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: $mc-row-odd;
+      }
+    }
+
+    .editor {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+
+      .sectop {
+        border-right: 1px solid $mc-border;
+      }
+
+      .editortop {
+        background-color: $color-3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 80px;
+        flex-shrink: 0;
+
+        .editortopbtns {
+          display: inline-block;
+        }
+
+        .editortoplang {
+          display: flex;
+
+          .imgcontainer {
+            padding: 12px;
+
+            &:hover {
+              background: radial-gradient(circle, transparent 48%, #5c6ac0 52%, transparent 56%);
+            }
+          }
+
+          .imgcontaineractive {
+            //a radial circle, transparent small blue circle then transparent
+            background: radial-gradient(circle, transparent 50%, #0c48a0 52%, transparent 54%) !important;
+          }
+
+        }
+      }
+
+      .editorta {
+        background-color: $mc-row-odd;
+        height: 100%;
+        width: 100%;
         min-width: 25rem;
-        resize: none;
-        padding: 0.5rem;
-        border: 1px solid $mc-border;
-        background: $mc-row-even;
-        font-family: "Source Code Pro", Consolas, monospace;
-        color: $mc-text-dark;
-        font-size: 1rem;
-        line-height: 1.5;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        display: flex; //just an item i want centered on v and h
+        flex-direction: column;
+        //justify-content: center;
+        align-items: center;
 
-        &:focus {
-          border-color: $mc-primary;
-          box-shadow: 0 0 0 1.5px $mc-primary;
-          outline: none;
-        }
-
-        &::placeholder {
-          color: rgba($mc-text-dark, 0.4);
-          font-weight: 300;
-        }
-      }
-    }
-  }
-
-  .memorymap {
-    border: 1px solid $mc-border;
-    border-top: 0;
-
-    .memorymaptable {
-      border-collapse: collapse;
-      font-size: 0.875rem;
-      background: white;
-      border-radius: 0 0 0 0;
-      overflow: hidden;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-      width: auto;
-
-      thead tr {
-        background: $mc-header;
-
-        th {
-          padding: 0.3rem 0.5rem;
-          color: $mc-text-light;
-          font-weight: 500;
-          //border-right: 1px solid lighten($mc-header, 8%);
-          font-size: 0.8em;
-          font-family: 'JetBrains Mono', Consolas, monospace;
-
-          &:last-child {
-            border-right: none;
-          }
-        }
-      }
-
-      tbody tr {
-        td {
-          padding: 0;
-          position: relative;
-          //border-bottom: 1px solid $mc-border;
-
-          input {
-            width: 5ch;
-            height: 100%;
-            padding: 0.2rem 0.3rem;
-            border: none;
-            background: transparent;
-            color: $mc-text-dark;
-            //font-family: 'JetBrains Mono', Consolas, monospace;
-            font-size: 0.9em;
-            text-align: center;
-            transition: all 0.15s ease;
-
-            &.changed {
-              background: $color-2;
-            }
-
-            &:hover:not(:focus) {
-              background: rgba($mc-primary, 0.06);
-            }
-
-            &:focus {
-              background: white;
-              box-shadow: 0 0 0 1.5px $mc-primary;
-              outline: none;
-              z-index: 2;
-            }
-
-            &::placeholder {
-              color: rgba($mc-text-dark, 0.4);
-              font-weight: 300;
-            }
-          }
-        }
-
-        &:nth-child(even) {
+        textarea {
+          margin: 4rem 0 4rem 4rem;
+          height: 30rem;
+          width: 80%;
+          min-width: 25rem;
+          resize: none;
+          padding: 0.5rem;
+          border: 1px solid $mc-border;
           background: $mc-row-even;
+          font-family: "Source Code Pro", Consolas, monospace;
+          color: $mc-text-dark;
+          font-size: 1rem;
+          line-height: 1.5;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-          td input:focus {
-            background: mix(white, $mc-row-even, 80%);
+          &:focus {
+            border-color: $mc-primary;
+            box-shadow: 0 0 0 1.5px $mc-primary;
+            outline: none;
           }
-        }
 
-        &:nth-child(odd) {
-          background: $mc-row-odd;
-
-          td input:focus {
-            background: mix(white, $mc-row-odd, 80%);
+          &::placeholder {
+            color: rgba($mc-text-dark, 0.4);
+            font-weight: 300;
           }
-        }
-
-        th {
-          padding: 0.3rem 0.6rem;
-          background: $mc-header;
-          color: rgba($mc-text-light, 0.9);
-          //border-right: 1px solid lighten($mc-header, 8%);
-          font-family: 'JetBrains Mono', Consolas, monospace;
-          font-weight: 500;
-          font-size: 0.85em;
-          white-space: nowrap;
         }
       }
     }
-  }
 
-  .disasmregsinfoflex {
-    display: flex;
-    width: 100%;
-
-    & > * {
-      flex-grow: 0;
-      flex-shrink: 0;
-      flex-basis: 50%;
-    }
-
-    .disassembler {
+    .memorymap {
       border: 1px solid $mc-border;
+      border-top: 0;
 
-      .disassemblertable {
+      .memorymaptable {
+        border-collapse: collapse;
         font-size: 0.875rem;
         background: white;
         border-radius: 0 0 0 0;
         overflow: hidden;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        border-collapse: collapse;
-        width: 100%;
+        width: auto;
 
         thead tr {
           background: $mc-header;
@@ -408,8 +318,8 @@ $mc-border: #dee2e6; // Borders
             color: $mc-text-light;
             font-weight: 500;
             //border-right: 1px solid lighten($mc-header, 8%);
-            font-family: 'JetBrains Mono', Consolas, monospace;
             font-size: 0.8em;
+            font-family: 'JetBrains Mono', Consolas, monospace;
 
             &:last-child {
               border-right: none;
@@ -417,117 +327,139 @@ $mc-border: #dee2e6; // Borders
           }
         }
 
+        tbody tr {
+          td {
+            padding: 0;
+            position: relative;
+            //border-bottom: 1px solid $mc-border;
 
-        tbody {
-          tr {
-            .breakpoint {
-              color: red;
-            }
+            input {
+              width: 5ch;
+              height: 100%;
+              padding: 0.2rem 0.3rem;
+              border: none;
+              background: transparent;
+              color: $mc-text-dark;
+              //font-family: 'JetBrains Mono', Consolas, monospace;
+              font-size: 0.9em;
+              text-align: center;
+              transition: all 0.15s ease;
 
-            th {
-              font-family: 'JetBrains Mono', Consolas, monospace;
-            }
+              &.changed {
+                background: $color-2;
+              }
 
-            td {
-              padding: 0;
-              position: relative;
-              border-bottom: 1px solid $mc-border;
+              &:hover:not(:focus) {
+                background: rgba($mc-primary, 0.06);
+              }
 
-              input {
-                width: 4ch;
-                height: 100%;
-                padding: 0.2rem 0.3rem;
-                border: none;
-                background: transparent;
-                color: $mc-text-dark;
-                font-family: 'JetBrains Mono', Consolas, monospace;
-                font-size: 0.9em;
-                text-align: center;
-                transition: all 0.15s ease;
+              &:focus {
+                background: white;
+                box-shadow: 0 0 0 1.5px $mc-primary;
+                outline: none;
+                z-index: 2;
+              }
 
-                &:hover:not(:focus) {
-                  background: rgba($mc-primary, 0.06);
-                }
-
-                &:focus {
-                  background: white;
-                  box-shadow: 0 0 0 1.5px $mc-primary;
-                  outline: none;
-                  z-index: 2;
-                }
-
-                &::placeholder {
-                  color: rgba($mc-text-dark, 0.4);
-                  font-weight: 300;
-                }
+              &::placeholder {
+                color: rgba($mc-text-dark, 0.4);
+                font-weight: 300;
               }
             }
+          }
+
+          &:nth-child(even) {
+            background: $mc-row-even;
+
+            td input:focus {
+              background: mix(white, $mc-row-even, 80%);
+            }
+          }
+
+          &:nth-child(odd) {
+            background: $mc-row-odd;
+
+            td input:focus {
+              background: mix(white, $mc-row-odd, 80%);
+            }
+          }
+
+          th {
+            padding: 0.3rem 0.6rem;
+            background: $mc-header;
+            color: rgba($mc-text-light, 0.9);
+            //border-right: 1px solid lighten($mc-header, 8%);
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-weight: 500;
+            font-size: 0.85em;
+            white-space: nowrap;
           }
         }
       }
     }
 
-    .regsinfo {
+    .disasmregsinfoflex {
       display: flex;
-      flex-direction: column;
+      width: 100%;
 
-      .registers {
-        background-color: green;
+      & > * {
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: 50%;
+      }
+
+      .disassembler {
         border: 1px solid $mc-border;
 
-        .registersflex {
-          display: flex;
-          border: 1px solid lighten($mc-header, 8%);
-          border-left: none;
-          border-right: none;
+        .disassemblertable {
+          font-size: 0.875rem;
+          background: white;
+          border-radius: 0 0 0 0;
+          overflow: hidden;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+          border-collapse: collapse;
+          width: 100%;
 
-          :nth-child(even) {
-            thead th {
-              background: lighten($mc-header, 8%);
+          thead tr {
+            background: $mc-header;
+
+            th {
+              padding: 0.3rem 0.5rem;
+              color: $mc-text-light;
+              font-weight: 500;
+              //border-right: 1px solid lighten($mc-header, 8%);
+              font-family: 'JetBrains Mono', Consolas, monospace;
+              font-size: 0.8em;
+
+              &:last-child {
+                border-right: none;
+              }
             }
           }
 
-          table {
-            border: 1px solid $mc-header;
-            border-collapse: collapse;
-            font-size: 0.875rem;
-            background: white;
-            border-radius: 0 0 0 0;
-            overflow: hidden;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            width: 100%;
 
-            thead tr {
-              background: $mc-header;
+          tbody {
+            tr {
+              .breakpoint {
+                color: red;
+              }
 
               th {
-                padding: 0.3rem 0.5rem;
-                color: $mc-text-light;
-                font-weight: 500;
-                //border-right: 1px solid lighten($mc-header, 8%)
                 font-family: 'JetBrains Mono', Consolas, monospace;
-                font-size: 0.8em;
-
-                &:last-child {
-                  border-right: none;
-                }
               }
-            }
 
-            tbody tr {
               td {
                 padding: 0;
                 position: relative;
                 border-bottom: 1px solid $mc-border;
-                text-align: center;
 
                 input {
+                  width: 4ch;
                   height: 100%;
                   padding: 0.2rem 0.3rem;
                   border: none;
                   background: transparent;
                   color: $mc-text-dark;
-                  //font-family: 'JetBrains Mono', Consolas, monospace;
+                  font-family: 'JetBrains Mono', Consolas, monospace;
                   font-size: 0.9em;
                   text-align: center;
                   transition: all 0.15s ease;
@@ -549,62 +481,150 @@ $mc-border: #dee2e6; // Borders
                   }
                 }
               }
-
-              th {
-                background: $mc-header;
-                padding: 0.3rem 0.5rem;
-                color: $mc-text-light;
-                font-weight: 500;
-                //border-right: 1px solid lighten($mc-header, 8%);
-                font-family: 'JetBrains Mono', Consolas, monospace;
-                font-size: 0.8em;
-
-                &:last-child {
-                  border-right: none;
-                }
-              }
             }
           }
         }
       }
 
-      .emuinfo {
-        border: 1px solid $mc-border;
-        height: 100%;
-        position: relative;
-        background-color: $mc-row-even;
+      .regsinfo {
+        display: flex;
+        flex-direction: column;
 
-        .infocounters {
-          display: flex;
+        .registers {
+          background-color: green;
+          border: 1px solid $mc-border;
 
-          .counters {
-            padding: 0.3rem 0.5rem;
-            //width: 100%;
-            display: table;
-            width: 100%;
+          .registersflex {
+            display: flex;
+            border: 1px solid lighten($mc-header, 8%);
+            border-left: none;
+            border-right: none;
 
-            div {
-              display: table-row;
-              padding: 0.3rem 0.5rem;
-              //width: 100%;
-              justify-content: space-between;
+            :nth-child(even) {
+              thead th {
+                background: lighten($mc-header, 8%);
+              }
+            }
 
-              div {
-                display: table-cell;
+            table {
+              border: 1px solid $mc-header;
+              border-collapse: collapse;
+              font-size: 0.875rem;
+              background: white;
+              border-radius: 0 0 0 0;
+              overflow: hidden;
+              box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+              width: 100%;
 
-                span {
+              thead tr {
+                background: $mc-header;
+
+                th {
+                  padding: 0.3rem 0.5rem;
+                  color: $mc-text-light;
+                  font-weight: 500;
+                  //border-right: 1px solid lighten($mc-header, 8%)
+                  font-family: 'JetBrains Mono', Consolas, monospace;
+                  font-size: 0.8em;
+
+                  &:last-child {
+                    border-right: none;
+                  }
+                }
+              }
+
+              tbody tr {
+                td {
+                  padding: 0;
+                  position: relative;
+                  border-bottom: 1px solid $mc-border;
+                  text-align: center;
+
+                  input {
+                    height: 100%;
+                    padding: 0.2rem 0.3rem;
+                    border: none;
+                    background: transparent;
+                    color: $mc-text-dark;
+                    //font-family: 'JetBrains Mono', Consolas, monospace;
+                    font-size: 0.9em;
+                    text-align: center;
+                    transition: all 0.15s ease;
+
+                    &:hover:not(:focus) {
+                      background: rgba($mc-primary, 0.06);
+                    }
+
+                    &:focus {
+                      background: white;
+                      box-shadow: 0 0 0 1.5px $mc-primary;
+                      outline: none;
+                      z-index: 2;
+                    }
+
+                    &::placeholder {
+                      color: rgba($mc-text-dark, 0.4);
+                      font-weight: 300;
+                    }
+                  }
+                }
+
+                th {
+                  background: $mc-header;
+                  padding: 0.3rem 0.5rem;
+                  color: $mc-text-light;
+                  font-weight: 500;
+                  //border-right: 1px solid lighten($mc-header, 8%);
+                  font-family: 'JetBrains Mono', Consolas, monospace;
+                  font-size: 0.8em;
+
+                  &:last-child {
+                    border-right: none;
+                  }
                 }
               }
             }
           }
+        }
 
-          .resetbutton {
-            margin: 0.3rem 0.5rem;
+        .emuinfo {
+          border: 1px solid $mc-border;
+          height: 100%;
+          position: relative;
+          background-color: $mc-row-even;
 
-            input {
-              padding: 0.2rem 0.3rem;
+          .infocounters {
+            display: flex;
+
+            .counters {
+              padding: 0.3rem 0.5rem;
+              //width: 100%;
+              display: table;
               width: 100%;
-              height: 100%;
+
+              div {
+                display: table-row;
+                padding: 0.3rem 0.5rem;
+                //width: 100%;
+                justify-content: space-between;
+
+                div {
+                  display: table-cell;
+
+                  span {
+                  }
+                }
+              }
+            }
+
+            .resetbutton {
+              margin: 0.3rem 0.5rem;
+
+              input {
+                padding: 0.2rem 0.3rem;
+                width: 100%;
+                height: 100%;
+              }
             }
           }
         }

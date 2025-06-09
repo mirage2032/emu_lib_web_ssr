@@ -90,11 +90,13 @@ pub fn EmulatorInner() -> impl IntoView {
         })
     }
     view! {
+        <div class=emu_style::emumain>
         <Control />
         <div class=emu_style::emulator>
             <EmulatorNoTitle />
             <Editor />
             <Account />
+        </div>
         </div>
     }
 }
