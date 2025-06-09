@@ -1,10 +1,13 @@
 use super::{emu_style, EmulatorCfgContext, EmulatorContext};
 use crate::db::models::program::Program;
 use http::StatusCode;
+use leptos::logging::log;
 use leptos::prelude::*;
+use leptos::prelude::codee::string::FromToStringCodec;
+use leptos_use::{use_cookie, use_cookie_with_options, UseCookieOptions};
 use serde::{Deserialize, Serialize};
 use stylance::classes;
-
+use crate::utils::cookie::CookieKey;
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AccountLoadables {
     pub c_programs: Vec<Program>,
@@ -96,7 +99,14 @@ pub fn Account() -> impl IntoView {
             crate::auth::api::userdata().await
         },
     );
+    let cookie_options = UseCookieOptions::default()
+        .path("/")
+        .same_site(leptos_use::SameSite::Lax);
+    let (session_data, set_session_data) = use_cookie_with_options::<String, FromToStringCodec>(CookieKey::Session.into(),cookie_options);
     let logout = move || {
+        log!("BEFORE");
+        set_session_data(None);
+        log!("AFTER");
         loadable_resources.refetch();
         userdata_resource.refetch();
     };
@@ -110,7 +120,9 @@ pub fn Account() -> impl IntoView {
 
     let logbutton = Suspend::new(async move {
         if userdata_resource.await.is_ok() {
-            view! { <span class=classes!(emu_style::logout,emu_style::log)>LogOut</span> }
+            view! { <span class=classes!(emu_style::logout,emu_style::log)
+                on:click=move|_| logout()>
+                 LogOut</span> }
                 .into_any()
         } else {
             view! { <span class=classes!(emu_style::login,emu_style::log)>LogIn</span> }.into_any()

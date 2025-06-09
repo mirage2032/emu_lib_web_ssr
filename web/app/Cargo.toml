@@ -17,6 +17,7 @@ url = { version = "2.5.4", features = ["serde"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 base64 = "0.22.1"
 server_fn.workspace = true
+#reactive_graph.workspace = true
 #syntastica = {version = "0.6.0" , default-features = false, features = ["runtime-c2rust","serde"] }
 
 
@@ -65,6 +66,7 @@ ssr = [
   "leptos_router/ssr",
   "dep:leptos_axum",
   "leptos-use/ssr",
+  "leptos-use/axum"
 ]
 
 [package.metadata.stylance]

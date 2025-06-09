@@ -1,10 +1,10 @@
-pub enum CookieKey<'a> {
+pub enum CookieKey {
     Session,
-    Other(&'a str),
+    Other(&'static str),
 }
 
-impl<'a> CookieKey<'a> {
-    fn as_str(&'a self) -> &'a str {
+impl CookieKey {
+    fn as_str(&self) -> &'static str {
         match self {
             CookieKey::Session => "session_token",
             CookieKey::Other(key) => *key,
@@ -12,6 +12,11 @@ impl<'a> CookieKey<'a> {
     }
 }
 
+impl From<CookieKey> for &'static str {
+    fn from(cookie_key: CookieKey) -> Self {
+        cookie_key.as_str()
+    }
+}
 #[cfg(not(target_arch = "wasm32"))]
 pub mod server {
     use super::CookieKey;
@@ -39,7 +44,7 @@ pub mod server {
         Ok(())
     }
 
-    pub fn get<'a>(key: &CookieKey<'a>, headers: &HeaderMap) -> Option<String> {
+    pub fn get(key: &CookieKey, headers: &HeaderMap) -> Option<String> {
         let jar = CookieJar::from_headers(&headers);
         if let Some(cookie) = jar.get(key.as_str()) {
             Some(cookie.value().to_string())

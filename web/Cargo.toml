@@ -17,14 +17,15 @@ opt-level = 3
 
 [workspace.dependencies]
 stylance = { version="0.6.0", features = ["nightly"] }
-leptos = { version="0.8.0-beta", features = ["nightly","islands"] }
-leptos_meta = { version="0.8.0-beta" }
-leptos_router = { version="0.8.0-beta", features = ["nightly"] }
-leptos_axum = { version="0.8.0-beta" }
-server_fn = {version="0.8.0-beta" }
-leptos-use = { version="0.16.0-beta" }
+leptos = { version="0.8.2", features = ["nightly","islands"] }
+leptos_meta = { version="0.8.2" }
+leptos_router = { version="0.8.2", features = ["nightly"] }
+leptos_axum = { version="0.8.2" }
+server_fn = {version="0.8.2" }
+leptos-use = { version="0.16.0-beta2", features = [] }
+#reactive_graph = "0.2.2"
 wasm-bindgen = "0.2.100"
-axum = { version= "0.8.3",features=["macros"] }
+axum = { version= "0.8.4",features=["macros"] }
 reqwest = { version="0.12.8",features = ["json"] }
 cfg-if = "1"
 console_error_panic_hook = "0.1.7"
@@ -35,8 +36,8 @@ simple_logger = "5.0.0"
 thiserror = "2.0.11"
 tokio = { version = "1.33.0" }
 tower = { version = "0.5.2", features = ["full"] }
-tower-http = { version = "0.6.2", features = ["full"] }
-axum-extra = {version = "0.10.0", features = ["cookie","typed-header","query"] }
+tower-http = { version = "0.6.6", features = ["full"] }
+axum-extra = {version = "0.10.1", features = ["cookie","typed-header","query"] }
 
 # See https://github.com/akesson/cargo-leptos for documentation of all the parameters.
 
