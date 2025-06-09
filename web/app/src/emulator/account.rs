@@ -96,6 +96,10 @@ pub fn Account() -> impl IntoView {
             crate::auth::api::userdata().await
         },
     );
+    let logout = move || {
+        loadable_resources.refetch();
+        userdata_resource.refetch();
+    };
     let username = Suspend::new(async move {
         let userdata = userdata_resource.await;
         match userdata {
