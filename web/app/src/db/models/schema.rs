@@ -11,6 +11,7 @@ diesel::table! {
         id -> Int4,
         owner_id -> Nullable<Int4>,
         requirements -> Nullable<Bytea>,
+        needs_review -> Bool,
     }
 }
 
@@ -73,6 +74,10 @@ diesel::table! {
         username -> Varchar,
         #[max_length = 254]
         email -> Varchar,
+        #[max_length = 100]
+        oauth_google -> Nullable<Varchar>,
+        #[max_length = 100]
+        oauth_github -> Nullable<Varchar>,
         #[max_length = 150]
         password_hash -> Varchar,
         created_at -> Timestamp,
@@ -90,5 +95,10 @@ diesel::joinable!(solutions -> users (solver_id));
 diesel::joinable!(states -> users (owner_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    challenges, programs, sessions, solutions, states, users,
+    challenges,
+    programs,
+    sessions,
+    solutions,
+    states,
+    users,
 );

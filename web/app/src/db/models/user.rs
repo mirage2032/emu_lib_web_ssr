@@ -30,6 +30,8 @@ pub struct User {
     pub id: i32,
     pub username: String,
     pub email: String,
+    pub oauth_google: Option<String>,
+    pub oauth_github: Option<String>,
     pub password_hash: String,
     pub created_at: SystemTime,
     pub updated_at: SystemTime,
@@ -154,6 +156,28 @@ impl User {
             .filter(dsl::username.eq(p_username))
             .first(&mut conn)
             .map_err(|e| e)?;
+        Ok(user)
+    }
+    
+    pub fn get_by_google_oauth(
+        token: &str,
+        pool: &DbPool,
+    ) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = dsl::users
+            .filter(dsl::oauth_google.eq(token))
+            .first(&mut conn)?;
+        Ok(user)
+    }
+    
+    pub fn get_by_github_oauth(
+        token: &str,
+        pool: &DbPool,
+    ) -> Result<User, Box<dyn Error>> {
+        let mut conn = pool.get()?;
+        let user = dsl::users
+            .filter(dsl::oauth_github.eq(token))
+            .first(&mut conn)?;
         Ok(user)
     }
 

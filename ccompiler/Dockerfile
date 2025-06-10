@@ -18,4 +18,4 @@ COPY api.py .
 EXPOSE 4560
 
 # Run
-CMD ["venv/bin/fastapi","run", "--port", "4560" ,"api.py"]
+CMD ["venv/bin/fastapi", "run", "--port", "4560" ,"api.py"]

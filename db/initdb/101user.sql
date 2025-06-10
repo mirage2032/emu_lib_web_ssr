@@ -17,6 +17,8 @@ CREATE TABLE users
     id            SERIAL PRIMARY KEY,
     username      VARCHAR(50)                         NOT NULL UNIQUE CHECK (LENGTH(username) >= 5 AND username !~ '[@!#\$%&*]'),
     email         VARCHAR(254)                        NOT NULL UNIQUE CHECK(check_email(email)),
+    oauth_google  VARCHAR(100)                        NULL UNIQUE,
+    oauth_github  VARCHAR(100)                        NULL UNIQUE,
     password_hash VARCHAR(150)                        NOT NULL,
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
