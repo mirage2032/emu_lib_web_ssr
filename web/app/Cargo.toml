@@ -15,6 +15,7 @@ serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.137"
 url = { version = "2.5.4", features = ["serde"] }
 chrono = { version = "0.4.39", features = ["serde"] }
+oauth2 = "5.0.0"
 base64 = "0.22.1"
 server_fn.workspace = true
 #reactive_graph.workspace = true

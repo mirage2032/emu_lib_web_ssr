@@ -4,6 +4,10 @@ use http::HeaderMap;
 use leptos::logging::log;
 use leptos::prelude::*;
 use leptos::server_fn::codec::PostUrl;
+use oauth2::basic::*;
+use oauth2::{
+    Client, ClientSecret, EndpointNotSet, EndpointSet, StandardRevocableToken, TokenResponse,
+};
 use serde::{Deserialize, Serialize};
 use server_fn::codec::JsonEncoding;
 use std::collections::HashMap;
@@ -84,9 +88,8 @@ pub async fn google_login_callback(
     g_csrf_token: String,
     credential: String,
 ) -> Result<(), ServerFnError> {
-    use google_oauth::AsyncClient;
     use server_imports::*;
-    let oauth_client = AsyncClient::new(clientId);
+    let oauth_client = google_oauth::AsyncClient::new(clientId);
     let payload = oauth_client
         .validate_id_token(credential)
         .await
@@ -122,6 +125,124 @@ pub async fn google_login_callback(
     } else {
         Err(ServerFnError::Response("Email is required".to_string()))
     }
+}
+
+fn github_oauth_client() -> Client<
+    BasicErrorResponse,
+    BasicTokenResponse,
+    BasicTokenIntrospectionResponse,
+    StandardRevocableToken,
+    BasicRevocationErrorResponse,
+    EndpointSet,
+    EndpointNotSet,
+    EndpointNotSet,
+    EndpointNotSet,
+    EndpointSet,
+> {
+    use oauth2::{basic::BasicClient, AuthUrl, ClientId, RedirectUrl, TokenUrl};
+    BasicClient::new(ClientId::new("Ov23liaBVBCExpfVdE5h".to_string()))
+        .set_redirect_uri(
+            RedirectUrl::new("http://localhost:3000/auth/github_login_callback".to_string())
+                .expect("Could not set redirect URI"),
+        )
+        .set_auth_uri(
+            AuthUrl::new("https://github.com/login/oauth/authorize".to_string())
+                .expect("Could not set redirect URI"),
+        )
+        .set_token_uri(
+            TokenUrl::new("https://github.com/login/oauth/access_token".to_string())
+                .expect("Could not set redirect URI"),
+        )
+}
+
+pub fn github_auth_url() -> String {
+    use oauth2::Scope;
+    let client = github_oauth_client();
+    let (auth_url, _csrf_token) = client
+        .authorize_url(oauth2::CsrfToken::new_random)
+        .add_scope(Scope::new("user:email".to_string()))
+        .url();
+    auth_url.to_string()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+#[derive(Serialize, Deserialize, Debug)]
+struct GithubEmail {
+    email: String,
+    primary: bool,
+    verified: bool,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+#[derive(Serialize, Deserialize, Debug)]
+struct GithubUser {
+    login: String, // This is the username
+    id: u64,
+    name: Option<String>,
+    email: Option<String>,
+}
+
+#[allow(non_snake_case)]
+#[server(GithubLoginCallbackApi, endpoint = "/github_login_callback")]
+pub async fn github_login_callback(
+    code: String,
+    state: Option<String>,
+) -> Result<(), ServerFnError> {
+    use oauth2::AuthorizationCode;
+    use server_imports::*;
+    let state = expect_context::<AppState>();
+    let client = github_oauth_client().set_client_secret(ClientSecret::new(
+        "0d5294fcb87fcf1716af6ff91c8347c8021fdf57".to_string(),
+    ));
+    let token_result = client
+        .exchange_code(AuthorizationCode::new(code))
+        .request_async(&state.reqwest_client)
+        .await?;
+    let access_token = token_result.access_token().secret();
+    let res_email = state
+        .reqwest_client
+        .get("https://api.github.com/emails")
+        .bearer_auth(access_token)
+        .header("User-Agent", "Leptos App")
+        .send()
+        .await?;
+    let mut emails: Vec<GithubEmail> = res_email.json().await?;
+    emails.retain(|email| email.verified);
+    emails.sort_by(|a, b| b.primary.cmp(&a.primary));
+    //check email_exists() on each until one is found
+    for email in emails {
+        if email_exists(email.email.clone()).await? {
+            unsafe { login_email_no_password(email.email.clone()).await? }
+        } else {
+            //create random password
+            let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
+            let res_user = state
+                .reqwest_client
+                .get("https://api.github.com/user")
+                .bearer_auth(access_token)
+                .header("User-Agent", "Leptos App")
+                .send()
+                .await?;
+            let user: GithubUser = res_user.json().await?;
+            if let Ok(()) = register(
+                user.login,
+                email.email.clone(),
+                random_password.clone(),
+            )
+            .await
+            {
+                login(email.email, random_password).await?
+            } else {
+                return Err(ServerFnError::Response(format!(
+                    "Failed to register user with email: {}",
+                    email.email
+                )));
+            }
+        }
+    }
+    Err(ServerFnError::Response(
+        "Could not login via github".to_string(),
+    ))
 }
 
 #[server(UserExistsApi, endpoint = "/username_exists")]
@@ -189,7 +310,6 @@ pub async fn register(
             Err(e) => {
                 response.set_status(StatusCode::BAD_REQUEST);
                 let msg = format!("Failed to register user: {}", e);
-                leptos::logging::log!("{}", msg);
                 Err(ServerFnError::Response(msg))
             }
         },
