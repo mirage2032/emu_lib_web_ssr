@@ -35,11 +35,15 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     // let state: Extension<AppState> = extract().await?;
     let pool = &state.pool;
     let user_login = UserLogin::new(login, password);
-    match user_login.authenticate(&pool, AUTH_TIMEOUT) {
-        Ok((_, session)) => {
-            cookie::server::set(&CookieKey::Session, &session.token, AUTH_TIMEOUT, &response)?;
-            // leptos_axum::redirect("/");
-            Ok(())
+    match user_login.get_user(&pool) {
+        Ok(user) => {
+            if let Ok(session) = user.authenticate(&pool, AUTH_TIMEOUT)
+            {
+                cookie::server::set(&CookieKey::Session, &session.token, AUTH_TIMEOUT, &response)?;
+                Ok(())
+            }else {
+                Err(ServerFnError::ServerError("Failed to authenticate user".to_string()))
+            }
         }
         Err(e) => {
             cookie::server::remove(&CookieKey::Session, &response)?;
@@ -206,11 +210,11 @@ pub async fn github_login_callback(
     state: Option<String>,
 ) -> Result<(), ServerFnError> {
     use oauth2::AuthorizationCode;
+    use std::env;
     use server_imports::*;
     let state = expect_context::<AppState>();
-    let client = github_oauth_client().set_client_secret(ClientSecret::new(
-        "0d5294fcb87fcf1716af6ff91c8347c8021fdf57".to_string(),
-    ));
+    let github_secret = env::var("GITHUB_CLIENT_SECRET").expect("No GITHUB_CLIENT_SECRET set");
+    let client = github_oauth_client().set_client_secret(ClientSecret::new(github_secret));
     let token_result = client
         .exchange_code(AuthorizationCode::new(code))
         .request_async(&state.reqwest_client)
@@ -224,7 +228,7 @@ pub async fn github_login_callback(
         .send()
         .await?;
     let user: GithubUser = res_user.json().await?;
-    
+
     if let Some(user) = get_github_user(&user.id.to_string()) {
         user_auth(user, AUTH_TIMEOUT).await?;
         return Ok(());

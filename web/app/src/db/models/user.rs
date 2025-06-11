@@ -69,17 +69,15 @@ impl UserLogin {
         UserLogin { login, password }
     }
 
-    pub fn authenticate(
+    pub fn get_user(
         &self,
-        pool: &DbPool,
-        duration: time::Duration,
-    ) -> Result<(User, Session), Box<dyn Error>> {
+        pool: &DbPool
+    ) -> Result<User, Box<dyn Error>> {
         if let Some(user) = User::get_by_login(&self.login, pool)? {
             if password::verify_password(&self.password, &user.password_hash).is_err() {
                 return Err("Invalid password".into());
             }
-            let session = user.authenticate(pool, duration)?;
-            Ok((user, session))
+            Ok(user)
         } else {
             Err("User not found".into())
         }
