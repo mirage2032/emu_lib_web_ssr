@@ -43,10 +43,6 @@ pub struct UserLogin {
     pub password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct EmailNoPasswordLogin {
-    pub email: String,
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserData {
@@ -82,30 +78,7 @@ impl UserLogin {
             if password::verify_password(&self.password, &user.password_hash).is_err() {
                 return Err("Invalid password".into());
             }
-            let new_session = NewSession::new(user.id, duration);
-            let session = Session::create(new_session, pool)?;
-            Ok((user, session))
-        } else {
-            Err("User not found".into())
-        }
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl EmailNoPasswordLogin {
-    pub fn new(email: String) -> Self {
-        EmailNoPasswordLogin { email }
-    }
-
-    //Marked UNSAFE, just to make sure developer uses it carefully
-    pub unsafe fn authenticate(
-        &self,
-        pool: &DbPool,
-        duration: time::Duration,
-    ) -> Result<(User, Session), Box<dyn Error>> {
-        if let Ok(user) = User::get_by_email(&self.email, pool) {
-            let new_session = NewSession::new(user.id, duration);
-            let session = Session::create(new_session, pool)?;
+            let session = user.authenticate(pool, duration)?;
             Ok((user, session))
         } else {
             Err("User not found".into())
@@ -118,27 +91,31 @@ impl EmailNoPasswordLogin {
 pub struct NewUser {
     pub username: String,
     pub email: String,
+    pub oauth_google: Option<String>,
+    pub oauth_github: Option<String>,
     pub password_hash: String,
 }
 impl NewUser {
-    pub fn new(username: String, email: String, password: String) -> Result<Self, Box<dyn Error>> {
+    pub fn new(username: String, email: String, password: String,oauth_google: Option<String>,oauth_github: Option<String>) -> Result<Self, String> {
         let password_hash =
-            password::hash_password(&password).map_err(|_| "Couldn't hash password")?;
+            password::hash_password(&password).map_err(|_| "Couldn't hash password".to_string())?;
         Ok(NewUser {
             username,
             email,
             password_hash,
+            oauth_google,
+            oauth_github,
         })
     }
 }
 
 #[cfg(not(target_arch = "wasm32"))]
 impl User {
-    pub fn add_user(new_user: NewUser, pool: &DbPool) -> Result<User, Box<dyn Error>> {
-        let mut conn = pool.get()?;
+    pub fn add_user(new_user: NewUser, pool: &DbPool) -> Result<User, String> {
+        let mut conn = pool.get().map_err(|e| e.to_string())?;
         let user = diesel::insert_into(dsl::users)
             .values(&new_user)
-            .get_result(&mut conn)?;
+            .get_result(&mut conn).map_err(|e| e.to_string())?;
         Ok(user)
     }
     pub fn get_by_id(p_id: i32, pool: &DbPool) -> Result<User, Box<dyn Error>> {
@@ -196,6 +173,14 @@ impl User {
             Ok(user) => Ok(Some(user)),
             Err(_) => Ok(None),
         }
+    }
+
+    pub fn authenticate(&self,
+                        pool: &DbPool,
+                        duration: time::Duration) -> Result<Session, Box<dyn Error>> {
+        let new_session = NewSession::new(self.id, duration);
+        let session = Session::create(new_session, pool)?;
+        Ok(session)
     }
 
     pub fn delete(&self, pool: &DbPool) -> Result<(), Box<dyn Error>> {

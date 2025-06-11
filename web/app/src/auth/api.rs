@@ -1,4 +1,4 @@
-use crate::db::models::user::UserData;
+use crate::db::models::user::{User, UserData};
 use crate::utils::ccompiler::{CompileData, CompilerError};
 use http::HeaderMap;
 use leptos::logging::log;
@@ -13,9 +13,11 @@ use server_fn::codec::JsonEncoding;
 use std::collections::HashMap;
 use thiserror::Error;
 
+const AUTH_TIMEOUT: time::Duration = time::Duration::seconds(60 * 60 * 24);
+
 #[cfg(not(target_arch = "wasm32"))]
 mod server_imports {
-    pub use crate::db::models::user::{EmailNoPasswordLogin, NewUser, User, UserLogin};
+    pub use crate::db::models::user::{NewUser, User, UserLogin};
     pub use crate::db::AppState;
     pub use crate::utils::cookie::{self, CookieKey};
     pub use axum::extract::RawQuery;
@@ -32,11 +34,10 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     let state = expect_context::<AppState>();
     // let state: Extension<AppState> = extract().await?;
     let pool = &state.pool;
-    let duration = time::Duration::seconds(60 * 60 * 24);
     let user_login = UserLogin::new(login, password);
-    match user_login.authenticate(&pool, duration) {
+    match user_login.authenticate(&pool, AUTH_TIMEOUT) {
         Ok((_, session)) => {
-            cookie::server::set(&CookieKey::Session, &session.token, duration, &response)?;
+            cookie::server::set(&CookieKey::Session, &session.token, AUTH_TIMEOUT, &response)?;
             // leptos_axum::redirect("/");
             Ok(())
         }
@@ -49,34 +50,38 @@ pub async fn login(login: String, password: String) -> Result<(), ServerFnError>
     }
 }
 
-//marked UNSAFE, just to make sure developer uses it carefully
 #[cfg(not(target_arch = "wasm32"))]
-pub async unsafe fn login_email_no_password(email: String) -> Result<(), ServerFnError> {
+pub fn get_google_user(token: &str) -> Option<User> {
     use server_imports::*;
-    let response = expect_context::<ResponseOptions>();
     let state = expect_context::<AppState>();
-    let pool = &state.pool;
-    let duration = time::Duration::seconds(60 * 60 * 24);
-    let email_no_password_login = EmailNoPasswordLogin::new(email.clone());
-    match unsafe { email_no_password_login.authenticate(&pool, duration) } {
-        Ok((_, session)) => {
-            cookie::server::set(&CookieKey::Session, &session.token, duration, &response)?;
-            // leptos_axum::redirect("/");
-            Ok(())
-        }
-        Err(e) => {
-            cookie::server::remove(&CookieKey::Session, &response)?;
-            response.set_status(StatusCode::UNAUTHORIZED);
-            let msg = format!("Failed to login user with email: {}: {}", email, e);
-            Err(ServerFnError::Response(msg))
-        }
-    }
+    let pool = state.pool;
+    User::get_by_google_oauth(token, &pool).ok()
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct GoogleCBQuery {
-    foo: Option<String>,
-    bar: Option<String>,
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_github_user(token: &str) -> Option<User> {
+    use server_imports::*;
+    let state = expect_context::<AppState>();
+    let pool = state.pool;
+    User::get_by_github_oauth(token, &pool).ok()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub async fn user_auth(user:User,duration:time::Duration) -> Result<(), ServerFnError> {
+    use server_imports::*;
+    let state = expect_context::<AppState>();
+    if let Ok(session) = user
+        .authenticate(&state.pool, duration) {
+        cookie::server::set(
+            &CookieKey::Session,
+            &session.token,
+            duration,
+            &expect_context::<ResponseOptions>(),
+        )?;
+        Ok(())
+    } else {
+        Err(ServerFnError::ServerError("Failed to authenticate user".to_string()))
+    }
 }
 
 #[allow(non_snake_case)]
@@ -90,40 +95,52 @@ pub async fn google_login_callback(
 ) -> Result<(), ServerFnError> {
     use server_imports::*;
     let oauth_client = google_oauth::AsyncClient::new(clientId);
+    let state = expect_context::<AppState>();
     let payload = oauth_client
         .validate_id_token(credential)
         .await
         .expect("Could not validate payload");
-    if let Some(email) = payload.email {
-        if email_exists(email.clone()).await? == true {
-            unsafe { login_email_no_password(email).await }
-        } else {
-            //create random password
-            let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
-            if let Some(name) = payload.name {
-                let name = name.split(" ").next();
-                let name = match name {
-                    Some(n) => n.to_string(),
-                    None => {
-                        return Err(ServerFnError::Response(
-                            "Could not get name for Google Auth registration".to_string(),
-                        ))
-                    }
-                };
-                if let Ok(()) = register(name, email.clone(), random_password.clone()).await {
-                    login(email, random_password).await
+    if let Some(user) = get_google_user(&payload.sub) {
+        user_auth(user, AUTH_TIMEOUT).await
+    } else {
+        //create random password
+        let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
+        if let (Some(name),Some(email)) = (payload.name,payload.email) {
+            let name = name.split(" ").next();
+            let name = match name {
+                Some(n) => n.to_string(),
+                None => {
+                    return Err(ServerFnError::Response(
+                        "Could not get name for Google Auth registration".to_string(),
+                    ))
+                }
+            };
+            let new_user = NewUser::new(
+                name,
+                email.clone(),
+                random_password.clone(),
+                Some(payload.sub.clone()),
+                None,
+            );
+            if let Ok(user) = new_user {
+                if let Ok(user) = User::add_user(user, &state.pool) {
+                    user_auth(user, time::Duration::seconds(60 * 60 * 24)).await?;
+                    Ok(())
                 } else {
-                    Err(ServerFnError::Response(format!(
-                        "Failed to register user with email: {}",
-                        email
-                    )))
+                    Err(ServerFnError::Response(
+                        "Failed to register user with Google Auth".to_string(),
+                    ))
                 }
             } else {
-                Err(ServerFnError::Response("Name is required".to_string()))
+                Err(ServerFnError::Response(
+                    "Failed to create new user from Google Auth data".to_string(),
+                ))
             }
+        } else {
+            Err(ServerFnError::Response(
+                "Could not get name for Google Auth registration".to_string(),
+            ))
         }
-    } else {
-        Err(ServerFnError::Response("Email is required".to_string()))
     }
 }
 
@@ -199,45 +216,48 @@ pub async fn github_login_callback(
         .request_async(&state.reqwest_client)
         .await?;
     let access_token = token_result.access_token().secret();
-    let res_email = state
+    let res_user = state
         .reqwest_client
-        .get("https://api.github.com/emails")
+        .get("https://api.github.com/user")
         .bearer_auth(access_token)
         .header("User-Agent", "Leptos App")
         .send()
         .await?;
-    let mut emails: Vec<GithubEmail> = res_email.json().await?;
-    emails.retain(|email| email.verified);
-    emails.sort_by(|a, b| b.primary.cmp(&a.primary));
-    //check email_exists() on each until one is found
-    for email in emails {
-        if email_exists(email.email.clone()).await? {
-            unsafe { login_email_no_password(email.email.clone()).await? }
-        } else {
-            //create random password
-            let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
-            let res_user = state
-                .reqwest_client
-                .get("https://api.github.com/user")
-                .bearer_auth(access_token)
-                .header("User-Agent", "Leptos App")
-                .send()
-                .await?;
-            let user: GithubUser = res_user.json().await?;
-            if let Ok(()) = register(
-                user.login,
-                email.email.clone(),
-                random_password.clone(),
-            )
-            .await
-            {
-                login(email.email, random_password).await?
+    let user: GithubUser = res_user.json().await?;
+    
+    if let Some(user) = get_github_user(&user.id.to_string()) {
+        user_auth(user, AUTH_TIMEOUT).await?;
+        return Ok(());
+    }
+    else{
+        let password: String = (0..16).map(|_| rand::random::<char>()).collect();
+        if let Some(email) = user.email{
+            let new_user = NewUser::new(
+                user.login.clone(),
+                email.clone(),
+                password.clone(),
+                None,
+                Some(user.id.to_string()),
+            );
+            if let Ok(user) = new_user {
+                if let Ok(user) = User::add_user(user, &state.pool) {
+                    user_auth(user, AUTH_TIMEOUT).await?;
+                    return Ok(());
+                } else {
+                    return Err(ServerFnError::Response(
+                        "Failed to register user with GitHub Auth".to_string(),
+                    ));
+                }
             } else {
-                return Err(ServerFnError::Response(format!(
-                    "Failed to register user with email: {}",
-                    email.email
-                )));
+                return Err(ServerFnError::Response(
+                    "Failed to create new user from GitHub Auth data".to_string(),
+                ));
             }
+        }
+        else{
+            return Err(ServerFnError::Response(
+                "Could not get email for GitHub Auth registration".to_string(),
+            ));
         }
     }
     Err(ServerFnError::Response(
@@ -272,17 +292,6 @@ pub async fn email_exists(email: String) -> Result<bool, ServerFnError> {
 pub async fn login_exists(login: String) -> Result<bool, ServerFnError> {
     use server_imports::*;
     let state = expect_context::<AppState>();
-    // sleep(Duration::from_millis(3000));
-    // let headers: HeaderMap = extract().await?;
-    // check user session cookie
-    // let res = match cookie::server::get(&CookieKey::Session, &headers) {
-    //     Some(val) => {
-    //         format!("{}", val)
-    //     }
-    //     _ => "No cookie".to_string(),
-    // };
-    // log!("log:{}", res);
-    // println!("print:{}",res);
     let pool = &state.pool;
     match User::get_by_login(&login, &pool) {
         Ok(Some(_)) => Ok(true),
@@ -304,7 +313,7 @@ pub async fn register(
     let response = expect_context::<ResponseOptions>();
     let state = expect_context::<AppState>();
     let pool = &state.pool;
-    match NewUser::new(username, email, password) {
+    match NewUser::new(username, email, password, None, None) {
         Ok(user) => match User::add_user(user, &pool) {
             Ok(_) => Ok(()),
             Err(e) => {
