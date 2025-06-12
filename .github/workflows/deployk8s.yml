@@ -1,0 +1,43 @@
+name: Deploy to GKE
+
+on:
+  workflow_run:
+    workflows: ["Dockerhub Image Update"]
+    types:
+      - completed
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: z80emu-462619
+          version: 'latest'
+
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials autopilot-cluster-1 --zone europe-north1 --project z80emu-462619
+
+      - name: Update Secrets
+        run: |
+          kubectl create secret generic db-credentials \
+          --from-literal=DB_USER=${{ secrets.DB_USER }} \
+          --from-literal=DB_PASS=${{ secrets.DB_PASS }} \
+          --from-literal=DB_NAME=${{ secrets.DB_NAME }}
+
+      - name: Update Deployment
+        run: |
+          kubectl apply -f k8s/ccompiler
+          kubectl apply -f k8s/db
+          kubectl apply -f k8s/web
