@@ -1,3 +1,0 @@
-#!/bin/sh
-docker build -t mirage2032/z80compiler-api .
-docker push mirage2032/z80compiler-api

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: compiler-service
+spec:
+  selector:
+    matchLabels:
+      app: compiler-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: compiler-service
+    spec:
+      containers:
+        - name: compiler-service
+          image: mirage2032/z80compiler-api:latest
+          ports:
+            - containerPort: 4560

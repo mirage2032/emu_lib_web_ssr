@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-container
+spec:
+  selector:
+    matchLabels:
+      app: db-container
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db-container
+    spec:
+      containers:
+        - name: db-container
+          image: mirage2032/z80emu-db
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: "scram-sha-256"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--auth-host=scram-sha-256 --locale-provider=icu --icu-locale=en-US"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_PASS
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_NAME
+            - name: POSTGRES_TZ
+              value: "Europe/Bucharest"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-data-pvc

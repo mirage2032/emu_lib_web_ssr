@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-container
+spec:
+  selector:
+    matchLabels:
+      app: web-container
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-container
+    spec:
+      containers:
+        - name: web-container
+          image: mirage2032/z80emu:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: DB_HOST
+              value: db-service
+            - name: COMPILER_HOST
+              value: compiler-service:4560
+            - name: LEPTOS_SITE_ADDR
+              value: "${BIND_URL}"   # Update manually after deployment
+            - name: PUBLIC_URL
+              value: "${PUBLIC_URL}"  # Update manually after deployment
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_NAME
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: DB_PASS

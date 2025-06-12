@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -19,20 +23,32 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Z80 Emulator Web Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest ./web
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build Compiler Api Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest ./ccompiler
+      - name: Build and run Z80 Emulator Web
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Build Z80 Emulator Database Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest ./db
+      - name: Build and run Z80 Compiler Api
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Pushing Z80 Emulator Web Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
-
-      - name: Pushing Compiler Api Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
-
-      - name: Pushing Z80 Emulator Database Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
+      - name: Build and run Z80 Emulator Database
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
