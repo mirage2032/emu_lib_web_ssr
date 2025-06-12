@@ -15,5 +15,7 @@ RUN mkdir -p \
  && cp /usr/share/postgresql17/extension/plperl--*.sql \
         /usr/local/share/postgresql/extension/
 
+COPY ./initdb /docker-entrypoint-initdb.d
+
 # Expose Postgres port
 EXPOSE 5432

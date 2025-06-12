@@ -1,0 +1,3 @@
+#!/bin/sh
+docker build -t mirage2032/z80emu-db .
+docker push mirage2032/z80emu-db

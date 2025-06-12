@@ -1,9 +1,7 @@
 version: '3.9'
 services:
   db-container:
-    build:
-      context: ./db
-      dockerfile: Dockerfile
+    image: mirage2032/z80emu-db
     ports:
       - "5432:5432"
     environment:
@@ -16,17 +14,9 @@ services:
     volumes:
       - ./db/data:/var/lib/postgresql/data
   compiler-service:
-    build:
-      context: ./ccompiler
-      dockerfile: Dockerfile
-    ports:
-      - "4560:4560"
+    image: mirage2032/z80compiler-api
   web-container:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+    image: mirage2032/z80emu
     environment:
       DB_HOST: db-container
       COMPILER_HOST: compiler-service:4560
