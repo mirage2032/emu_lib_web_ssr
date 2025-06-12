@@ -1,11 +1,19 @@
-FROM postgres:17.4
-# Install Dependencies
-RUN apt-get -y update && \
-    apt-get -y install postgresql-contrib postgresql-plperl-17 make
+FROM postgres:17.5-alpine3.22
 
-# Install cpan
-RUN echo y | cpan
-RUN cpan Email::Address
+RUN apk add --no-cache \
+      perl-dev \
+      perl-email-address \
+      postgresql17-plperl
 
-# Expose Port
+RUN mkdir -p \
+      /usr/local/lib/postgresql \
+      /usr/local/share/postgresql/extension \
+ && ln -sf /usr/lib/postgresql17/plperl.so \
+        /usr/local/lib/postgresql/plperl.so \
+ && ln -sf /usr/share/postgresql17/extension/plperl.control \
+        /usr/local/share/postgresql/extension/plperl.control \
+ && cp /usr/share/postgresql17/extension/plperl--*.sql \
+        /usr/local/share/postgresql/extension/
+
+# Expose Postgres port
 EXPOSE 5432

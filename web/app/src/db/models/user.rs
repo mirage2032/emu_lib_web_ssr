@@ -3,7 +3,6 @@ use crate::db::models::schema::users::dsl;
 use crate::db::models::session::*;
 #[cfg(not(target_arch = "wasm32"))]
 use crate::db::models::user::dsl::users;
-use crate::db::password;
 #[cfg(not(target_arch = "wasm32"))]
 use crate::db::DbPool;
 #[cfg(not(target_arch = "wasm32"))]
@@ -73,6 +72,7 @@ impl UserLogin {
         &self,
         pool: &DbPool
     ) -> Result<User, Box<dyn Error>> {
+        use crate::db::password;
         if let Some(user) = User::get_by_login(&self.login, pool)? {
             if password::verify_password(&self.password, &user.password_hash).is_err() {
                 return Err("Invalid password".into());
@@ -93,8 +93,11 @@ pub struct NewUser {
     pub oauth_github: Option<String>,
     pub password_hash: String,
 }
+
+#[cfg(not(target_arch = "wasm32"))]
 impl NewUser {
     pub fn new(username: String, email: String, password: String,oauth_google: Option<String>,oauth_github: Option<String>) -> Result<Self, String> {
+        use crate::db::password;
         let password_hash =
             password::hash_password(&password).map_err(|_| "Couldn't hash password".to_string())?;
         Ok(NewUser {

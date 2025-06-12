@@ -28,6 +28,8 @@ pub struct NewSession {
     pub token: String,
     pub expires_at: SystemTime,
 }
+
+#[cfg(not(target_arch = "wasm32"))]
 impl NewSession {
     pub fn new(user_id: i32, duration: time::Duration) -> Self {
         let token = uuid::Uuid::new_v4().to_string();

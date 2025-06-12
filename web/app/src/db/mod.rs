@@ -4,6 +4,7 @@ use diesel::{
     PgConnection,
 };
 pub mod models;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod password;
 
 #[cfg(not(target_arch = "wasm32"))]

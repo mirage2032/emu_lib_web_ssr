@@ -1,4 +1,4 @@
-#![recursion_limit = "256"]
+#![recursion_limit = "512"]
 
 use app::db::{establish_connection, AppState};
 use app::*;
@@ -20,8 +20,9 @@ mod middleware;
 
 #[tokio::main]
 async fn main() {
+    let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     let cors = CorsLayer::new()
-        .allow_origin("http://localhost:3000".parse::<HeaderValue>().unwrap())
+        .allow_origin(format!("http://{public_url}").parse::<HeaderValue>().unwrap())
         .allow_methods(Any)
         .allow_headers(Any);
     //.allow_methods([Method::GET, Method::POST])
@@ -92,8 +93,15 @@ async fn main() {
     // run our app with hyperr
     // `axum::Server` is a re-export of `hyper::Server`
     log::info!("listening on http://{}", &addr);
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    axum::serve(listener, app.into_make_service())
-        .await
-        .unwrap();
+    match tokio::net::TcpListener::bind(addr).await{
+        Ok(listener) => {
+            axum::serve(listener, app.into_make_service())
+                .await
+                .unwrap();
+        }
+        Err(e) => {
+            log::error!("Failed to bind to address {}: {}", addr, e);
+            std::process::exit(1);
+        }
+    }
 }

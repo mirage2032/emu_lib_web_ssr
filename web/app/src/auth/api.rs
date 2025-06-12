@@ -161,9 +161,10 @@ fn github_oauth_client() -> Client<
     EndpointSet,
 > {
     use oauth2::{basic::BasicClient, AuthUrl, ClientId, RedirectUrl, TokenUrl};
+    let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     BasicClient::new(ClientId::new("Ov23liaBVBCExpfVdE5h".to_string()))
         .set_redirect_uri(
-            RedirectUrl::new("http://localhost:3000/auth/github_login_callback".to_string())
+            RedirectUrl::new(format!("http://{public_url}/auth/github_login_callback"))
                 .expect("Could not set redirect URI"),
         )
         .set_auth_uri(
@@ -355,7 +356,6 @@ pub async fn userdata() -> Result<UserData, UserDataError> {
     if let Ok(userdata) = userdata {
         Ok(userdata.0.clone())
     } else {
-        log!("User is not authenticated");
         Err(UserDataError::Unauthenticated)
     }
 }

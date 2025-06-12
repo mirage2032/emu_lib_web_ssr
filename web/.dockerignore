@@ -8,11 +8,12 @@ style/stylance/*
 Cargo.lock
 **/*.rs.bk
 
-# node e2e test tools and outputs
-node_modules/
-test-results/
-end2end/playwright-report/
-playwright/.cache/
+.dockerignore
+.gitignore
+Dockerfile
+run_stylance.sh
+run_watch_dev.sh
+build.sh
 
 # ENV file with sensitive data
 .env

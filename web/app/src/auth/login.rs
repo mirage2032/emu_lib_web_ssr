@@ -12,7 +12,7 @@ use std::time::Duration;
 use stylance::classes;
 
 #[island]
-pub fn LoginForm() -> impl IntoView {
+pub fn LoginForm(public_url:String) -> impl IntoView {
     let login = ServerAction::<LoginApi>::new();
     Effect::new(move || {
         if let Some(Ok(())) = login.value().get().as_ref() {
@@ -34,7 +34,6 @@ pub fn LoginForm() -> impl IntoView {
             None => "", //not checked yet
         })
     };
-
     view! {
         <ActionForm action=login>
             <div>
@@ -67,9 +66,9 @@ pub fn LoginForm() -> impl IntoView {
             <input type="submit" value="Login" />
             <div
                 id="g_id_onload"
-                data-client_id="184771194000-v77fl8gs8pi0k1757nuuethp3ta3jlqo.apps.googleusercontent.com"
+                data-client_id="652756675182-jij1vm0aiacih2mnhohc51tu32099n85.apps.googleusercontent.com"
                 data-ux_mode="redirect"
-                data-login_uri="http://localhost:3000/api/google_login_callback"
+                data-login_uri=format!("http://{public_url}/api/google_login_callback")
             ></div>
             <div>
                 <div class="g_id_signin" data-type="standard"></div>
@@ -79,6 +78,7 @@ pub fn LoginForm() -> impl IntoView {
 }
 #[component]
 pub fn Login() -> impl IntoView {
+    let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     view! {
         <Title text="Login" />
         <Script src="https://accounts.google.com/gsi/client" defer="defer" async_="async" />
@@ -89,7 +89,7 @@ pub fn Login() -> impl IntoView {
                 <AuthBackground />
                 // </div>
                 <main>
-                    <LoginForm />
+                    <LoginForm public_url=public_url />
                 </main>
             </div>
         </div>

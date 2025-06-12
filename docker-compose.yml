@@ -8,7 +8,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
-      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --locale-provider=icu --icu-locale=en-US"
       POSTGRES_USER: user # ${DB_USER}
       POSTGRES_PASSWORD: pass # ${DB_PASS}
       POSTGRES_DB: z80emu # ${DB_NAME}
@@ -26,17 +26,18 @@ services:
     build:
       context: ./web
       dockerfile: Dockerfile
-    volumes:
-      - ./web:/web
     env_file:
       - .env
     environment:
       - DB_HOST=db-container
-      - COMPILER_HOST=compiler-service:3000
+      - COMPILER_HOST=compiler-service:4560
+      - LEPTOS_SITE_ADDR=0.0.0.0:80
+      - PUBLIC_URL=localhost:80
     ports:
-        - "3000:3000"
+        - "80:80"
     depends_on:
       - db-container
+      - compiler-service
 
 networks:
   default:

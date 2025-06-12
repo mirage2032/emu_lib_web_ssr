@@ -167,19 +167,22 @@ pub fn register_form() -> impl IntoView {
 }
 
 #[island]
-pub fn main_table() -> impl IntoView {
+pub fn main_table(public_url:String) -> impl IntoView {
     let registered = RwSignal::new(false);
     provide_context(registered.clone());
-    move || -> _ {
+    let url = move || public_url.clone();
+    let vw = move || {
         match registered.get() {
-            true => view! { <LoginForm /> }.into_any(),
+            true => view! { <LoginForm public_url=url() /> }.into_any(),
             false => view! { <RegisterForm /> }.into_any(),
         }
-    }
+    };
+    vw
 }
 
 #[component]
 pub fn register() -> impl IntoView {
+    let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     view! {
         <Title text="Register" />
         <Script src="https://accounts.google.com/gsi/client" defer="defer" async_="async" />
@@ -188,7 +191,7 @@ pub fn register() -> impl IntoView {
             <div class=auth_style::authmaincontainer>
                 <AuthBackground />
                 <main>
-                    <MainTable />
+                    <MainTable public_url=public_url/>
                 </main>
             </div>
         </div>

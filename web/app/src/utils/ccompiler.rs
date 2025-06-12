@@ -1,3 +1,4 @@
+use std::sync::LazyLock;
 use base64::Engine;
 use leptos::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -34,7 +35,7 @@ mod server_imports {
     pub use leptos_axum::ResponseOptions;
 }
 
-const COMPILER_HOST: &str = env!("COMPILER_HOST");
+static COMPILER_HOST: LazyLock <String> = LazyLock::new( | | std::env::var("COMPILER_HOST").expect("No COMPILER_HOST set"));
 
 #[derive(Serialize, Deserialize)]
 struct RequestBody {
@@ -157,7 +158,7 @@ pub async fn c_compile(code: String) -> Result<CompileData, CompilerError> {
         Ok(_) => {
             let reqwest_client = &state.reqwest_client;
             let response = reqwest_client
-                .post(format!("http://{COMPILER_HOST}/compile"))
+                .post(format!("http://{}/compile",*COMPILER_HOST))
                 .header(
                     "Content-Length",
                     serde_json::to_string(&data).unwrap().len(),
@@ -191,7 +192,7 @@ pub async fn c_format(code: String) -> Result<FormatData, CompilerError> {
         Ok(_) => {
             let reqwest_client = &state.reqwest_client;
             let response = reqwest_client
-                .post(format!("http://{COMPILER_HOST}/format"))
+                .post(format!("http://{}/format",*COMPILER_HOST))
                 .header(
                     "Content-Length",
                     serde_json::to_string(&data).unwrap().len(),
@@ -225,7 +226,7 @@ pub async fn c_syntax_check(code: String) -> Result<SyntaxCheckData, CompilerErr
         Ok(_) => {
             let reqwest_client = &state.reqwest_client;
             let response = reqwest_client
-                .post(format!("http://{COMPILER_HOST}/syntax_check"))
+                .post(format!("http://{}/syntax_check",*COMPILER_HOST))
                 .header(
                     "Content-Length",
                     serde_json::to_string(&data).unwrap().len(),
