@@ -35,3 +35,9 @@ jobs:
           kubectl apply -f k8s/ccompiler
           kubectl apply -f k8s/db
           kubectl apply -f k8s/web
+
+      - name: Restart # In case docketimage changes to get new one
+        run: |
+          kubectl rollout restart deployment web-container
+          kubectl rollout restart deployment db-container
+          kubectl rollout restart deployment compiler-service
