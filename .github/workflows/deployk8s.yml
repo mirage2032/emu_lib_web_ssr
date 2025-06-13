@@ -20,6 +20,9 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
+      - name: Install kubectl gcloud component
+        run: gcloud components install kubectl
+        
       - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v2
         with:
