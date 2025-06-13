@@ -22,7 +22,7 @@ mod middleware;
 async fn main() {
     let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     let cors = CorsLayer::new()
-        .allow_origin(format!("http://{public_url}").parse::<HeaderValue>().unwrap())
+        .allow_origin(format!("https://{public_url}").parse::<HeaderValue>().unwrap())
         .allow_methods(Any)
         .allow_headers(Any);
     //.allow_methods([Method::GET, Method::POST])

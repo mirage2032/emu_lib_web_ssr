@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: db-container
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: db-container

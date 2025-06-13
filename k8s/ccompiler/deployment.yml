@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: compiler-service
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: compiler-service

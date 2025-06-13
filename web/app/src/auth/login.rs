@@ -68,7 +68,7 @@ pub fn LoginForm(public_url:String) -> impl IntoView {
                 id="g_id_onload"
                 data-client_id="652756675182-jij1vm0aiacih2mnhohc51tu32099n85.apps.googleusercontent.com"
                 data-ux_mode="redirect"
-                data-login_uri=format!("http://{public_url}/api/google_login_callback")
+                data-login_uri=format!("https://{public_url}/api/google_login_callback")
             ></div>
             <div>
                 <div class="g_id_signin" data-type="standard"></div>

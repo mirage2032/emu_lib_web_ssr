@@ -164,7 +164,7 @@ fn github_oauth_client() -> Client<
     let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     BasicClient::new(ClientId::new("Ov23liaBVBCExpfVdE5h".to_string()))
         .set_redirect_uri(
-            RedirectUrl::new(format!("http://{public_url}/auth/github_login_callback"))
+            RedirectUrl::new(format!("https://{public_url}/auth/github_login_callback"))
                 .expect("Could not set redirect URI"),
         )
         .set_auth_uri(

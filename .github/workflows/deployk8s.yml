@@ -5,6 +5,7 @@ on:
     workflows: ["Dockerhub Image Update"]
     types:
       - completed
+    conclusion: success
     branches:
       - master
 
@@ -35,13 +36,6 @@ jobs:
 
       - name: Get GKE credentials
         run: gcloud container clusters get-credentials autopilot-cluster-1 --zone europe-north1 --project z80emu-462619
-
-#      - name: Update Secrets
-#        run: |
-#          kubectl create secret generic db-credentials \
-#          --from-literal=DB_USER=${{ secrets.DB_USER }} \
-#          --from-literal=DB_PASS=${{ secrets.DB_PASS }} \
-#          --from-literal=DB_NAME=${{ secrets.DB_NAME }}
 
       - name: Update Deployment
         run: |

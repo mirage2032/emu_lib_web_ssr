@@ -3,6 +3,7 @@ kind: StorageClass
 metadata:
   name: zonal-sc
 provisioner: pd.csi.storage.gke.io
+allowVolumeExpansion: true
 parameters:
   type: pd-standard
 volumeBindingMode: WaitForFirstConsumer

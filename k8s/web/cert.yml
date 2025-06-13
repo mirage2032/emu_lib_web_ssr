@@ -1,0 +1,7 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: z80emu-cert
+spec:
+  domains:
+    - z80emu.online

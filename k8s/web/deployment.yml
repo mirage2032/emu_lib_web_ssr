@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: web-container
 spec:
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: web-container
@@ -26,7 +28,7 @@ spec:
             - name: LEPTOS_SITE_ADDR
               value: 0.0.0.0:80   # Update manually after deployment
             - name: PUBLIC_URL
-              value: 34.88.134.186:80  # Update manually after deployment
+              value: z80emu.online  # Update manually after deployment
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
