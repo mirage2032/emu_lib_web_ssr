@@ -23,6 +23,9 @@ jobs:
       - name: Get GKE credentials
         run: gcloud container clusters get-credentials autopilot-cluster-1 --zone europe-north1 --project z80emu-462619
 
+      - name: Install kubectl gcloud component
+        run: gcloud components install kubectl
+        
       - name: Update Deployment
         env:
           SPACESHIP_KEY: ${{ secrets.SPACESHIP_KEY }}

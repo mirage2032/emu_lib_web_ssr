@@ -6,10 +6,6 @@ on:
       GOOGLE_CREDENTIALS:
         required: true
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
