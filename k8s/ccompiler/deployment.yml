@@ -15,5 +15,6 @@ spec:
       containers:
         - name: compiler-service
           image: mirage2032/z80compiler-api:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 4560

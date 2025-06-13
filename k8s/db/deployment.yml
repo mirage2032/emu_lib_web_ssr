@@ -39,6 +39,8 @@ spec:
                   key: DB_NAME
             - name: POSTGRES_TZ
               value: "Europe/Bucharest"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: db-data
