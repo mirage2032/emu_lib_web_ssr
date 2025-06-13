@@ -25,7 +25,7 @@ jobs:
 
       - name: Install kubectl gcloud component
         run: gcloud components install kubectl
-        
+
       - name: Update Deployment
         env:
           SPACESHIP_KEY: ${{ secrets.SPACESHIP_KEY }}
