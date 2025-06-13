@@ -1,0 +1,23 @@
+name: Deploy Z80 Emulator Application
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run_image_creation:
+    uses: ./.github/workflows/dockerhub.yml
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  run_deploy:
+    needs: run_image_creation
+    uses: ./.github/workflows/applyk8s.yml
+    secrets:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}

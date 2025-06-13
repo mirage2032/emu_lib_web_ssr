@@ -1,13 +1,10 @@
-name: Deploy to GKE
+name: Apply K8S Configuration on GKE
 
 on:
-  workflow_run:
-    workflows: ["Dockerhub Image Update"]
-    types:
-      - completed
-    conclusion: success
-    branches:
-      - master
+  workflow_call:
+    secrets:
+      GOOGLE_CREDENTIALS:
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

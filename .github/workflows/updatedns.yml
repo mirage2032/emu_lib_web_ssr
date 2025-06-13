@@ -1,0 +1,51 @@
+name: Update DNS Configuration
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  schedule:
+    - cron: '0 * * * *'  # Runs hourly (optional)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: z80emu-462619
+          version: 'latest'
+
+      - name: Install kubectl gcloud component
+        run: gcloud components install kubectl
+
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials autopilot-cluster-1 --zone europe-north1 --project z80emu-462619
+
+      - name: Update Deployment
+        env:
+          SPACESHIP_KEY: ${{ secrets.SPACESHIP_KEY }}
+          SPACESHIP_SECRET: ${{ secrets.SPACESHIP_SECRET }}
+        run: |
+          # Get IP and update DNS
+          IP=$(kubectl get ingress z80emu-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          curl -X PUT "https://spaceship.dev/api/v1/dns/records/z80emu.online" \
+            -H "X-API-Key: ${SPACESHIP_KEY}" \
+            -H "X-API-Secret: ${SPACESHIP_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "force": true,
+              "items": [
+                {
+                  "type": "A",
+                  "address": "'"${IP}"'",
+                  "name": "@",
+                  "ttl": 3600
+                }
+              ]
+            }'
+          echo "Updated DNS record with IP: ${IP}"
