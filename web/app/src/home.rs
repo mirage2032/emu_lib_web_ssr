@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_meta::{provide_meta_context, Title};
+use leptos_meta::{provide_meta_context, Meta, Title};
 use leptos_router::components::{Redirect, A};
 
 stylance::import_style!(style, "./home.module.scss");
@@ -24,6 +24,8 @@ pub fn HomePage() -> impl IntoView {
             </Show>
         </Transition>
         <head>
+            <Meta name="og:title" content="Home" />
+            <Meta name="og:description" content="Z80 Emulator Home Page" />
             <Title text="Home" />
         </head>
         <div class=style::maincontainer>

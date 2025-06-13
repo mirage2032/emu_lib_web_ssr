@@ -1,6 +1,6 @@
 use crate::header::SimpleHeader;
 use leptos::prelude::*;
-use leptos_meta::{provide_meta_context, Title};
+use leptos_meta::{provide_meta_context, Meta, Title};
 use thiserror::Error;
 
 stylance::import_style!(style, "./error.module.scss");
@@ -8,6 +8,7 @@ stylance::import_style!(style, "./error.module.scss");
 #[component]
 pub fn Error(#[prop(optional)] code: Option<i32>, message: String) -> impl IntoView {
     view! {
+        <Meta name="og:title" content="Error" />
         <Title text="Error" />
         <div class=style::errorcontainer>
             <SimpleHeader title="Error".to_string() />
@@ -33,6 +34,7 @@ pub fn Error(#[prop(optional)] code: Option<i32>, message: String) -> impl IntoV
 #[component]
 pub fn NotFound() -> impl IntoView {
     view! {
+        <Meta name="og:title" content="Not Found" />
         <Title text="Not Found" />
         <div class=style::errorcontainer>
             <SimpleHeader title="Error".to_string() />

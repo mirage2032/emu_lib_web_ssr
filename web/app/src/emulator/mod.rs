@@ -18,7 +18,7 @@ use emu_lib::cpu::z80::Z80;
 use emu_lib::emulator::Emulator;
 use info::Info;
 use leptos::prelude::*;
-use leptos_meta::Title;
+use leptos_meta::{Meta, Title};
 use memory::Memory;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
@@ -104,6 +104,7 @@ pub fn EmulatorInner() -> impl IntoView {
 #[component]
 pub fn Emulator() -> impl IntoView {
     view! {
+        <Meta name="og:title" content="Emulator" />
         <Title text="Emulator" />
         <EmulatorInner />
     }

@@ -1,6 +1,6 @@
 use crate::header::SimpleHeader;
 use leptos::prelude::*;
-use leptos_meta::Title;
+use leptos_meta::{Meta, Title};
 
 mod resume_data;
 mod resume_view;
@@ -59,6 +59,7 @@ pub fn ResumeTransition() -> impl IntoView {
 #[component]
 pub fn Author() -> impl IntoView {
     view! {
+        <Meta name="og:title" content="Author" />
         <Title text="Author" />
         <SimpleHeader title="Author".to_string() />
         <div class=style::authorcontainer>

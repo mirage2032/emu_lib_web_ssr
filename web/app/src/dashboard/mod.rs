@@ -5,7 +5,7 @@ use crate::utils::cookie::CookieKey;
 use crate::utils::icons::Icon;
 use leptos::prelude::*;
 use leptos::task::spawn_local;
-use leptos_meta::Title;
+use leptos_meta::{Meta, Title};
 use std::string::ToString;
 use stylance::{classes, import_style};
 
@@ -102,6 +102,7 @@ fn inner_dashboard() -> impl IntoView {
 #[component]
 pub fn dashboard() -> impl IntoView {
     view! {
+        <Meta name="og:title" content="Dashboard" />
         <Title text="Dashboard" />
         <div style:height="100%">
             <InnerDashboard />

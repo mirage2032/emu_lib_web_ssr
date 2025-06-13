@@ -3,7 +3,7 @@ use super::{auth_style, AuthBackground};
 use crate::auth::login::LoginForm;
 use crate::header::SimpleHeader;
 use leptos::prelude::*;
-use leptos_meta::{Script, Title};
+use leptos_meta::{Meta, Script, Title};
 use regex::Regex;
 
 fn response_to_class(response: Option<Result<bool, ServerFnError>>) -> &'static str {
@@ -184,6 +184,7 @@ pub fn main_table(public_url:String) -> impl IntoView {
 pub fn register() -> impl IntoView {
     let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     view! {
+        <Meta name="og:title" content="Register" />
         <Title text="Register" />
         <Script src="https://accounts.google.com/gsi/client" defer="defer" async_="async" />
         <div class=auth_style::authcontainer>

@@ -80,6 +80,7 @@ pub fn LoginForm(public_url:String) -> impl IntoView {
 pub fn Login() -> impl IntoView {
     let public_url = std::env::var("PUBLIC_URL").expect("PUBLIC_URL");
     view! {
+        <Meta name="og:title" content="Login" />
         <Title text="Login" />
         <Script src="https://accounts.google.com/gsi/client" defer="defer" async_="async" />
         <div class=auth_style::authcontainer>
