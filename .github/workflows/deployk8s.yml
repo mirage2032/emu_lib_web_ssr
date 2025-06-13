@@ -8,6 +8,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -25,19 +29,19 @@ jobs:
         with:
           project_id: z80emu-462619
           version: 'latest'
-          
+
       - name: Install kubectl gcloud component
         run: gcloud components install kubectl
 
       - name: Get GKE credentials
         run: gcloud container clusters get-credentials autopilot-cluster-1 --zone europe-north1 --project z80emu-462619
 
-      - name: Update Secrets
-        run: |
-          kubectl create secret generic db-credentials \
-          --from-literal=DB_USER=${{ secrets.DB_USER }} \
-          --from-literal=DB_PASS=${{ secrets.DB_PASS }} \
-          --from-literal=DB_NAME=${{ secrets.DB_NAME }}
+#      - name: Update Secrets
+#        run: |
+#          kubectl create secret generic db-credentials \
+#          --from-literal=DB_USER=${{ secrets.DB_USER }} \
+#          --from-literal=DB_PASS=${{ secrets.DB_PASS }} \
+#          --from-literal=DB_NAME=${{ secrets.DB_NAME }}
 
       - name: Update Deployment
         run: |

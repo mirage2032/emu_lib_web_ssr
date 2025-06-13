@@ -38,7 +38,7 @@ jobs:
       - name: Build and run Z80 Compiler Api
         uses: docker/build-push-action@v6
         with:
-          context: ./web
+          context: ./ccompiler
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
           cache-from: type=gha
@@ -47,7 +47,7 @@ jobs:
       - name: Build and run Z80 Emulator Database
         uses: docker/build-push-action@v6
         with:
-          context: ./web
+          context: ./db
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
           cache-from: type=gha
