@@ -24,9 +24,9 @@ spec:
             - name: COMPILER_HOST
               value: compiler-service:4560
             - name: LEPTOS_SITE_ADDR
-              value: "${BIND_URL}"   # Update manually after deployment
+              value: 0.0.0.0:80   # Update manually after deployment
             - name: PUBLIC_URL
-              value: "${PUBLIC_URL}"  # Update manually after deployment
+              value: 34.88.134.186:80  # Update manually after deployment
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
