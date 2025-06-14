@@ -10,6 +10,7 @@ use leptos::task::spawn_local;
 use leptos::wasm_bindgen::JsCast;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
+use emu_lib::memory::MemoryDevice;
 use stylance::classes;
 
 const BTN_CLASS: &str = "button";
@@ -70,7 +71,7 @@ fn RunButton() -> impl IntoView {
     let step = move || {
         emu_ctx.update(|emu| {
             if let Err(err) = emu.emu.run_ticks(
-                74.0,
+                100000.0,
                 &Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {}),
             ) {
                 emu_cfg_ctx.update(|emu_cfg| match err {
@@ -198,6 +199,35 @@ fn ResetButton() -> impl IntoView {
 }
 
 #[island]
+fn ClearMemoryButton() -> impl IntoView {
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    view! {
+        <input
+            type="button"
+            value="Clear Memory"
+            on:click=move |_| {
+                emu_ctx.update(|emu| {
+                    emu_cfg_ctx.update(|emu_cfg| {
+                        for addr in 0..emu.emu.memory.size() as u16 {;
+                            match emu.emu.memory.write_8_force(addr,0){
+                            Ok(_) => {},
+                            Err(err) => {
+                                emu_cfg.logstore.log_error(
+                                    "Memory clear error",
+                                    format!("Error clearing memory at {:#04X}: {}", addr, err),
+                                );
+                            }
+                        }
+                    }
+                    });
+                });
+            }
+        />
+    }
+}
+
+#[island]
 fn LoadButton() -> impl IntoView {
     let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     let emu_ctx_signal = expect_context::<RwSignal<EmulatorCfgContext>>();
@@ -292,6 +322,7 @@ pub fn Control() -> impl IntoView {
             <RunButton />
             <HaltButton />
             <ResetButton />
+            <ClearMemoryButton />
             <LoadButton />
             <EmuLog />
         </div>
