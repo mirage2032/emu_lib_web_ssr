@@ -19,7 +19,7 @@ impl Default for DisassemblerContext {
     fn default() -> Self {
         DisassemblerContext {
             start: None,
-            rows: 20,
+            rows: 30,
         }
     }
 }

@@ -167,29 +167,73 @@ pub fn Display() -> impl IntoView {
     let canvas_ref:NodeRef<Canvas> = NodeRef::new();
     let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     let draw = move |dsp: &DisplayData| {
-        if let Some(canvas) = canvas_ref.get_untracked()
-        {
-            let html_canvas = canvas.dyn_ref::<HtmlCanvasElement>().expect("Canvas element not found").clone();
-            let buf_width = dsp.width();
-            let buf_height = dsp.height();
+        if let Some(canvas) = canvas_ref.get_untracked() {
+            let html_canvas = canvas
+                .dyn_ref::<HtmlCanvasElement>()
+                .expect("Canvas element not found")
+                .clone();
+
+            let buf_width = dsp.width() as u32;
+            let buf_height = dsp.height() as u32;
+
             let ctx = canvas
                 .get_context("2d")
                 .expect("should not error")
                 .unwrap()
                 .dyn_into::<CanvasRenderingContext2d>()
                 .expect("context should be 2d");
-                    let canvas_width = html_canvas.width() as usize;
-                    let canvas_height = html_canvas.height() as usize;
-                    let scale_x = canvas_width as f64 / buf_width as f64;
-                    let scale_y = canvas_height as f64 / buf_height as f64;
-                    ctx.scale(scale_x, scale_y)
-                        .expect("should scale context");
-            // log!("Display data changed: {}", dd.pixel_data.get(0).expect("should get pixel data").0);
 
-                    let image_data = ImageData::new_with_u8_clamped_array_and_sh(Clamped(&dsp.pixel_data.iter().map(|p| p.to_rgb()).flat_map(|(r, g, b)| vec![r, g, b, 255]).collect::<Vec<u8>>()), buf_width as u32, buf_height as u32)
-                        .expect("should create image data");
-                    ctx.put_image_data(&image_data, 0.0, 0.0)
-                        .expect("should put image data");
+            // Create ImageData at original buffer size
+            let pixel_bytes: Vec<u8> = dsp
+                .pixel_data
+                .iter()
+                .map(|p| p.to_rgb())
+                .flat_map(|(r, g, b)| vec![r, g, b, 255])
+                .collect();
+
+            let image_data = ImageData::new_with_u8_clamped_array_and_sh(
+                Clamped(&pixel_bytes),
+                buf_width,
+                buf_height,
+            )
+            .expect("should create image data");
+
+            // Create an offscreen canvas to hold the image data at original size
+            let offscreen_canvas = document()
+                .create_element("canvas")
+                .unwrap()
+                .dyn_into::<HtmlCanvasElement>()
+                .unwrap();
+
+            offscreen_canvas.set_width(buf_width);
+            offscreen_canvas.set_height(buf_height);
+            let offscreen_ctx = offscreen_canvas
+                .get_context("2d")
+                .expect("offscreen ctx")
+                .unwrap()
+                .dyn_into::<CanvasRenderingContext2d>()
+                .expect("offscreen ctx2d");
+
+            offscreen_ctx
+                .put_image_data(&image_data, 0.0, 0.0)
+                .expect("put image data on offscreen");
+
+            // Now clear the main canvas and draw the offscreen canvas scaled to fit main canvas
+            ctx.clear_rect(0.0, 0.0, html_canvas.width() as f64, html_canvas.height() as f64);
+
+            ctx
+                .draw_image_with_html_canvas_element_and_sw_and_sh_and_dx_and_dy_and_dw_and_dh(
+                    &offscreen_canvas,
+                    0.0,
+                    0.0,
+                    buf_width as f64,
+                    buf_height as f64,
+                    0.0,
+                    0.0,
+                    html_canvas.width() as f64,
+                    html_canvas.height() as f64,
+                )
+                .expect("draw scaled image");
         }
     };
     Effect::watch(
@@ -204,7 +248,7 @@ pub fn Display() -> impl IntoView {
                 <span>Display</span>
             </div>
             <div class=emu_style::secmid>
-                <DisplayData />
+                // <DisplayData />
                 <div class=emu_style::canvascontainer>
                     <canvas node_ref=canvas_ref></canvas>
                 </div>

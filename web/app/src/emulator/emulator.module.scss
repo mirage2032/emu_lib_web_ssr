@@ -60,6 +60,7 @@ $mc-border: #dee2e6; // Borders
   border: 1px solid $mc-border;
   //border-bottom: none;
   display: flex;
+  background-color: $color-bg;
 
   .load {
     display: flex;
@@ -161,6 +162,7 @@ $mc-border: #dee2e6; // Borders
   display: inline-block;
   width: 100%;
   min-width: fit-content;
+  background-color: $mc-row-even;
 
   .emulator {
     display: flex;
@@ -215,7 +217,7 @@ $mc-border: #dee2e6; // Borders
         flex: 1;
         display: flex;
         flex-direction: column;
-        background-color: $mc-row-odd;
+        background-color: $mc-row-even;
       }
     }
 
@@ -227,22 +229,22 @@ $mc-border: #dee2e6; // Borders
       .display {
         .secmid {
           display: flex;
+          flex-direction: column;
           background-color: $color-3;
+          padding: 0.8rem;
 
           .displaydata {
+            padding-bottom: 0.8rem;
             div{
               white-space: nowrap;
             }
           }
           .canvascontainer {
             width: 100%;
-            height: 100%;
             //margin: 10px auto;
             canvas {
-              width: 100%;
               height: 100%;
-              //width: 100%;
-              //max-width: 800px;
+              width: 100%;
             }
           }
         }
@@ -622,11 +624,11 @@ $mc-border: #dee2e6; // Borders
 
         .emuinfo {
           border: 1px solid $mc-border;
-          height: 100%;
           position: relative;
           background-color: $mc-row-even;
 
           .infocounters {
+            padding: 0.8rem 0.8rem;
             display: flex;
 
             .counters {

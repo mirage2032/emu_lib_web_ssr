@@ -209,8 +209,8 @@ fn ClearMemoryButton() -> impl IntoView {
             on:click=move |_| {
                 emu_ctx.update(|emu| {
                     emu_cfg_ctx.update(|emu_cfg| {
-                        for addr in 0..emu.emu.memory.size() as u16 {;
-                            match emu.emu.memory.write_8_force(addr,0){
+                        for addr in 0..emu.emu.memory.size() {
+                            match emu.emu.memory.write_8_force(addr as u16,0){
                             Ok(_) => {},
                             Err(err) => {
                                 emu_cfg.logstore.log_error(
@@ -255,6 +255,10 @@ fn LoadButton() -> impl IntoView {
                                     let data = array.to_vec();
                                     emu_signal
                                         .update(|emu| {
+                                            for addr in 0..emu.emu.memory.size(){
+                                                emu.emu.memory.write_8_force(addr as u16, 0).expect("Error clearing memory");
+                                            }
+                                            emu.emu.memory.clear_changes();
                                             if let Ok(_) = emu.emu.memory.load(&data, true) {
                                                 emu_ctx_signal
                                                     .update(|emu_ctx| {
