@@ -1,0 +1,15 @@
+\usepackage[dvipsnames]{xcolor}
+\usepackage{listings}
+
+\lstdefinelanguage{yaml}{
+    keywords={true,false,null},                     % Booleans/null
+    keywordstyle=\color{blue}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{\#},
+    commentstyle=\color{Purple}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    morestring=[b]',
+    morestring=[b]",                                % Single- and double-quoted strings
+    moredelim=[is][\color{blue}]{^}{:},             % Keys (before colon) in blue
+}

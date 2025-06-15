@@ -11,7 +11,7 @@
     Extension = .otf ,
     Scale = 1.0 ]
 \usepackage[backend=biber]{biblatex}
-\usepackage{listings, listings-rust, docker}
+\usepackage{listings, listings-rust, docker, yaml}
 \usepackage{xcolor}
 \usepackage{multicol}
 \setmonofont{JetBrains Mono}
@@ -97,6 +97,7 @@ keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
         \acro {IaaS}      {Infrastructure as a Service}
         \acro {PaaS}      {Platform as a Service}
         \acro {SaaS}      {Software as a Service}
+        \acro {CRT}       {C runtime}
     \end{acronym}
     \clearpage
 % Sections
@@ -1719,23 +1720,7 @@ pub async fn userdata() -> Result<UserData, UserDataError> {
 }
 \end{lstlisting}
 
-\paragraph{API\-ul compiler C} este implementat in fisierul \code{compiler.rs} si este folosit pentru a comunica cu serviciul de compilare. Serviciul de compilare este implementat sa ruleze intr-un container Docker bazat pe imaginea \code {z88dk/z88dk}. Aceasta imagine contine toate dependintele necesare pentru a compila codul sursa in limbajul C pentru microprocesorul Z80.
-In \cref{lst:compilerdocker} este prezentat cum sunt instalate dependintele necesare pentru a rula compilatorul C in in containerul Docker si cum este configurat sa ruleze serverul FastAPI pe portul 4560. Acest port este expus pentru a permite comunicarea cu intre acest serviciu si aplicatia web. Datorita izolarii oferite de Docker, acest serviciu nu este expus direct la internet, ci doar prin intermediul aplicatiei web. Acest lucru ofera un nivel suplimentar de securitate si permite ca serviciul de compilare sa fie scalat usor in cazul in care este necesar.
-
-\begin{lstlisting}[language=docker,caption={Dockerfile pentru compilatorul C},label={lst:compilerdocker}]
-FROM z88dk/z88dk
-RUN apk add --no-cache python3 py3-pip astyle
-WORKDIR /web
-# Create Virtual Environment
-RUN python3 -m venv venv
-RUN venv/bin/pip install --upgrade pip
-# Install PIP Dependencies
-COPY requirements.txt .
-RUN venv/bin/pip install -r requirements.txt
-COPY api.py .
-EXPOSE 4560 # Expose Port
-CMD ["venv/bin/fastapi", "run", "--port", "4560" ,"api.py"]
-\end{lstlisting}
+\paragraph{API\-ul compiler C} este implementat in fisierul \code{compiler.rs} si este folosit pentru a comunica cu serviciul de compilare.
 
 Deoarece compilerul functioneaza pe alta masina, pentru a fiecare endpoint pe care il vrem acesibil 2 functii vor fi implementate. Una va fi scrisa in python si va functiona ca wrapper ce expune un API web compilatorului, iar cealalta va fi scrisa in Rust si va fi folosita pentru a face cereri catre API-ul web al compilatorului. Acest lucru permite ca frontend-ul sa poate comunica cu compilatorul fara a fi nevoie sa cunoasca detalii despre implementarea acestuia.
 
@@ -1747,6 +1732,13 @@ API-ul Python care ruleaza in containerul cu compilatorul C este implementat in 
 \end{itemize}
 
 \begin{lstlisting}[language=Python,caption={API-ul Python pentru compilatorul C},label={lst:compilerapi}]
+from fastapi import FastAPI
+from pydantic import BaseModel
+from pydantic.dataclasses import dataclass
+from tempfile import TemporaryDirectory, NamedTemporaryFile
+import base64
+import subprocess
+#...
 def compile_str(b64data_in: str) -> CompileData:
     data_in = base64.b64decode(b64data_in).decode("utf-8")
     with TemporaryDirectory() as temp_dir:
@@ -1773,7 +1765,6 @@ def compile_str(b64data_in: str) -> CompileData:
                            b64stderr=base64.b64encode(result.stderr),
                            b64data=base64.b64encode(data))
 
-
 def format_str(b64data_in: str) -> FormatData:
     data_in = base64.b64decode(b64data_in).decode("utf-8")
     with NamedTemporaryFile(mode="w+", suffix=".c") as f:
@@ -1797,7 +1788,6 @@ def format_str(b64data_in: str) -> FormatData:
             data = f.read().encode("utf-8")
         return FormatData(b64data=base64.b64encode(data))
 
-
 def syntax_check(b64data_in: str) -> SyntaxCheckData:
     data_in = base64.b64decode(b64data_in).decode("utf-8")
     with NamedTemporaryFile(mode="w+", suffix=".c") as f:
@@ -1812,28 +1802,316 @@ def syntax_check(b64data_in: str) -> SyntaxCheckData:
         return SyntaxCheckData(rc=result.returncode,
                                b64stderr=base64.b64encode(result.stderr))
 
-
 class RequestDataModel(BaseModel):
     b64data: str
-
 
 @app.post("/compile")
 def compile_data_endpoint(item: RequestDataModel):
     return compile_str(item.b64data)
 
-
 @app.post("/format")
 def format_data_endpoint(item: RequestDataModel):
     return format_str(item.b64data)
-
 
 @app.post("/syntax_check")
 def syntax_check_endpoint(item: RequestDataModel):
     return syntax_check(item.b64data)
 \end{lstlisting}
 
+Pentru a serializa datele de intrare si iesire ale API-ului, se folosesc clasele \code{CompileData}, \code{FormatData} si \code{SyntaxCheckData}. Acestea sunt definite in fisierul \code{api.py} si sunt folosite pentru a serializa datele de intrare si iesire ale API-ului. Aceste clase sunt folosite pentru a serializa datele in format JSON, astfel incat sa poata fi trimise si primite prin intermediul API-ului.
+Deoarece JSON nu este perfect pentru a serializa datele binare, datele binare sunt codificate in \code{base64} inainte de a fi trimise.
+
+Deoarece pentru compilarea programelor se doreste o eficienta cat mai ridicata, compilatorul C a fost configurat sa fie cat mai minim. Parametrul \code{--startup=31} din comanda de compilare se asigura ca doar codul scris de utilizator va fi compilat, acest lucru inseamna ca nici macar \ac{CRT} nu va fi inclus in codul compilat. Acest lucru este util pentru a reduce dimensiunea codului compilat si pentru a permite utilizatorului sa controleze complet codul rulat in emulator. De asemenea, acest lucru permite ca emulatorul sa ruleze mai rapid, deoarece nu va fi nevoie sa se execute cod suplimentar pentru a initializa mediul de executie. Eventual acest comportament poate fi dezvoltat in continuare incat utilizatorul sa poate configura singur parametrii de compilare, dar acest lucru nu a fost implementat inca.
+
+\ac {CRT} contine functia \code{\_start} care este punctul de intrare al programului C. Aceasta functie este responsabila pentru initializarea mediului de executie si pentru apelarea functiei \code{main}. In cazul in care \ac {CRT} nu este inclus in codul compilat, utilizatorul va trebui sa scrie singur functia \code{\_start} si sa apeleze functia \code{main} manual, numele functiei \code{\_start} poate fi schimbat, insa este important faptul ca orice nume ar avea, prima functie din program va fi apelata prima. In \cref{lst:nocrtcode} este prezentat un exemplu de cod C care nu include \ac {CRT} si care va rula in emulatorul nostru. Acest cod va scrie valoarea \code{0xFF} in locatia \code{0x50} de memorie si va termina executia. Acest lucru este util pentru a putea testa daca emulatorul functioneaza corect si daca poate rula cod C fara a include \ac{CRT}.
+\begin{lstlisting}[language=C,caption={Cod C fara CRT},label={lst:nocrtcode}]
+#include <intrinsic.h>
+void _start() {
+    main();
+}
+void set_val(){
+    *(char*)0x50=0x50;
+}
+int main(){
+    set_val();
+    intrinsic_halt();
+}
+\end{lstlisting}
+Functia \code{intrinsic\_halt} este o functie speciala care va seta starea procesorului in starea de \code{halt}, adica va opri executia programului. Aceasta functie este utila pentru a putea termina executia programului fara a fi nevoie sa se scrie cod suplimentar pentru a termina programul. In cazul in care aceasta functie nu este apelata, emulatorul va continua sa ruleze si va astepta ca utilizatorul sa apese butonul de oprire al emulatorului. Diferite functii pentru apel direct la instructiuni Z80 sunt implementate de libraria \code{intrinsic.h}.
+
+Pentru formatarea codului sursa in limbajul C, enpointul \code{/format} va primi codul sursa in format \code{base64} si va returna codul sursa formatat tot in format \code{base64}. Acest lucru permite utilizatorului sa poata formata codul sursa fara a fi nevoie sa o faca manual. Endpointul va folosi modulul python \code{astyle} pentru a formata codul sursa. Acest modul este folosit pentru a formata codul sursa in conformitate cu standardele de codare C. Acesta nu returneaza un cod de eroare, ci doar codul sursa formatat. In cazul in care formatarea esueaza, fisierul returnat va fi acelasi cu cel primit ca input.
+
+Pentru verificarea sintaxei codului sursa in limbajul C, endpointul \code{/syntax\_check} va primi codul sursa in format \code{base64} si va returna un cod de eroare si un mesaj de eroare in cazul in care sintaxa este incorecta. In cazul in care sintaxa este corecta, endpointul va returna un cod de succes (0) si fara mesaj de eroare. Acest lucru permite utilizatorului sa poata verifica sintaxa codului sursa fara a fi nevoie sa o faca manual. Endpointul va folosi compilatorul \code{gcc} pentru a verifica sintaxa codului sursa.
+
+Pentru fiecare dintre API-urile de mai sus, exista o pereche de functii in Rust care sunt folosite pentru a face cereri catre API-ul Python. Aceste functii sunt implementate in fisierul \code{ccompiler.rs} sunt bazate pe libraria \code{Axum} si \code{Leptos}. In \cref{lst:compilerustapi} este prezentata functia \code{c\_compile} care este folosita pentru a compila codul sursa in limbajul C. Aceasta functie va primi de la browser codul sursa in format \code{String}, il va codifica in format \code{base64} si il va trimite catre API-ul Python. Daca compilarea reuseste, functia va returna un obiect de tip \code{CompileData} care contine codul de iesire al compilatorului, stdout-ul si stderr-ul. Daca compilarea esueaza, functia va returna o eroare de tip \code{CompilerError}. In cazul in care utilizatorul nu este autentificat, functia va returna o eroare de tip \code{Unauthorized} si va seta statusul HTTP la \code{UNAUTHORIZED (401)}.
+
+\begin{lstlisting}[language=Rust,caption={API Rust pentru compilarea codului C},label={lst:compilerustapi}]
+#[server(CCompile, endpoint = "/ccompile")]
+pub async fn c_compile(code: String) -> Result<CompileData, CompilerError> {
+    use crate::db::models::user::UserData;
+    use server_imports::*;
+    //encode code in b64
+    let data = RequestBody::new(code);
+    let state = expect_context::<AppState>();
+    let response = expect_context::<ResponseOptions>();
+    let userdata: Result<Extension<UserData>, _> = extract().await;
+    match userdata {
+        Ok(_) => {
+            let reqwest_client = &state.reqwest_client;
+            let response = reqwest_client
+                .post(format!("http://{}/compile",*COMPILER_HOST))
+                .header(
+                    "Content-Length",
+                    serde_json::to_string(&data).unwrap().len(),
+                )
+                .json(&data)
+                .send()
+                .await
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?
+                .json::<EncCompileData>()
+                .await
+                .map_err(|e| CompilerError::RequestError(e.to_string()))?;
+            response.decode()
+        }
+        Err(_) => {
+            response.set_status(StatusCode::UNAUTHORIZED);
+            Err(CompilerError::Unauthorized)
+        }
+    }
+}
+\end{lstlisting}
+
+Pentru formatarea codului sursa in limbajul C, functia \code{c\_format} este implementata in mod similar cu functia \code{c\_compile}. Aceasta va primi codul sursa in format \code{String}, il va codifica in format \code{base64} si il va trimite catre API-ul Python. Daca formatarea reuseste, functia va returna un obiect de tip \code{FormatData} care contine codul sursa formatat. Daca formatarea esueaza, functia va returna o eroare de tip \code{CompilerError}. In cazul in care utilizatorul nu este autentificat, functia va returna o eroare de tip \code{Unauthorized} si va seta statusul HTTP la \code{UNAUTHORIZED (401)}.
+
+Verificarea sintaxei codului sursa in limbajul C este implementata in mod similar cu functiile de mai sus. Functia \code{c\_syntax\_check} va primi codul sursa in format \code{String}, il va codifica in format \code{base64} si il va trimite catre API-ul Python. Daca verificarea sintaxei reuseste, functia va returna un obiect de tip \code{SyntaxCheckData} care contine codul de iesire al compilatorului si stderr-ul. Daca verificarea sintaxei esueaza, functia va returna o eroare de tip \code{CompilerError}. In cazul in care utilizatorul nu este autentificat, functia va returna o eroare de tip \code{Unauthorized} si va seta statusul HTTP la \code{UNAUTHORIZED (401)}.
+
+\paragraph{Baza de date} aleasa pentru proiect este \code{PostgreSQL}. Aceasta a fost aleasa datorita performantelor sale si a suportului pentru tranzactii. De asemenea, PostgreSQL ofera suport pentru tipuri de date avansate, cum ar fi tipurile de date JSON si JSONB, care sunt utile pentru stocarea datelor in format structurat. In cadrul proiectului, baza de date este folosita pentru a stoca informatiile despre utilizatori si sesiunile acestora.
+
+Pentru intializarea bazei de date diferite fisiere de tip \code{.sql} sunt folosite pentru a crea tabelele si a insera datele initiale. Aceste fisiere sunt rulate doar la crearea bazei de date.
+
+Deoarece dorim sa facem verificari mai complexe cum ar fi in cazul adresei de email, sa ne asiguram ca este valida pana sa o introducem in baza de date \cref{lst:emailcheckplperl}, \code{PL/perl} a fost folosit ca limbaj procedural pentru a crea functii care sa verifice validitatea datelor inainte de a le introduce in baza de date.
+
+\begin{lstlisting}[language=SQL,caption={Functia PL/perl pentru verificarea adresei de email},label={lst:emailcheckplperl}]
+CREATE EXTENSION plperl;
+CREATE LANGUAGE plperlu;
+CREATE OR REPLACE FUNCTION check_email(email text) RETURNS bool
+    LANGUAGE plperlu
+AS $$
+use Email::Address;
+\end{lstlisting}
+
+Tabela \code{users} este folosita pentru a stoca informatiile despre utilizatori, cum ar fi numele, emailul, hashul parolei, tokenul de \code{OAuth2}, tipul precum si data de creeare si ultimul update al utilizatorului. In \cref{lst:usersdb} este prezentata structura tabelei \code{users} din baza de date.
+Se poate observa ca adresa de email este verificata folosind functia \code{check\_email} definita mai sus, iar numele de utilizator este verificat pentru a nu contine caractere speciale si pentru a avea o lungime minima de 5 caractere. De asemenea, se asigura ca numele de utilizator este unic in baza de date. Parola este stocata ca un hash, folosind algoritmul \code{Argon2}, pentru a asigura securitatea parolei utilizatorului. In plus, tabela are un camp \code{user\_type} care poate fi folosit pentru a diferentia intre utilizatori normali si administratori.
+\begin{lstlisting}[language=SQL,caption={Tabelele \code{users} din baza de date},label={lst:usersdb}]
+CREATE TABLE users
+(
+    id            SERIAL PRIMARY KEY,
+    username      VARCHAR(50) NOT NULL UNIQUE CHECK
+                  (LENGTH(username) >= 5 AND username !~ '[@!#\$%&*]'),
+    email         VARCHAR(254) NOT NULL UNIQUE CHECK(check_email(email)),
+    oauth_google  VARCHAR(100)                        NULL UNIQUE,
+    oauth_github  VARCHAR(100)                        NULL UNIQUE,
+    password_hash VARCHAR(150)                        NOT NULL,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    user_type     USERTYPE DEFAULT 'user' NOT NULL
+);
+\end{lstlisting}
+
+Tabela \code{sessions} este folosita pentru a stoca informatiile despre toate tokenurile de sesiune. Fiecare coloana va contine un token, userul caruia ii apartine, data de creare si data de expirare a tokenului. In \cref{lst:sessionsdb} este prezentata structura tabelei \code{sessions} din baza de date.
+Se poate observa ca tabela are o cheie straina catre tabela \code{users}, astfel incat fiecare sesiune sa fie legata de un utilizator. De asemenea, tabela are un camp \code{expires\_at} care este folosit pentru a stabili cand va expira sesiunea.
+
+Momentan nu a fost implementata o metoda pentru curatarea sesiunilor expirate, dar acest lucru poate fi facut in viitor printr-o sarcina \code{cron} sau printr-un serviciu care sa verifice periodic baza de date si sa stearga sesiunile expirate.
+
+\begin{lstlisting}[language=SQL,caption={Tabelele \code{sessions} din baza de date},label={lst:sessionsdb}]
+CREATE TABLE sessions
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    token      VARCHAR(150)                        NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL
+);
+\end{lstlisting}
 
 \subsection{Containerizare}
+Pentru a putea rula aplicatia in mod eficient si pentru a putea fi usor de instalat si rulat pe orice sistem, aplicatia este containerizata folosind Docker. Acest lucru permite ca aplicatia sa fie rulata intr-un mediu izolat, fara a fi nevoie sa se instaleze dependinte suplimentare pe sistemul gazda. De asemenea, acest lucru permite ca aplicatia sa fie scalata usor in cazul in care este necesar.
+Pentru a containeriza aplicatia, diferite imagini
+
+\subsubsection{Serviciul de compilare}
+Este implementat sa ruleze intr-un container Docker bazat pe imaginea \code {z88dk/z88dk}. Aceasta imagine contine toate dependintele necesare pentru a compila codul sursa in limbajul C pentru microprocesorul Z80.
+In \cref{lst:compilerdocker} este prezentat cum sunt instalate dependintele necesare pentru a rula compilatorul C in in containerul Docker si cum este configurat sa ruleze serverul FastAPI pe portul 4560. Acest port este expus pentru a permite comunicarea cu intre acest serviciu si aplicatia web. Datorita izolarii oferite de Docker, acest serviciu nu este expus direct la internet, ci doar prin intermediul aplicatiei web. Acest lucru ofera un nivel suplimentar de securitate si permite ca serviciul de compilare sa fie scalat usor in cazul in care este necesar.
+
+\begin{lstlisting}[language=docker,caption={Dockerfile pentru compilatorul C},label={lst:compilerdocker}]
+FROM z88dk/z88dk
+RUN apk add --no-cache python3 py3-pip astyle
+WORKDIR /web
+# Create Virtual Environment
+RUN python3 -m venv venv
+RUN venv/bin/pip install --upgrade pip
+# Install PIP Dependencies
+COPY requirements.txt .
+RUN venv/bin/pip install -r requirements.txt
+COPY api.py .
+EXPOSE 4560 # Expose Port
+CMD ["venv/bin/fastapi", "run", "--port", "4560" ,"api.py"]
+\end{lstlisting}
+
+\subsubsection{Baza de date}
+Pentru baza de date, se foloseste imaginea oficiala \code{postgres:17.5-alpine3.22} care contine versiunea 17.5 a PostgreSQL pe o baza de date Alpine Linux. Aceasta imagine este usoara si rapida, ceea ce o face potrivita pentru a fi folosita in productie. In \cref{lst:dbdocker} este prezentat cum sunt instalate dependintele necesare pentru a rula \code{PL/perl} in containerul Docker si cum este configurat sa ruleze serverul PostgreSQL pe portul 5432. Acest port este expus pentru a permite comunicarea cu baza de date din aplicatia web.
+
+\begin{lstlisting}[language=docker,caption={Dockerfile pentru baza de date},label={lst:dbdocker}]
+FROM postgres:17.5-alpine3.22
+RUN apk add --no-cache \
+      perl-dev \
+      perl-email-address \
+      postgresql17-plperl
+RUN mkdir -p \
+      /usr/local/lib/postgresql \
+      /usr/local/share/postgresql/extension \
+ && ln -sf /usr/lib/postgresql17/plperl.so \
+        /usr/local/lib/postgresql/plperl.so \
+ && ln -sf /usr/share/postgresql17/extension/plperl.control \
+        /usr/local/share/postgresql/extension/plperl.control \
+ && cp /usr/share/postgresql17/extension/plperl--*.sql \
+        /usr/local/share/postgresql/extension/
+COPY ./initdb /docker-entrypoint-initdb.d
+EXPOSE 5432
+\end{lstlisting}
+
+\subsubsection{Serviciul web}
+
+Pentru imaginea serviciului web, a fost folosit un Dockerfile in 2 stagii. Primul stagiu fiind denumit \code{builder} si este folosit pentru a construi aplicatia web folosind framework-ul Leptos. In acest stagiu sunt instalate toate dependintele necesare pentru a construi aplicatia, cum ar fi Rust, Dart Sass, librariile de criptografie si PostgreSQL. De asemenea, in acest stagiu se construieste aplicatia folosind comanda \code{cargo leptos build --release}. Al doilea stagiu este denumit \code{runtime} si este folosit pentru a rula aplicatia web. In acest stagiu sunt copiate fisierele binare generate in primul stagiu si sunt instalate doar dependintele necesare pentru a rula aplicatia. Datorita faptului ca imaginea este generata in doua stagii, dimensiunea imaginii finale este mult mai mica decat daca s-ar fi folosit o singura imagine. Acest lucru este util pentru a reduce timpul de descarcare si pentru a reduce spatiul ocupat pe disc. In \cref{lst:webdocker} este prezentat Dockerfile-ul pentru serviciul web.
+
+\begin{lstlisting}[language=docker,caption={Dockerfile serviciu web},label={lst:webdocker}]
+FROM alpine:latest as builder
+
+RUN apk add --no-cache curl gcc musl-dev openssl-dev \
+libpq-dev pkgconfig perl make g++ dart-sass-js \
+ libcrypto3 openssl-libs-static postgresql-dev
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+ENV PATH=/root/.cargo/bin:$PATH
+RUN rustup target add wasm32-unknown-unknown
+RUN cargo install cargo-leptos --locked
+RUN cargo install stylance-cli wasm-bindgen-cli
+WORKDIR /web
+COPY . .
+RUN stylance app
+ENV RUSTFLAGS="--cfg erase_components"
+RUN cargo leptos build --release -vv
+
+FROM alpine:latest as runtime
+
+RUN apk add --no-cache openssl ca-certificates
+WORKDIR /web
+COPY --from=builder /web/target/release/server /web/
+COPY --from=builder /web/target/site /web/site
+ENV LEPTOS_SITE_ROOT="site"
+CMD ["/web/server"]
+\end{lstlisting}
+
+\subsubsection{Docker compose}
+In timpul dezvoltarii aplicatiei, pentru a putea rula toate serviciile necesare, a fost folosit Docker Compose. Acesta permite definirea si rularea sin configurarea mai multor containere Docker ca un singur serviciu. In \cref{lst:dockercompose} este prezentat fisierul \code{docker-compose.yml} care defineste serviciile necesare pentru a rula aplicatia. Acest fisier defineste trei servicii: \code{web-container}, \code{db-container} si \code{compiler-service}.
+
+\begin{lstlisting}[language=docker-compose,caption={Docker Compose pentru aplicatie},label={lst:dockercompose}]
+services:
+  db-container:
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --locale-provider=icu --icu-locale=en-US"
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_TZ: Europe/Bucharest
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+  compiler-service:
+    build:
+      context: ./ccompiler
+      dockerfile: Dockerfile
+    ports:
+      - "4560:4560"
+  web-container:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      DB_HOST: db-container
+      COMPILER_HOST: compiler-service:4560
+      LEPTOS_SITE_ADDR: ${BIND_URL}
+      PUBLIC_URL: ${PUBLIC_URL}
+      DB_USER: ${DB_USER}
+      DB_NAME: ${DB_NAME}
+      DB_PASS: ${DB_PASS}
+    ports:
+      - "80:80"
+    depends_on:
+      - db-container
+      - compiler-service
+
+networks:
+  default:
+    name: z80-emu_default
+\end{lstlisting}
+
+In acest fisier se pot vedea cum anumite variabile sunt definite in fisierul \code{.env} si sunt folosite pentru a configura serviciile. Aceste variabile sunt folosite pentru a seta numele bazei de date, utilizatorul si parola, precum si adresa la care va fi expus site-ul web. De asemenea, se pot vedea cum serviciile sunt legate intre ele prin intermediul retelei Docker, astfel incat aplicatia web sa poata comunica cu baza de date si cu serviciul de compilare.
+
+Prin Docker Compose, este usor sa se porneasca si sa se opreasca intreaga aplicatie cu o singura comanda. De exemplu, pentru a porni aplicatia, se poate folosi comanda \code{docker-compose up} si pentru a o opri se poate folosi comanda \code{docker-compose down}. Acest lucru face ca dezvoltarea si testarea aplicatiei sa fie mult mai usoara si mai rapida.
+
+\subsubsection{Kubernetes}
+Pentru a putea rula aplicatia in productie, aceasta a fost containerizata folosind Docker si apoi a fost implementata pe un cluster \ac {K8s}. Acest lucru permite ca aplicatia sa fie scalata usor si sa fie rulata intr-un mediu de productie sigur si fiabil. In plus, Kubernetes ofera functionalitati avansate de gestionare a resurselor, cum ar fi auto-scalarea, actualizari continue si monitorizare.
+Pentru a implementa aplicatia pe Kubernetes, diferite fisiere \code{yml} sunt folosite pentru a defini resursele necesare, cum ar fi \code{deployment.yml}, \code{service.yml} ...etc. Aceste fisiere sunt folosite pentru a defini cum vor fi rulate containerele, cum vor fi expuse serviciile si cum vor fi configurate variabilele de mediu.
+Datorita faptului ca folosim \ac {K8s} nu suntem limitati la un singur provider de cloud, astfel incat putem alege sa rulam aplicatia pe orice provider care ofera suport pentru Kubernetes. In cazul nostru, aplicatia este rulata pe un cluster \ac {K8s} gestionat de Google Cloud Platform (GCP).
+
+\subsection{Cloud}
+Pentru acest proiect s-a decis sa se foloseasca o arhitectura bazata pe cloud, astfel incat aplicatia sa poata fi scalata usor si sa fie rulata intr-un mediu de productie sigur si fiabil. Datorita cloud-ului, dezvoltatorul poate sa se concentreze pe dezvoltarea aplicatiei si nu pe gestionarea infrastructurii. In plus, cloud-ul ofera functionalitati avansate de gestionare a resurselor, cum ar fi auto-scalarea, actualizari continue si monitorizare.
+
+\subsection{Google Cloud Platform}
+Pentru a implementa aplicatia pe cloud, s-a folosit Google Cloud Platform (GCP). GCP ofera o gama larga de servicii care pot fi folosite pentru a rula aplicatii in cloud, cum ar fi Google Kubernetes Engine (GKE), Google Cloud SQL si Google Cloud Storage. Aceste servicii sunt usor de integrat si ofera functionalitati avansate de gestionare a resurselor.
+In configuratia de \ac {K8s} pentru acest proiect, pentru accesul \code{HTTPS} la aplicatie, s-a folosit un certificat \code{SSL} generat de Google Cloud Platform. Acest certificat este folosit pentru a cripta traficul intre client si server, asigurand astfel securitatea datelor transmise. Desi serverul web creat in rust foloseste doar \code{HTTP}, Google Cloud Platform se ocupa de redirectionarea traficului \code{HTTP} catre \code{HTTPS} si de gestionarea certificatului \code{SSL}. Acest lucru permite ca aplicatia sa fie accesata in siguranta prin intermediul unui domeniu securizat.
+Folosing \ac {K8s} managementul certificatului \code{SSL} si al redirectionarii traficului \code{HTTP} catre \code{HTTPS} este realizat de un \code{Ingress Controller}\cref{lst:ingresscontroller} si de un \code{Managed Certificate}\cref{lst:managedcert} care este creat in Google Cloud Platform. Acest lucru permite ca aplicatia sa fie accesata in siguranta prin intermediul unui domeniu securizat, fara a fi nevoie sa se configureze manual certificatele \code{SSL} si redirectionarea traficului.
+
+\begin{lstlisting}[language=yaml,caption={Ingress Controller pentru aplicatie},label={lst:ingresscontroller}]
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: z80emu-ingress
+  annotations:
+    networking.gke.io/managed-certificates: z80emu-cert
+spec:
+  rules:
+    - host: z80emu.online
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-service
+                port:
+                  number: 80
+\end{lstlisting}
+
+\begin{lstlisting}[language=yaml,caption={Managed Certificate pentru aplicatie},label={lst:managedcert}]
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: z80emu-cert
+spec:
+  domains:
+    - z80emu.online
+\end{lstlisting}
+
+\subsubsection{Domain}
+Pentru a putea accesa aplicatia de pe internet, a fost achizitionat un domeniu \code{z80emu.online}
+
 
 \section{Rezultate experimentale}
 This is the conclusion.

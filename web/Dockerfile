@@ -1,7 +1,8 @@
 FROM alpine:latest as builder
 
 # Install Dependencies
-RUN apk add --no-cache curl gcc musl-dev openssl-dev libpq-dev pkgconfig perl make g++ dart-sass-js libcrypto3 openssl-libs-static postgresql-dev
+RUN apk add --no-cache curl gcc musl-dev openssl-dev libpq-dev \
+    pkgconfig perl make g++ dart-sass-js libcrypto3 openssl-libs-static postgresql-dev
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 ENV PATH=/root/.cargo/bin:$PATH
 
