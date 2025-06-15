@@ -11,7 +11,9 @@ use leptos::wasm_bindgen::JsCast;
 use leptos::web_sys::{js_sys, HtmlInputElement};
 use std::time::Duration;
 use emu_lib::memory::MemoryDevice;
+use leptos::wasm_bindgen;
 use stylance::classes;
+use web_sys::{Blob, BlobPropertyBag, HtmlAnchorElement, Url};
 
 const BTN_CLASS: &str = "button";
 #[island]
@@ -228,6 +230,55 @@ fn ClearMemoryButton() -> impl IntoView {
 }
 
 #[island]
+fn SaveButton() -> impl IntoView {
+    let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
+    let emu_ctx_signal = expect_context::<RwSignal<EmulatorCfgContext>>();
+    view! {
+        <div class=emu_style::save>
+            <input
+                id="filedownload"
+                value="Save"
+                type="button"
+                on:click=move |_| {
+                    let emu_signal = emu_signal.clone();
+                    spawn_local(async move {
+                        let data = emu_signal.with_untracked(|emu| emu.emu.memory.save().expect("Error saving memory"));
+                        let uint8_array = js_sys::Uint8Array::from(&*data);
+
+                        let blob = Blob::new_with_u8_array_sequence_and_options(&js_sys::Array::of1(&uint8_array),
+                                                                                        BlobPropertyBag::new().type_("application/octet-stream"))
+                            .expect("Error creating Blob");
+                        let url = Url::create_object_url_with_blob(&blob).expect("Error creating URL");
+
+                            // Step 4: Create a temporary anchor element
+                            let document = web_sys::window().unwrap().document().unwrap();
+                            let a = document.create_element("a").unwrap()
+                                .dyn_into::<HtmlAnchorElement>()
+                                .unwrap();
+
+                            // Step 5: Set the download attributes
+                            a.set_href(&url);
+                            a.set_download("emu_memory.bin");
+
+                            // Step 6: Append the anchor to the DOM
+                            document.body().unwrap().append_child(&a).unwrap();
+
+                            // Step 7: Programmatically click the anchor
+                            a.click();
+
+                            // Step 8: Remove the anchor from the DOM
+                            document.body().unwrap().remove_child(&a).unwrap();
+
+                            // Step 9: Revoke the object URL
+                            Url::revoke_object_url(&url).expect("Error revoking URL");
+                })
+                }
+            />
+        </div>
+    }
+}
+
+#[island]
 fn LoadButton() -> impl IntoView {
     let emu_signal = expect_context::<RwSignal<EmulatorContext>>();
     let emu_ctx_signal = expect_context::<RwSignal<EmulatorCfgContext>>();
@@ -327,6 +378,7 @@ pub fn Control() -> impl IntoView {
             <HaltButton />
             <ResetButton />
             <ClearMemoryButton />
+            <SaveButton />
             <LoadButton />
             <EmuLog />
         </div>
