@@ -93,6 +93,7 @@ keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
         \acro {WASM}      {Web Assembly}
         \acro {DARPA}     {Defense Advanced Research Projects Agency}
         \acro {GPR}       {General Purpose Register}
+        \acro {K8s}       {Kubernetes}
         \acro {IaaS}      {Infrastructure as a Service}
         \acro {PaaS}      {Platform as a Service}
         \acro {SaaS}      {Software as a Service}
@@ -577,7 +578,7 @@ Aceasta este compilată în mod optimizat (\code{--release}) și apoi rulată au
 
 \subsection{Kubernetes}
 
-Kubernetes este o platformă open-source pentru orchestrarea containerelor, care permite gestionarea automată a aplicațiilor containerizate la scară largă. Unul dintre principalele sale scopuri este de a facilita implementarea, scalarea și gestionarea aplicațiilor în containere, asigurându-se că acestea rulează în mod fiabil și eficient.
+\ac {K8s} este o platformă open-source pentru orchestrarea containerelor, care permite gestionarea automată a aplicațiilor containerizate la scară largă. Unul dintre principalele sale scopuri este de a facilita implementarea, scalarea și gestionarea aplicațiilor în containere, asigurându-se că acestea rulează în mod fiabil și eficient.
 Pe baza acestei platofrme se pot face deploy-uri automate, se pot gestiona resursele și se pot monitoriza aplicațiile într-un mod centralizat.
 
 \begin{itemize}
@@ -590,14 +591,14 @@ Pe baza acestei platofrme se pot face deploy-uri automate, se pot gestiona resur
 
 \paragraph{Concepte cheie}
 \begin{itemize}
-    \item \textbf{Pod}: Cea mai mică unitate de lucru din Kubernetes, care conține unul sau mai multe containere ce împart aceeași rețea și spațiu de stocare.
+    \item \textbf{Pod}: Cea mai mică unitate de lucru din \ac {K8s}, care conține unul sau mai multe containere ce împart aceeași rețea și spațiu de stocare.
     \item \textbf{Service}: O abstracție care expune un set de pod-uri ca un serviciu de rețea.
     \item \textbf{Deployment}: Un obiect care definește modul în care aplicațiile sunt implementate și gestionate, permițând actualizări și rollback-uri.
     \item \textbf{Namespace}: Un mecanism de izolare logică pentru organizarea resurselor dintr-un cluster.
     \item \textbf{ConfigMap și Secret}: Resurse utilizate pentru a gestiona configurările aplicațiilor și datele sensibile, cum ar fi parolele.
 \end{itemize}
 
-\paragraph{Avantajele utilizării Kubernetes}
+\paragraph{Avantajele utilizării \ac {K8s}}
 \begin{itemize}
     \item \textbf{Scalabilitate automată}: Kubernetes poate scala automat aplicațiile în funcție de cerințele de resurse.
     \item \textbf{Toleranță la erori}: Asigură disponibilitatea aplicațiilor prin repornirea automată a pod-urilor defecte și redistribuirea acestora pe noduri sănătoase.
@@ -652,9 +653,9 @@ Cloud Computing reprezintă livrarea de servicii IT, cum ar fi stocare, procesar
 \paragraph{Modele de servicii}
 Cloud Computing este clasificat în trei modele principale de servicii:
 \begin{itemize}
-    \item \ac {IaaS}: Oferă infrastructură virtualizată, cum ar fi servere, stocare și rețele. Exemple: Amazon EC2, Microsoft Azure Virtual Machines.
-    \item \ac {PaaS}: Oferă un mediu de dezvoltare și implementare pentru aplicații, eliminând necesitatea gestionării infrastructurii. Exemple: Google App Engine, Heroku.
-    \item \ac {SaaS}: Oferă aplicații software accesibile prin internet, fără a necesita instalare locală. Exemple: Google Workspace, Microsoft 365.
+    \item \textbf{\ac {IaaS}}: Oferă infrastructură virtualizată, cum ar fi servere, stocare și rețele. Exemple: Amazon EC2, Microsoft Azure Virtual Machines.
+    \item \textbf{\ac {PaaS}}: Oferă un mediu de dezvoltare și implementare pentru aplicații, eliminând necesitatea gestionării infrastructurii. Exemple: Google App Engine, Heroku.
+    \item \textbf{\ac {SaaS}}: Oferă aplicații software accesibile prin internet, fără a necesita instalare locală. Exemple: Google Workspace, Microsoft 365.
 \end{itemize}
 
 \paragraph{Modele de implementare}
@@ -1077,7 +1078,216 @@ La intructiunile \code{RETI} si \code{RETN}, \code{iff1} va fi setat la valoarea
 \end{table}
 
 \subsubsection{Arhitectura}
+
+Arhitectura librăriei emulator Z80 este organizată pe principii de modularitate și separare a responsabilităților, astfel încât să permită o emulare fidelă și extensibilă a procesorului Z80 și a ecosistemului său. În această secțiune, accentul va fi pus pe componentele funcționale ale arhitecturii, interacțiunea dintre module și facilitățile oferite pentru integrare și extensie, presupunând că detaliile despre structuri de date au fost deja tratate anterior.
+
+\paragraph{Decodorul și Executorul de Instrucțiuni}
+
+Una dintre componentele centrale ale emulatorului este decodorul de instrucțiuni, responsabil cu interpretarea codului mașină preluat din memorie. Acesta identifică instrucțiunea corespunzătoare fiecărui opcode și apelează rutina de execuție specifică. Pentru optimizare, multe implementări folosesc o tabelare a instrucțiunilor (jump table), permițând acces direct și rapid la funcțiile de execuție.
+
+Executorul de instrucțiuni gestionează ciclurile procesorului și efectuează operațiile logice, aritmetice, de memorie sau de control al fluxului, actualizând contextul procesorului (registre, steaguri, program counter etc.) la fiecare pas.
+
+In proiect deoarece dorim sa putem transforma un cod masina cat si un String intr-o instructiune ce poate fi executata, au fost implementate doua decodoare de instructiuni. 
+
+In \cref{lst:decoder-machinecode} se poate observa o sectiune de cod din functia care transforma codul masina in instructiuni executable pentru emulator. Aceasta functie primeste 2 parametrii, unul fiind un dispozitiv de memorie \code{memory} , iar celalalt \code{pos} fiind locatia din memorie de unde sa fie decodata instructiunea.
+
+\begin{lstlisting}[language=Rust,caption={Sectiune decodor din cod masina},label={lst:decoder-machinecode}]
+fn ins_from_machinecode(
+        &self,
+        memory: &dyn MemoryDevice,
+        pos: u16,
+    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+        let ins_byte0 = memory.read_8(pos)?;
+        let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
+            0x00u8 => Box::new(nop::NOP::new()),
+            //...
+            0xCB => match memory.read_8(pos.wrapping_add(1))? {
+                0x00 => Box::new(bit::rlc::RLC_B::new()),
+                0x01 => Box::new(bit::rlc::RLC_C::new()),
+                //...
+            }
+        }
+    }
+\end{lstlisting}
+
+In \cref{lst:decoder-string} se poate observa si decodorul care poate transforma o instructiune assembly din format \code{string} in format executabil de emulator. Aceasta functie necesita un singur parametru, acesta fiind \code{instruction} ce este o referinta la un \code{string} ce contine instructiunea in format citibil de catre utilizator.
+
+\begin{lstlisting}[language=Rust,caption={Sectiune decodor din string},label={lst:decoder-string}]
+impl InstructionParser<Z80> for Z80Parser {
+    fn ins_from_asm_string(
+        &self,
+        instruction: &str,
+    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+        let filtered = instruction.to_lowercase().replace(",", " ");
+        //regex
+        let re = Regex::new(
+            r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
+            .expect("Error building Z80 instruction parsing regex");
+        let op = match re.captures(&filtered) {
+            Some(caps) => caps,
+            None => {
+                return Err(ParseError::InvalidInstruction(format!(
+                    "Invalid instruction: {}",
+                    instruction
+                )))
+            }
+        };
+        let get_op = |i: usize| -> Result<&str, ParseError> {
+            op.get(i)
+                .ok_or(ParseError::InvalidInstruction(format!(
+                    "Invalid instruction: {}",
+                    instruction
+                )))
+                .map(|m| m.as_str())
+        };
+        let instruction: Box<dyn ExecutableInstruction<Z80>> = match get_op(1)? {
+            "nop" => Box::new(nop::NOP::new()),
+            "scf" => Box::new(scf::SCF::new()),
+            "ccf" => Box::new(ccf::CCF::new()),
+            "exx" => Box::new(exx::EXX::new()),
+            "retn" => Box::new(retn::RETN::new()),
+            "di" => Box::new(di::DI::new()),
+            "ei" => Box::new(ei::EI::new()),
+            "neg" => Box::new(neg::NEG::new()),
+            "ldi" => Box::new(ldi::LDI::new()),
+            "ldir" => Box::new(ldir::LDIR::new()),
+            "lddr" => Box::new(lddr::LDDR::new()),
+            "im" => match get_op(2)? {
+                "0" => Box::new(im0::IM0::new()),
+                "1" => Box::new(im1::IM1::new()),
+                "2" => Box::new(im2::IM2::new()),
+        \\...
+\end{lstlisting}
+
+Decodarea instructiunilor din string este mult mai dificila decat din cod masina, acest lucru se datoreaza faptului ca trebuie sa se faca o verificare a sintaxei, pentru a fi siguri ca instructiunea este valida. In cazul in care instructiunea nu este valida, se va returna o eroare \code{ParseError::InvalidInstruction}.
+Pentru extractarea operanzilor din instructiune, se foloseste o expresie regulata care va cauta in instructiune operanzii si va returna un \code{Option<Match>} pentru fiecare operand. In cazul in care nu exista operand, acesta va returna \code{None}. In cazul in care exista, acesta va returna un \code{Some(Match)} ce contine operandul.
+
+Pentru a facilita extragerea parametriilor din instructiune, a fost implementat enumeratorul \code{ImmediateValue} impreuna cu 2 functii \code{is\_num} si \code{is\_val}. Scopul enumeratorul este de a putea stoca si diferentia dintre toate tipurile de valori imediate care pot fi folosite in instructiuni. Acesta poate stoca valori de 8 sau 16 biti, offset-uri pentru registrii IX și IY, sau adrese de pointeri. Funcția \code{is\_num} va verifica dacă un string reprezintă un număr valid în baza 10, 16 sau 2, iar \code{is\_val} va interpreta stringul ca o valoare imediată, returnând un obiect de tip \code{ImmediateValue} corespunzător.
+
+\begin{lstlisting}[language=Rust,caption={Enumerator ImmediateValue},label={lst:immediatevalue-enum}]
+#[derive(Debug, Clone)]
+enum ImmediateValue {
+    Val8(u8),
+    Val16(u16),
+    OffsetIX(u8),
+    OffsetIY(u8),
+    Ptr(u16),
+}
+
+fn is_num(number: &str) -> Result<u16, String> {
+    let num = if number.starts_with("0x") && number.len() <= 6 {
+        u16::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?
+    } else if number.starts_with("0b") && number.len() <= 18 {
+        u16::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?
+    } else {
+        u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?
+    };
+    Ok(num)
+}
+
+fn is_val(number: &str) -> Result<ImmediateValue, String> {
+    if number.starts_with("(") && number.ends_with(")") {
+        let parsed = &number[1..number.len() - 1];
+        if parsed.contains("+") {
+            match &parsed[0..2] {
+                "ix" => {
+                    let offset = parsed.split("+").collect::<Vec<&str>>()[1];
+                    let num = is_num(offset)?;
+                    return Ok(ImmediateValue::OffsetIX(num as u8));
+                }
+                "iy" => {
+                    let offset = parsed.split("+").collect::<Vec<&str>>()[1];
+                    let num = is_num(offset)?;
+                    return Ok(ImmediateValue::OffsetIY(num as u8));
+                }
+                _ => (),
+            };
+        }
+        Ok(ImmediateValue::Ptr(is_num(parsed)?))
+    } else {
+        let num = is_num(number)?;
+        if number.len() != 6 {
+            Ok(ImmediateValue::Val8(num as u8))
+        } else {
+            Ok(ImmediateValue::Val16(num))
+        }
+    }
+}
+\end{lstlisting}
+
+\paragraph{Gestionarea Memoriei și Maparea Spațiului Adresabil}
+
+Arhitectura include un submodul dedicat mapării memoriei, ce permite emularea atât a memoriei ROM, cât și a celei RAM, precum și a mecanismelor de bank switching întâlnite la anumite sisteme compatibile Z80. Acest submodul poate oferi și facilități precum protecția memoriei sau interceptarea accesului pentru periferice memory-mapped.
+
+\paragraph{Sistemul de Intrare/Ieșire (I/O)}
+
+Emulatorul pune la dispoziție o interfață abstractizată pentru operațiile de I/O, care permite conectarea virtuală a diverselor periferice (tastaturi, ecrane, controllere de sunet, etc.). Operațiile \texttt{IN} și \texttt{OUT} sunt gestionate prin mecanisme de callback, astfel încât dezvoltatorii pot defini ușor comportamentul dispozitivelor virtuale sau pot integra hardware real (prin interfețe dedicate).
+
+\paragraph{Gestionarea Interupturilor și Sincronizării}
+
+Componenta de interupturi reproduce fidel logica procesorului Z80, inclusiv cele trei moduri de interupt (IM0, IM1, IM2). Sistemul permite atât gestionarea cererilor de interupt de la periferice virtuale, cât și simularea prioritizării și a vectorizării interupturilor. Acest submodul este strâns legat de logica de sincronizare a emulatorului.
+
+Sincronizarea și temporizarea sunt tratate separat, printr-un modul care ține evidența ciclurilor de ceas efectuate de fiecare instrucțiune și permite controlul vitezei de execuție. Aceasta facilitează integrarea cu sisteme externe (de exemplu, sincronizarea cu frame rate-ul grafic) sau implementarea funcționalităților de throttling pentru a păstra emularea la viteza originală.
+
+\paragraph{Interfața Publică și Extensibilitatea}
+
+Librăria oferă un API bine definit pentru inițializare, reset, execuție pas cu pas sau pe blocuri (step/continue), injectare de interupturi, acces la starea internă (registre, memorie, steaguri) și conectarea de periferice. Designul modular permite extinderea sau înlocuirea componentelor, facilitând portarea pe diverse platforme (desktop, web, embedded) sau adaptarea la nevoi specifice (de exemplu, integrare cu UI grafică, depanatoare, sau tool-uri de testare automată).
+
+\paragraph{Funcționalități pentru Debugging și Testare}
+
+Pentru dezvoltare și depanare, arhitectura include suport pentru breakpoint-uri, monitorizare a stivei, vizualizare a traseului execuției (trace), precum și logare a operațiilor critice. Aceste instrumente sunt integrate astfel încât să nu afecteze performanța în mod semnificativ atunci când nu sunt active și să poată fi accesate prin API sau interfețe grafice externe.
+
+\bigskip
+
+Prin această organizare, arhitectura emulatorului Z80 asigură o separație clară între logica de execuție, gestionarea resurselor (memorie, I/O), sincronizare și extensibilitate, oferind un cadru robust atât pentru emulare fidelă, cât și pentru dezvoltare rapidă de aplicații sau extensii.
+
 \subsubsection{Testare automata}
+
+Pentru a asigura corectitudinea emulatorului, au fost implementate teste automate folosind unelte de testare din ecosistemul Rust \code {cargo test}.
+Pentru datele de testare s-au folosit SingleStepTests \cite {ref:singlesteptestsz80}. Acesta este un repository ce ofera date de testare pentru toate instructiunile din arhitectura Z80, fiecare test avand un cod masina si un rezultat asteptat. Aceste teste sunt folosite pentru a verifica daca emulatorul executa corect instructiunile.
+
+Testele functioneaza prin a seta starea initiala a procesorului, a incarca codul masina in memorie si a executa instructiunea. Dupa executie, se verifica daca starea procesorului este cea asteptata. In cazul in care starea nu este cea asteptata, testul va esua si va afisa un mesaj de eroare. Acest comportament poate fi de asemenea si observat in functia de testare din \ref {lst:singletestmethod}.
+
+\begin{lstlisting}[language=Rust,caption={Metoda de testare a unei singure instructiuni},label={lst:singletestmethod}]
+pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
+    for test_data in test_data_vec {
+        let mut memory = Memory::new();
+        let rom = RAM::new(0x10000);
+        memory.add_device(Box::new(rom));
+        let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
+        setup_z80(&mut emulator, &test_data).expect("Failed to setup Z80");
+        emulator.step().expect("Failed to step");
+        assert_z80(&mut emulator, &test_data);
+        assert_eq!(emulator.cycles, test_data.cycles.len());
+    }
+}
+\end{lstlisting}
+
+Testarea se va rula prin comanda \code{cargo test}, aceasta va cauta toate functiile care incep cu \code{test\_} si le va rula. Rezultatul acesteia se poate vedea in \cref{fig:testresults},
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.8\textwidth]{images/testresults.png}
+\caption{Rezultatele testelor automate}
+\label{fig:testresults}
+\end{figure}
+
+Pentru fiecare instructiune au fost implementate 3 teste. 2 Teste fiind pentru testarea decodarii, iar unul pentru functionalitatea instructiunii.
+
+\begin{itemize}
+    \item {\code{as\_string\_and\_back}} Testul va transforma instructiunea in reprezentarea sa in string, apoi va incerca sa o decodeze inapoi in instructiune executabila. Pentru a trece testul instructiunea decodata trebuie sa fie instructiunea testata.
+    \item {\code{as\_bytes\_and\_back}} Testul va transforma instructiunea in reprezentarea sa in cod masina, apoi va incerca sa o decodeze codul masina inapoi in instructiune executabila. Pentru a trece testul instructiunea decodata trebuie sa fie instructiunea testata.
+    \item {\code{test\_json}} Testul va rula toate cele 1000 de cazuri specificate de SingleStepTests \cite {ref:singlesteptestsz80} pentru instructiunea testata. Pentru a trece testul toate cazurile trebuie sa fie finalizate cu succes, iar starea procesorului la final sa fie cea asteptata.
+\end{itemize}
+
+In timpul testarii instructiunilor au fost observate anomalii in special cu bitii 3 si 5 ai flag-ului F. Acestia nu sunt documentati in arhitectura Z80, dar totusi sunt folositi de unele instructiuni. Datorita faptului ca folosirea acestor biti nu este documentata, am decis sa ignoram verificarea lor in testele automate. Acest lucru a fost facut pentru a evita confuzii si pentru a nu introduce erori in emulator.
+
+\begin{lstlisting}[language=Rust,caption={Ignorarea bitilor nedocumentati din testare},label={lst:testingignore35flags}]
+    let mut result_flags = registers.gp.f;
+    result_flags.set_bit3(false);
+    result_flags.set_bit5(false);
+    assert_eq!(result_flags, (state.f & 0b11010111).into());
+\end{lstlisting}
 \subsection{Interfata web}
 \subsubsection{Frontend}
 \subsubsection{Backend}
