@@ -25,12 +25,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Get short SHA
+        run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - name: Build and run Z80 Emulator Web
         uses: docker/build-push-action@v6
         with:
           context: ./web
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
@@ -39,7 +44,9 @@ jobs:
         with:
           context: ./ccompiler
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
+          tags: |
+                ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:${{ env.VERSION }}
+                ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
           cache-from: type=gha,scope=ccompiler
           cache-to: type=gha,mode=max,scope=ccompiler
 
@@ -48,6 +55,8 @@ jobs:
         with:
           context: ./db
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
           cache-from: type=gha,scope=db
           cache-to: type=gha,mode=max,scope=db
