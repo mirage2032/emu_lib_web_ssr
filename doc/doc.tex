@@ -1289,7 +1289,88 @@ In timpul testarii instructiunilor au fost observate anomalii in special cu biti
     assert_eq!(result_flags, (state.f & 0b11010111).into());
 \end{lstlisting}
 \subsection{Interfata web}
+
+Pentru a facilita utilizarea emulatorului, a fost implementata o interfata web folosind framework-ul Leptos. Leptos este un framework modern pentru dezvoltarea de aplicatii web in Rust, care permite crearea de interfete reactive si performante. Desi Leptos este inca in stadiul de dezvoltare, acesta ofera functionalitati avansate si o performanta ridicata. Comunitatea Leptos este in continua crestere, iar framework-ul este activ dezvoltat si intretinut.
+
+De asemenea, pe langa leptos, Axum a fost folosit pentru a crea un server web care sa gestioneze cererile HTTP si sa serveasca interfata web. Axum este un framework web bazat pe Tokio, care ofera o abordare simpla si eficienta pentru dezvoltarea de aplicatii web in Rust.
+Motivul principal din cauza caruia s-a ales Axum, a fost faptul ca are o compatibilitate foarte buna cu Leptos.
+
 \subsubsection{Frontend}
+
+Aplicatia este formata din 4 pagini:
+\paragraph {Pagina principala} \cref {fig:homepage} Aceasta este pagina unde utiliztorul poate alege intre a se autentifica, inregistra sau a porni emulatorul
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/homepage.png}
+    \caption{Pagina principala a aplicatiei}
+    \label{fig:homepage}
+\end{figure}
+
+\paragraph {Register} \cref {fig:registerpage} Pagina de inregistrare, unde utilizatorul trebuie sa isi numele de utilizator, emailul si parola pentru a se inregistra in aplicatie.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/registerpage.png}
+    \caption{Pagina principala a aplicatiei}
+    \label{fig:registerpage}
+\end{figure}
+
+\paragraph {Login} \cref {fig:loginpage} Pagina de autentificare, unde utilizatorul poate introduce numele de utilizator sau emailul si parola pentru a se autentifica in aplicatie.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/loginpage.png}
+    \caption{Pagina principala a aplicatiei}
+    \label{fig:loginpage}
+\end{figure}
+
+\paragraph {Emulator} \cref {fig:emulatorpage} Pagina in care utilizatorul poate interactiona cu emulatorul.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/emulatorpage.png}
+    \caption{Pagina principala a aplicatiei}
+    \label{fig:emulatorpage}
+\end{figure}
+
+Aceasta pagina este impartita in mai multe sectiuni:
+\begin{itemize}
+    \item {Status} - Aceasta va contine butoane pentru a controla emulatorul cat si ultimul mesaj de informare, avertisment sau eroare.
+    \item {Memory} - Tabela ce contine si permite modificarea valorilor din memoria emulatorului.
+    \item {Registrii} - Toti registrii emulatorului
+    \item {Disassembler} - Contine instructiunile dezasamblate din memoria emulatorului.
+    \item {Info} - Afiseaza numarul de ciclii si instructiuni executate de emulator.
+    \item {Display} - Un ecran conectat la memoria emulatorului.
+    \item {Assembler} - Editor si compiler de cod ASM si C.
+    \item {Account} - Detalii cont
+\end{itemize}
+
+Pe partea de sus a paginii se poate vedea bara de comanda si status. Butoanele de comanda au urmatorul rol:
+\begin{itemize}
+    \item {\code{Step}} - Va trasa un singur pas in executia emulatorului, acest lucru va executa o singura instructiune si va actualiza registrii si statusul.
+    \item {\code{Run}} - Va rula emulatorul pana cand acesta se opreste singur (Halt) sau pana cand utilizatorul apasa butonul din nou.
+    \item {\code{Halt}} - Seteaza starea emulatorului la Halt, acest lucru va opri executia emulatorului. Acest status este setat de obicei doar de instructiunea Halt, si va restrictiona executarea instructiunilor pana este dezactivat de utilizator
+    \item {\code{Reset}} - Reseteaza complet starea microprocesorului lasand memoria intacta. Doar registrii si numaratoarele de instructiuni si ciclii vor fi resetate.
+    \item {\code{Clear Memory}} - Va reseta toata memoria emulatorului la valoarea de 0 in fiecare adresa. 
+    \item {\code{Save}} - Va crea un fisier \code{emu\_memory.bin} cu datele din memoria emulatorului.
+    \item {\code{Load}} - Va incarca un fisier ales de utilizator in memoria emulatorului.
+\end{itemize}
+
+Memoria emulatorului poate fi configurata astfel incat sa reprezinte datele in mai multe formate. Acestea pot fi: Hexadecimal, Decimal si ASCII. Utilizatorul poate alege formatul dorit din meniul dropdown din partea de sus-dreapta a tabelului de memorie. \cref{fig:memoryformat} arata cum se poate schimba formatul memoriei.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/memoryformat.png}
+    \caption{Schimbarea formatului memoriei}
+    \label{fig:memoryformat}
+\end{figure}
+
+\begin{wrapfigure}[12]{r}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{images/disassembler.png}
+    \caption{Schimbarea formatului memoriei}
+    \label{fig:disassembler}
+\end{wrapfigure}
+
+In Disassembler \cref {fig:disassembler}, utilizatorul poate vedea instructiunile dezasamblate din memoria emulatorului. Acesta este configurat sa urmeze PC, instructiunile ce urmeaza a fi executate fiind mereu vizibile. Aici utilizatorul de asemenea are capabilitatea de a include breakpoint-uri. Introducerea de breakpoint-uri se face simplu, doar prin a da click in stanga instructiunii astfel incat sa apara un cerc rosu. Pentru stergerea unui breakpoint, utilizatorul trebuie sa dea click din nou pe cercul rosu, acesta va disparea si instructiunea nu va mai opri executia emulatorului. Capacitatea de a citii instructiunile impreuna cu cea de a oprii executia conditional la oricare dintre acestea este oferita cu scopul de a ajuta utilizatorul sa depaneze codul sursa al programului rulat in emulator. Acest lucru este util in special pentru programatorii care doresc sa inteleaga cum functioneaza codul lor sau pentru a gasi erori in acesta.
+
 \subsubsection{Backend}
 \subsection{Containerizare}
 
