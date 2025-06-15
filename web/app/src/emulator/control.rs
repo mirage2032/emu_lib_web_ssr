@@ -229,6 +229,31 @@ fn ClearMemoryButton() -> impl IntoView {
     }
 }
 
+// TODO: Adapt implementetation below for the SaveButton
+// #[component]
+// pub fn App() -> impl IntoView {
+//     let node = NodeRef::<leptos::html::A>::new();
+//     let bytes = RwSignal::<Vec<u8>>::default();
+//     let trigger_download = RwSignal::new(false);
+//     let href = Memo::new(|_| {
+//         // .. construct blob url;
+//         String::from("blob:12345")
+//     });
+//
+//     Effect::new(move |_| {
+//         if trigger_download.get() && !bytes.with(Vec::is_empty) {
+//             if let Some(node) = node.get() {
+//                 // do other things
+//                 node.click();
+//             }
+//         }
+//     });
+//
+//     view! {
+//         <a node_ref=node style="display: hidden" download="somefile.bin" href=href></a>
+//     }
+// }
+
 #[island]
 fn SaveButton() -> impl IntoView {
     let emu_signal = expect_context::<RwSignal<EmulatorContext>>();

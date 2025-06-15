@@ -1140,7 +1140,8 @@ impl InstructionParser<Z80> for Z80Parser {
                 )))
                 .map(|m| m.as_str())
         };
-        let instruction: Box<dyn ExecutableInstruction<Z80>> = match get_op(1)? {
+        let instruction: Box<dyn ExecutableInstruction<Z80>> =
+            match get_op(1)? {
             "nop" => Box::new(nop::NOP::new()),
             "scf" => Box::new(scf::SCF::new()),
             "ccf" => Box::new(ccf::CCF::new()),
@@ -1322,6 +1323,31 @@ Aplicatia este formata din 4 pagini:
     \label{fig:loginpage}
 \end{figure}
 
+Elementul \code{<input>} pentru login este configurat sa accepte atat numele de utilizator cat si emailul, acest lucru fiind util pentru a permite utilizatorilor sa se autentifice cu oricare dintre cele doua. Acest element este reactiv si verifica in timp real existenta utilizatorului in baza de date prin a accesa APIul \code{/api/login\_exists}.\cref{lst:loginexistsapi}
+
+ Cand utilizatorul modifica continutul campului, se va face o cerere catre server pentru a verifica daca utilizatorul exista. Daca utilizatorul nu exista, casuta va fi colorata in rosu, daca exista, aceasta va fi colorata in verde. Acest lucru ofera o feedback imediat utilizatorului si il ajuta sa evite erorile de autentificare.
+Din motive de securitate, parola nu este verificata in timp real, aceasta fiind verificata doar la trimiterea formularului de autentificare. Daca aceasta functionalitate ar fi fost implementata si pentru campul de parola, acest lucru ar fi putut expune proiectul la atacuri de tip \emph{brute force}, deoarece un atacator ar fi putut incerca sa ghiceasca parola si sa primeasca feedback imediat daca aceasta este corecta sau nu. Limitarea numarului de incercari de accesare a acestui API pentru parola ar putea limita suprafata de atac, insa nu ar fi mitigat complet riscurile.
+
+Cand butonul de login este apasat, se va face o cerere catre API-ul \code{/api/login} \cref{lst:loginapi}, care va verifica daca utilizatorul si parola sunt corecte. Daca acestea sunt corecte, utilizatorul va fi autentificat si redirectionat catre pagina emulatorului. Daca nu, se va afisa un mesaj de eroare.
+
+Datorita faptului ca un numar mare de utilizatori au cont de Google, am implementat si posibilitatea de a se autentifica cu contul de Google. Acest lucru se face prin intermediul API-ului OAuth2, care permite utilizatorilor sa se autentifice cu contul lor de Google si sa acceseze aplicatia fara a fi nevoie sa creeze un cont separat.
+Pentru implementarea acestei functionalitati, urmatoarele elemente au fost incluse in continutul \code{HTML} al paginii de autentificare:
+\begin{lstlisting}[language=HTML,caption={Script necesar Google OAuth2},label={lst:googleauthscript}]
+<Script src="https://accounts.google.com/gsi/client"
+ defer="defer"
+ async_="async"
+/>
+\end{lstlisting}
+\begin{lstlisting}[language=HTML,caption={Butonul de autentificare cu Google},label={lst:googleauthbutton}]
+<div id="g_id_onload"
+    data-client_id=
+    "652756675182-jij1vm0aiacih2mnhohc51tu32099n85.apps.googleusercontent.com"
+    data-ux_mode="redirect"
+    data-login_uri=format!("https://{public_url}/api/google_login_callback")
+></div>
+\end{lstlisting}
+
+
 \paragraph {Emulator} \cref {fig:emulatorpage} Pagina in care utilizatorul poate interactiona cu emulatorul.
 \begin{figure}[h!]
     \centering
@@ -1355,6 +1381,7 @@ Pe partea de sus a paginii se poate vedea bara de comanda si status. Butoanele d
 
 Memoria emulatorului poate fi configurata astfel incat sa reprezinte datele in mai multe formate. Acestea pot fi: Hexadecimal, Decimal si ASCII. Utilizatorul poate alege formatul dorit din meniul dropdown din partea de sus-dreapta a tabelului de memorie. \cref{fig:memoryformat} arata cum se poate schimba formatul memoriei.
 
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{images/memoryformat.png}
@@ -1362,16 +1389,450 @@ Memoria emulatorului poate fi configurata astfel incat sa reprezinte datele in m
     \label{fig:memoryformat}
 \end{figure}
 
-\begin{wrapfigure}[12]{r}{0.4\textwidth}
+\begin{minipage}{0.55\textwidth} % Text on the left
+    In Disassembler \cref{fig:disassembler}, utilizatorul poate vedea instructiunile dezasamblate din memoria emulatorului. Acesta este configurat sa urmeze PC, instructiunile ce urmeaza a fi executate fiind mereu vizibile. Aici utilizatorul de asemenea are capabilitatea de a include breakpoint-uri. Introducerea de breakpoint-uri se face simplu, doar prin a da click in stanga instructiunii astfel incat sa apara un cerc rosu. Pentru stergerea unui breakpoint, utilizatorul trebuie sa dea click din nou pe cercul rosu, acesta va disparea si instructiunea nu va mai opri executia emulatorului. Capacitatea de a citii instructiunile impreuna cu cea de a oprii executia conditional la oricare dintre acestea este oferita cu scopul de a ajuta utilizatorul sa depaneze codul sursa al programului rulat in emulator. Acest lucru este util in special pentru programatorii care doresc sa inteleaga cum functioneaza codul lor sau pentru a gasi erori in acesta. Pentru o claritate mai ridicata, instructiunile sunt afisate in limbaj de asamblare Z80 dar si in cod masina.
+\end{minipage}%
+\hfill
+\begin{minipage}{0.4\textwidth} % Image on the right
     \centering
     \includegraphics[width=\linewidth]{images/disassembler.png}
-    \caption{Disassembler}
+    \captionof{figure}{Disassembler} % needs \usepackage{caption}
     \label{fig:disassembler}
-\end{wrapfigure}
+\end{minipage}
 
-In Disassembler \cref {fig:disassembler}, utilizatorul poate vedea instructiunile dezasamblate din memoria emulatorului. Acesta este configurat sa urmeze PC, instructiunile ce urmeaza a fi executate fiind mereu vizibile. Aici utilizatorul de asemenea are capabilitatea de a include breakpoint-uri. Introducerea de breakpoint-uri se face simplu, doar prin a da click in stanga instructiunii astfel incat sa apara un cerc rosu. Pentru stergerea unui breakpoint, utilizatorul trebuie sa dea click din nou pe cercul rosu, acesta va disparea si instructiunea nu va mai opri executia emulatorului. Capacitatea de a citii instructiunile impreuna cu cea de a oprii executia conditional la oricare dintre acestea este oferita cu scopul de a ajuta utilizatorul sa depaneze codul sursa al programului rulat in emulator. Acest lucru este util in special pentru programatorii care doresc sa inteleaga cum functioneaza codul lor sau pentru a gasi erori in acesta.
+Ecranul emulatorului are o rezolutie de \code{192 X 128} pixeli, fiecare pixel fiind reprezentat de un byte in memorie. Fiecare byte reprezinta o culoare in format RGB in formatul \code{0xRRRGGGBB}, unde R, G si B sunt valorile de culoare rosu, verde si albastru. Acest lucru permite o paleta de 256 de culori diferite. Datorita rezolutiei sale si a faptului ca fiecare pixel este reprezentat de un byte, ecranul va ocupa 24KB in memorie. Memoria ecranului incepe de la adresa \code{0x4000} si se termina la adresa \code{0x9999}. Ecranul este actualizat la fiecare pas al emulatorului, astfel incat utilizatorul poate vedea imediat modificarile aduse de programul rulat in emulator.
+Ecranul este creat prin a implementa \cref{lst:displaymemdevice} traitul \code{MemoryDevice} care permite displayului sa fie folosit ca un dispozitiv de memorie. Acest lucru permite ca ecranul sa fie tratat ca o parte a memoriei emulatorului, permitand astfel citirea si scrierea pixelilor direct in memorie. Aceasta implementare este utila pentru a permite programelor sa acceseze ecranul direct prin intermediul instructiunilor de citire si scriere in memorie
+
+
+
+\begin{lstlisting}[language=Rust,caption={Implementare \code{MemoryDevice} display},label={lst:displaymemdevice}]
+fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
+    self.display.with(|data| {
+        data.get(addr as usize)
+            .map(|pixel| pixel.0)
+            .map_err(|_| MemoryRWCommonError::OutOfBounds(addr).into())
+    })
+}
+
+fn write_8(&mut self, addr: u16, value: u8) -> Result<(), MemoryWriteError> {
+    let mut result: Result<(), MemoryWriteError> =
+     Err(MemoryRWCommonError::OutOfBounds(addr).into());
+    self.display.update(|data| {
+        if let Ok(()) = data.set(addr as usize, U8Pixel::from(value)){
+            result = Ok(());
+        };
+    });
+    result
+}
+\end{lstlisting}
+
+Datorita implementarii traitului \code{MemoryDevice}, in initializarea emulatorului \cref{lst:emulatorinitialization} memoria acestuia poate fi initializata cu ecranul \code{DisplayMemoryDevice}.
+Primii 16KB din memorie vor fi ocupati de \code{RAM}, fiind urmati de ecranul emulatorului, iar restul de memorie va fi ocupat tot de \code{RAM}. Aceasta structura de memorie permite ca emulatorul sa aiba o memorie de 64KB, ceea ce este suficient pentru a rula majoritatea programelor scrise pentru \ac {Z80}. Aceasat functie de initializare a emulatorului va activa si inregistrarea modificarilor in memorie, astfel incat sa se poata urmari modificarile aduse de programul rulat in emulator. Acest lucru este util pentru a putea depana codul sursa al programului sau pentru a putea vedea cum functioneaza acesta. La fiecare pas al emulatorului, tabela \code{Memory} va afisa cu galben doar valorile care au fost schimbate.
+\begin{lstlisting}[language=Rust,caption={Initializarea emulatorului},label={lst:emulatorinitialization}]
+fn build_z80_emu(display: DisplayMemoryDevice) -> Emulator<Z80> {
+    use emu_lib::memory;
+    use emu_lib::memory::MemoryDevice;
+    let mut memory = memory::Memory::new();
+    let initial_ram_size = 0x4000;
+    let initial_ram = memory::memdevices::RAM::new(initial_ram_size);
+    let post_ram = memory::memdevices::RAM::new(
+        0x10000 - initial_ram_size - display.size()
+    );
+    memory.add_device(Box::new(initial_ram));
+    memory.add_device(Box::new(display));
+    memory.add_device(Box::new(post_ram));
+    let mut emu = Emulator::<Z80>::new_w_mem(memory);
+    emu.memory.record_changes(true);
+    emu
+}
+\end{lstlisting}
+
+Pentru ecranul afisarea datelor de pe ecranul emulatorlui un element de tip \code{<canvas>} este folosit, acesta va fi actualizat la fiecare pas al emulatorului. In acest fel, utilizatorul poate vedea imediat modificarile aduse de programul rulat in emulator. Datele de pe ecran sunt luate direct din structura \code {DisplayData}, aceasta implementand urmatoarele metode \cref {lst:displaydatamethods} pentru setarea si citirea unui pixel la coordonatele \code{(x, y)}:
+\begin{lstlisting}[language=Rust,caption={Metodele de setare si citire a pixelilor},label={lst:displaydatamethods}]
+pub fn set_pixel(&mut self, x: usize, y: usize, color: U8Pixel) ->
+    Result<(), &'static str> {
+        let index = self.get_index(x, y)?;
+        self.set(index, color)
+    }
+
+    pub fn get_pixel(&self, x: usize, y: usize) -> Result<U8Pixel, &'static str> {
+        let index = self.get_index(x, y)?;
+        self.get(index)
+    }
+\end{lstlisting}
+
+Functia \code{set\_pixel} va primi pe langa coordonatele pixelului si culoarea acestuia. Culoarea fiind reprezentata de un \code{U8Pixel}, un tip de date care permite convertirea usoara in sau din formatul RGB. \cref{lst:u8pixel}
+
+\begin{lstlisting}[language=Rust,caption={Tipul de date U8Pixel},label={lst:u8pixel}]
+#[derive(Clone,Copy, Debug, PartialEq, Eq, Hash)]
+pub struct U8Pixel(pub u8);
+
+impl U8Pixel {
+    pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+        // r 3 bits, g 3 bits, b 2 bits
+        let pixel_value = (r & 0b11100000)
+            | ((g & 0b11100000) >> 3)
+            | (b & 0b11000000 >> 6);
+        U8Pixel(pixel_value)
+    }
+
+    pub fn to_rgb(&self) -> (u8, u8, u8) {
+        //topmost bits
+        let r = self.0 & 0b11100000; // 3 bits for red
+        let g = (self.0 & 0b00011100) << 3; // 3 bits for green
+        let b = (self.0 & 0b00000011) << 5; // 2 bits for blue
+        (r, g, b)
+    }
+}
+impl From<u8> for U8Pixel {
+    fn from(value: u8) -> Self {
+        U8Pixel(value)
+    }
+}
+
+impl From<U8Pixel> for u8 {
+    fn from(value: U8Pixel) -> Self {
+        value.0
+    }
+}
+\end{lstlisting}
+
+Un lucru important este ca transformarea din RGB in U8Pixel este \code{lossy}, adica se pierde o parte din informatii. Acest lucru se datoreaza faptului ca U8Pixel foloseste doar 8 biti pentru a reprezenta culoarea, in timp ce RGB foloseste 24 de biti. Acest lucru inseamna ca nu toate culorile RGB pot fi reprezentate in U8Pixel.
+
+Partea de \code{Assembler} \cref{fig:assembler} este un editor de cod sursa care permite utilizatorului sa scrie cod in limbajul de asamblare Z80 sau in limbajul C. Acesta este un editor simplu de text care ofera functionalitat de baza precum asamblare/compilare, formatare si verificare a sintaxei programului.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/assembler.png}
+    \caption{Editorul de cod sursa al emulatorului}
+    \label{fig:assembler}
+\end{figure}
+
+In partea de sus a editorului se pot vedea butoanele de asamblare/compilare, formatare si verificare a sintaxei. Butonul de asamblare/compilare va incerca sa transforme codul sursa in cod masina, iar daca acest lucru reuseste, il va copia in memoria emulatorului. In cazul in care asamblarea/compilarea esueaza, utilizatorul va primi un mesaj de eroare cu detalii despre eroarea intalnita. Butonul de formatare va incerca sa formateze codul sursa pentru a fi mai usor de citit, iar butonul de verificare a sintaxei va verifica daca codul sursa este valid si nu contine erori de sintaxa.
+
+In partea din dreapta a editorului se va face selectia dintre limbajul de asamblare Z80 si limbajul C. In cazul in care utilizatorul alege limbajul C, editorul va incerca sa compileze codul sursa folosind compilatorul \code{gcc}. Daca compilarea reuseste, codul masina rezultat va fi copiat in memoria emulatorului. In cazul in care compilarea esueaza, utilizatorul va primi un mesaj de eroare cu detalii despre eroarea intalnita.
+
+In partea de jos a editorului se poate vedea un \code{<textbox>} in care utilizatorul poate introduce codul in limbajul de programare selectat. Fiecare limbaj de programare va avea propriul sa buffer, astfel incat atunci cand utilizatorul schimba limbajul de programare, codul sursa va fi salvat in bufferul corespunzator. Acest lucru permite utilizatorului sa schimbe intre limbajele de programare fara a pierde codul sursa scris.
+
+\begin{minipage}[c]{0.55\textwidth} % Text on the left
+    Sectiunea de \code{Registers} \cref{fig:registerssection} afiseaza toti registrii procesorului Z80, inclusiv registrii generali, registrii de indexare si registrul de stare. Acestia sunt afisati in format hexadecimal, iar utilizatorul poate modifica valorile acestora direct din interfata web. Aceasta functionalitate este utila pentru a putea depana codul sursa al programului rulat in emulator sau pentru a putea modifica starea procesorului in timpul executiei.
+\end{minipage}%
+\hfill
+\begin{minipage}[c]{0.4\textwidth} % Image on the right
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/registerssection.png}
+    \captionof{figure}{Sectiunea de registrii a emulatorului}
+    \label{fig:registerssection}
+\end{minipage}
 
 \subsubsection{Backend}
+
+\paragraph{Middleware} este un set de functii care sunt apelate inainte de a ajunge la handlerul API. Acestea sunt folosite pentru a face diverse verificari si pentru a seta contextul pentru handlerul API. De exemplu, middleware-ul \code{auth\_middleware} \cref{lst:authmiddleware} verifica daca utilizatorul este autentificat si seteaza utilizatorul in contextul API-ului. Acest lucru permite handlerelor API sa acceseze informatiile despre utilizatorul autentificat fara a fi nevoie sa le primeasca ca parametru.
+
+\begin{lstlisting}[language=Rust,caption={Middleware pentru autentificare},label={lst:authmiddleware}]
+pub async fn auth_middleware(
+    State(app_state): State<AppState>,
+    mut req: Request,
+    next: Next,
+) -> Result<Response, StatusCode> {
+    let pool = app_state.pool;
+    if let Some(session_token) =
+     cookie::server::get(&CookieKey::Session, &req.headers()) {
+        if let Ok(session) =
+         Session::get_by_token(&session_token, &pool) {
+            if !session.is_expired() {
+                if let Ok(user) =
+                 User::get_by_id(session.user_id, &pool) {
+                    let user_data: UserData = user.into();
+                    req.extensions_mut().insert(user_data);
+                }
+            }
+        }
+    }
+    Ok(next.run(req).await)
+}
+\end{lstlisting}
+
+Motivul din caza caruia s-a ales sa se foloseasca middleware-uri este faptul ca acestea ca odata ce o extensie este adaugata in contextul API-ului, aceasta va putea fi accesta in \code{server methods} din framework-ul Leptos. Acest lucru permite ca informatiile despre utilizatorul autentificat sa fie accesibile in toate handlerile API, fara a fi nevoie sa le primim ca parametru. Acest lucru este util pentru a putea verifica daca utilizatorul are permisiunea de a accesa anumite resurse sau de a efectua anumite actiuni. In cadrul emulatorul singurele actiuni care sunt limitate doar pentru utilizatorii autentificati sunt compilarea, formatarea si verificarea sintaxei programelor din limbaaul C. Acest lucru este facut pentru a limita accessul la resursele serverului si pentru a preveni abuzurile. In cazul in care utilizatorul nu este autentificat, acesta va primi un mesaj de eroare si nu va putea accesa compilarea programelor din limbajul C.
+
+\paragraph{API\-uri de autentificare} sunt implementare folosing server methods din framework-ul Leptos. Acestea sunt folosite pentru a permite utilizatorilor sa se autentifice, sa se inregistreze si sa se deconecteze din aplicatie. Aceste API-uri sunt implementate in modulul \code{auth} si sunt accesibile prin intermediul URL-urilor \code{/api/login}, \code{/api/register} si \code{/api/logout} ...etc. Acestea sunt implementate folosind server methods din framework-ul Leptos, care permite crearea de API-uri RESTful in mod simplu si eficient.
+
+\begin{lstlisting}[language=Rust,caption={API pentru verificarea existentei utilizatorului},label={lst:loginexistsapi}]
+ #[server(LoginExistsApi, endpoint = "/login_exists")]
+ pub async fn login_exists(login: String)
+  -> Result<bool, ServerFnError> {
+     use server_imports::*;
+     let state = expect_context::<AppState>();
+     let pool = &state.pool;
+     match User::get_by_login(&login, &pool) {
+         Ok(Some(_)) => Ok(true),
+         Ok(None) => Ok(false),
+         Err(err) => Err(ServerFnError::Response(format!(
+             "Failed to check login: {}",
+             err
+         ))),
+     }
+ }
+ \end{lstlisting}
+ Functia \code{login\_exists} \cref{lst:loginexistsapi} ruleaza doar pe server si verifica daca utilizatorul exista in baza de date. Daca utilizatorul exista, va returna \code{true}, altfel va returna \code{false}.
+
+
+ Pentru autentificare se va folosi functia \code{login} \cref{lst:loginapi}, aceasta va incerca sa obtina utilizatorul din baza de date folosind numele de utilizator sau emailul si parola. Daca utilizatorul este gasit si parola este corecta, se va crea o sesiune pentru utilizator si se va seta un cookie de sesiune. Daca utilizatorul nu este gasit sau parola este incorecta, se va returna o eroare.
+ \begin{lstlisting}[language=Rust,caption={API pentru autentificare},label={lst:loginapi}]
+ #[server(LoginApi, endpoint = "/login")]
+ pub async fn login(login: String, password: String) -> Result<(), ServerFnError> {
+     use server_imports::*;
+     let response = expect_context::<ResponseOptions>();
+     let state = expect_context::<AppState>();
+     // let state: Extension<AppState> = extract().await?;
+     let pool = &state.pool;
+     let user_login = UserLogin::new(login, password);
+     match user_login.get_user(&pool) {
+         Ok(user) => {
+             if let Ok(session) =
+              user.authenticate(&pool, AUTH_TIMEOUT)
+             {
+                 cookie::server::set(&CookieKey::Session,
+                  &session.token, AUTH_TIMEOUT, &response)?;
+                 Ok(())
+             }else {
+                 Err(ServerFnError::ServerError(
+                 "Failed to authenticate user".to_string()))
+             }
+         }
+         Err(e) => {
+             cookie::server::remove(&CookieKey::Session, &response)?;
+             response.set_status(StatusCode::UNAUTHORIZED);
+             let msg = format!("Failed to login user: {}", e);
+             Err(ServerFnError::Response(msg))
+         }
+     }
+ }
+ \end{lstlisting}
+
+ Pentru autentificarea cu Google, se va folosi API-ul \code{/api/google\_login\_callback} \cref{lst:googleloginapi}. Dupa ce utilizatorul se autentifica cu Google, acesta va fi redirectionat catre acest API trimitand urmatorii parametri:
+\begin{itemize}
+    \item \code{clientId} - ID-ul clientului Google, create in consola Google Cloud pentru a putea folosi API-ul Google OAuth2
+    \item \code{client\_id} - ID-ul clientului Google (acesta este un parametru redundant, dar este necesar pentru a fi compatibil cu API-ul Google)
+    \item \code{select\_by} - metoda de selectare a utilizatorului (de obicei este \code{sub})
+    \item \code{g\_csrf\_token} - tokenul CSRF generat de Google
+    \item \code{credential} - credentialul primit de la Google
+\end{itemize}
+
+Dupa ce API-ul primeste aceste date, acesta va folosi libraria \code{google\_oauth} pentru a valida tokenul primit de la Google. Daca tokenul este valid, API-ul va incerca sa obtina utilizatorul din baza de date folosind ID-ul utilizatorului Google. Daca utilizatorul exista, acesta va fi autentificat si se va crea o sesiune pentru acesta. Daca utilizatorul nu exista, acesta va fi creat in baza de date folosind numele si emailul primit de la Google. In cazul in care crearea utilizatorului esueaza, se va returna o eroare.
+Cand un cont isi creaza un cont prin Google, acesta va primi o parola generata aleatoriu. Aceast lucru a fost facut deoarece campul de parola este obligatoriu in baza de date. Utilizatorul nu va primi aceasta parola, deoarece autentificarea se va face doar prin Google.
+In baza de date, utilizatorul va avea un camp \code{oauth\_google} care va contine ID-ul utilizatorului Google. Acest camp va fi folosit pentru a identifica utilizatorul in cazul in care acesta se autentifica din nou cu Google.
+\begin{lstlisting}[language=Rust,caption={API pentru autentificarea cu Google},label={lst:googleloginapi}]
+#[allow(non_snake_case)]
+#[server(GoogleLoginCallbackApi, endpoint = "/google_login_callback")]
+pub async fn google_login_callback(
+    clientId: String,
+    client_id: String,
+    select_by: String,
+    g_csrf_token: String,
+    credential: String,
+) -> Result<(), ServerFnError> {
+    use server_imports::*;
+    let oauth_client = google_oauth::AsyncClient::new(clientId);
+    let state = expect_context::<AppState>();
+    let payload = oauth_client
+        .validate_id_token(credential)
+        .await
+        .expect("Could not validate payload");
+    if let Some(user) = get_google_user(&payload.sub) {
+        user_auth(user, AUTH_TIMEOUT).await
+    } else {
+        //create random password
+        let random_password: String = (0..16)
+            .map(|_| rand::random::<char>()).collect();
+        if let (Some(name),Some(email)) =
+            (payload.name,payload.email) {
+            let name = name.split(" ").next();
+            let name = match name {
+                Some(n) => n.to_string(),
+                None => {
+                    return Err(ServerFnError::Response(
+                        "Could not get name for Google Auth registration"
+                            .to_string(),
+                    ))
+                }
+            };
+            let new_user = NewUser::new(
+                name,
+                email.clone(),
+                random_password.clone(),
+                Some(payload.sub.clone()),
+                None,
+            );
+            if let Ok(user) = new_user {
+                if let Ok(user) = User::add_user(user, &state.pool) {
+                    user_auth(user, time::Duration::seconds(60 * 60 * 24)).await?;
+                    Ok(())
+                    //...
+\end{lstlisting}
+
+In functie de rezultatul autentificarii, utilizatorul va fi redirectionat catre pagina emulatorului sau va primi un mesaj de eroare.
+
+Pentru inregistrare, se va folosi API-ul \code{/api/register} \cref{lst:registerapi}. Acesta va primi numele, emailul si parola utilizatorului si va incerca sa creeze un nou utilizator in baza de date. Daca utilizatorul este creat cu succes, functia va returna un rezultat de tip \code{Ok(())}. In cazul in care crearea utilizatorului esueaza, se va returna o eroare cu un mesaj corespunzator, fie ca este o eroare de validare a datelor, fie ca este o eroare de baza de date. In ambele cazuri, statusul HTTP va fi setat la \code{BAD\_REQUEST (400)} pentru a indica faptul ca cererea nu a fost procesata cu succes.
+
+\begin{lstlisting}[language=Rust,caption={API pentru inregistrare},label={lst:registerapi}]
+#[server(RegisterApi, endpoint = "/register")]
+pub async fn register(
+    username: String,
+    email: String,
+    password: String,
+) -> Result<(), ServerFnError> {
+    use server_imports::*;
+    let response = expect_context::<ResponseOptions>();
+    let state = expect_context::<AppState>();
+    let pool = &state.pool;
+    match NewUser::new(username, email, password, None, None) {
+        Ok(user) => match User::add_user(user, &pool) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                response.set_status(StatusCode::BAD_REQUEST);
+                let msg = format!("Failed to register user: {}", e);
+                Err(ServerFnError::Response(msg))
+            }
+        },
+        Err(e) => {
+            response.set_status(StatusCode::BAD_REQUEST);
+            let msg = format!("Failed to register user: {}", e);
+            Err(ServerFnError::Response(msg))
+        }
+    }
+}
+\end{lstlisting}
+
+Pentru returnarea datelor despre utilizatorul autentificat, se va folosi API-ul \code{/api/userdata} \cref{lst:userdataapi}. Acesta va incerca sa extraga datele despre utilizatorul autentificat din contextul API-ului, date aduse de middleware-ul de autentificare. Daca utilizatorul este autentificat, API-ul va returna datele despre utilizator, altfel va returna o eroare de tip \code{Unauthenticated}. Acest API este folosit pentru a obtine informatii despre utilizatorul autentificat, cum ar fi numele, emailul si ID-ul utilizatorului. Aceste informatii sunt folosite in interfata web pentru a afisa detalii despre utilizatorul autentificat cum ar fi numele pe pagina emulatorului \cref{fig:emulatorpage}.
+
+\begin{lstlisting}[language=Rust,caption={API pentru obtinerea datelor despre utilizatorul autentificat},label={lst:userdataapi}]
+#[server(GetUserData, endpoint = "/userdata")]
+pub async fn userdata() -> Result<UserData, UserDataError> {
+    use server_imports::*;
+    let userdata: Result<Extension<UserData>, _> = extract().await;
+    if let Ok(userdata) = userdata {
+        Ok(userdata.0.clone())
+    } else {
+        Err(UserDataError::Unauthenticated)
+    }
+}
+\end{lstlisting}
+
+\paragraph{API\-ul compiler C} este implementat in fisierul \code{compiler.rs} si este folosit pentru a comunica cu serviciul de compilare. Serviciul de compilare este implementat sa ruleze intr-un container Docker bazat pe imaginea \code {z88dk/z88dk}. Aceasta imagine contine toate dependintele necesare pentru a compila codul sursa in limbajul C pentru microprocesorul Z80.
+In \cref{lst:compilerdocker} este prezentat cum sunt instalate dependintele necesare pentru a rula compilatorul C in in containerul Docker si cum este configurat sa ruleze serverul FastAPI pe portul 4560. Acest port este expus pentru a permite comunicarea cu intre acest serviciu si aplicatia web. Datorita izolarii oferite de Docker, acest serviciu nu este expus direct la internet, ci doar prin intermediul aplicatiei web. Acest lucru ofera un nivel suplimentar de securitate si permite ca serviciul de compilare sa fie scalat usor in cazul in care este necesar.
+
+\begin{lstlisting}[language=docker,caption={Dockerfile pentru compilatorul C},label={lst:compilerdocker}]
+FROM z88dk/z88dk
+RUN apk add --no-cache python3 py3-pip astyle
+WORKDIR /web
+# Create Virtual Environment
+RUN python3 -m venv venv
+RUN venv/bin/pip install --upgrade pip
+# Install PIP Dependencies
+COPY requirements.txt .
+RUN venv/bin/pip install -r requirements.txt
+COPY api.py .
+EXPOSE 4560 # Expose Port
+CMD ["venv/bin/fastapi", "run", "--port", "4560" ,"api.py"]
+\end{lstlisting}
+
+Deoarece compilerul functioneaza pe alta masina, pentru a fiecare endpoint pe care il vrem acesibil 2 functii vor fi implementate. Una va fi scrisa in python si va functiona ca wrapper ce expune un API web compilatorului, iar cealalta va fi scrisa in Rust si va fi folosita pentru a face cereri catre API-ul web al compilatorului. Acest lucru permite ca frontend-ul sa poate comunica cu compilatorul fara a fi nevoie sa cunoasca detalii despre implementarea acestuia.
+
+API-ul Python care ruleaza in containerul cu compilatorul C este implementat in fisierul \code{api.py} \cref{lst:compilerapi}. Acesta expune urmatoarele endpoint-uri:
+\begin{itemize}
+    \item \code{/compile} - pentru a compila codul sursa in limbajul C
+    \item \code{/format} - pentru a formata codul sursa in limbajul C
+    \item \code{/check\_syntax} - pentru a verifica sintaxa codului sursa in limbajul C
+\end{itemize}
+
+\begin{lstlisting}[language=Python,caption={API-ul Python pentru compilatorul C},label={lst:compilerapi}]
+def compile_str(b64data_in: str) -> CompileData:
+    data_in = base64.b64decode(b64data_in).decode("utf-8")
+    with TemporaryDirectory() as temp_dir:
+        with open(f"{temp_dir}/{FILENAME}.c", "w") as f:
+            f.write(data_in)
+        command = ["zcc", "+z80", "-vn", "-O3", "-startup=31",
+                   "-o", f"{FILENAME}.rom", "-create-app",
+                   f"{FILENAME}.c", "-compiler=sdcc",
+                   "-zorg=0x0", "-lm"]
+        result = subprocess.run(
+            command,
+            cwd=temp_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        data: bytes = b""
+        try:
+            with open(f"{temp_dir}/{FILENAME}.rom", "rb") as f:
+                data = f.read()
+        except  FileNotFoundError:
+            data = b""
+        return CompileData(rc=result.returncode,
+                           b64stdout=base64.b64encode(result.stdout),
+                           b64stderr=base64.b64encode(result.stderr),
+                           b64data=base64.b64encode(data))
+
+
+def format_str(b64data_in: str) -> FormatData:
+    data_in = base64.b64decode(b64data_in).decode("utf-8")
+    with NamedTemporaryFile(mode="w+", suffix=".c") as f:
+        f.write(data_in)
+        f.flush()
+        command = [
+            "astyle",
+            "--style=attach",
+            "--indent=spaces=4",
+            "--suffix=none",
+            f.name
+        ]
+        result = subprocess.run(
+            command,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        data = b""
+        if result.returncode == 0:
+            f.seek(0)
+            data = f.read().encode("utf-8")
+        return FormatData(b64data=base64.b64encode(data))
+
+
+def syntax_check(b64data_in: str) -> SyntaxCheckData:
+    data_in = base64.b64decode(b64data_in).decode("utf-8")
+    with NamedTemporaryFile(mode="w+", suffix=".c") as f:
+        f.write(data_in)
+        f.flush()
+        command = ["gcc", "-fsyntax-only", f.name]
+        result = subprocess.run(
+            command,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+        )
+        return SyntaxCheckData(rc=result.returncode,
+                               b64stderr=base64.b64encode(result.stderr))
+
+
+class RequestDataModel(BaseModel):
+    b64data: str
+
+
+@app.post("/compile")
+def compile_data_endpoint(item: RequestDataModel):
+    return compile_str(item.b64data)
+
+
+@app.post("/format")
+def format_data_endpoint(item: RequestDataModel):
+    return format_str(item.b64data)
+
+
+@app.post("/syntax_check")
+def syntax_check_endpoint(item: RequestDataModel):
+    return syntax_check(item.b64data)
+\end{lstlisting}
+
+
 \subsection{Containerizare}
 
 \section{Rezultate experimentale}

@@ -25,7 +25,7 @@ pub fn LoginForm(public_url:String) -> impl IntoView {
         if login_valid_action.pending().get() {
             return "warning";
         }
-        login_valid_action.value().with(|val| match val.as_ref() {
+        login_valid_action.value().with(|val| match val.as_ref() { //TODO: Check length also
             Some(val) => match val {
                 Ok(true) => "valid",
                 Ok(false) => "invalid",

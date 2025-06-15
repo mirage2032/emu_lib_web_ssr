@@ -15,7 +15,9 @@ pub struct U8Pixel(pub u8);
 impl U8Pixel {
     pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
         // r 3 bits, g 3 bits, b 2 bits
-        let pixel_value = ((r & 0b111) << 5) | ((g & 0b111) << 2) | (b & 0b11);
+        let pixel_value = (r & 0b11100000)
+            | ((g & 0b11100000) >> 3)
+            | (b & 0b11000000 >> 6);
         U8Pixel(pixel_value)
     }
 

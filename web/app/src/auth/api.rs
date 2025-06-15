@@ -108,14 +108,17 @@ pub async fn google_login_callback(
         user_auth(user, AUTH_TIMEOUT).await
     } else {
         //create random password
-        let random_password: String = (0..16).map(|_| rand::random::<char>()).collect();
-        if let (Some(name),Some(email)) = (payload.name,payload.email) {
+        let random_password: String = (0..16)
+            .map(|_| rand::random::<char>()).collect();
+        if let (Some(name),Some(email)) =
+            (payload.name,payload.email) {
             let name = name.split(" ").next();
             let name = match name {
                 Some(n) => n.to_string(),
                 None => {
                     return Err(ServerFnError::Response(
-                        "Could not get name for Google Auth registration".to_string(),
+                        "Could not get name for Google Auth registration"
+                            .to_string(),
                     ))
                 }
             };

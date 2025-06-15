@@ -36,8 +36,10 @@ def compile_str(b64data_in: str) -> CompileData:
     with TemporaryDirectory() as temp_dir:
         with open(f"{temp_dir}/{FILENAME}.c", "w") as f:
             f.write(data_in)
-        command = ["zcc", "+z80", "-vn", "-O3", "-startup=31", "-o", f"{FILENAME}.rom", "-create-app", f"{FILENAME}.c",
-                   "-compiler=sdcc", "-zorg=0x0", "-lm"]
+        command = ["zcc", "+z80", "-vn", "-O3", "-startup=31",
+                   "-o", f"{FILENAME}.rom", "-create-app",
+                   f"{FILENAME}.c", "-compiler=sdcc",
+                   "-zorg=0x0", "-lm"]
         result = subprocess.run(
             command,
             cwd=temp_dir,
@@ -50,8 +52,10 @@ def compile_str(b64data_in: str) -> CompileData:
                 data = f.read()
         except  FileNotFoundError:
             data = b""
-        return CompileData(rc=result.returncode, b64stdout=base64.b64encode(result.stdout),
-                           b64stderr=base64.b64encode(result.stderr), b64data=base64.b64encode(data))
+        return CompileData(rc=result.returncode,
+                           b64stdout=base64.b64encode(result.stdout),
+                           b64stderr=base64.b64encode(result.stderr),
+                           b64data=base64.b64encode(data))
 
 
 def format_str(b64data_in: str) -> FormatData:
@@ -89,7 +93,8 @@ def syntax_check(b64data_in: str) -> SyntaxCheckData:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.PIPE,
         )
-        return SyntaxCheckData(rc=result.returncode, b64stderr=base64.b64encode(result.stderr))
+        return SyntaxCheckData(rc=result.returncode,
+                               b64stderr=base64.b64encode(result.stderr))
 
 
 class RequestDataModel(BaseModel):
