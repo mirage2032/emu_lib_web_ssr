@@ -270,6 +270,28 @@ $mc-border: #dee2e6; // Borders
 
           .editortopbtns {
             display: inline-block;
+            button {
+              padding: 0.2rem 0.3rem;
+              border: none;
+              background: transparent;
+              color: $mc-text-dark;
+              font-family: 'JetBrains Mono', Consolas, monospace;
+              font-size: 0.9em;
+              text-align: center;
+              transition: all 0.15s ease;
+
+              &:hover:not(:focus) {
+                background: rgba($mc-primary, 0.16);
+              }
+
+              &:active {
+                background: white;
+                box-shadow: 0 0 0 1.5px $mc-primary;
+                color: $mc-text-dark;
+                outline: none;
+                z-index: 2;
+              }
+            }
           }
 
           .editortoplang {
