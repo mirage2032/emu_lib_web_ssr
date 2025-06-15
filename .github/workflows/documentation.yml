@@ -32,7 +32,9 @@ jobs:
           cache-to: type=gha,mode=max,scope=z80emulatex
 
       - name: Building documentation
-        run: docker run -u "$(id -u):$(id -g)" --rm -v ./doc/out:/out z80emu-latex:latest
+        run: |
+          mkdir ./doc/out
+          docker run -u "$(id -u):$(id -g)" --rm -v ./doc/out:/out z80emu-latex:latest
 
       - name: Upload documentation
         uses: actions/upload-artifact@v4
