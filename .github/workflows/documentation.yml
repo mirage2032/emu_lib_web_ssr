@@ -26,12 +26,13 @@ jobs:
         with:
           context: doc
           push: false
+          load: true
           tags: z80emu-latex:latest
           cache-from: type=gha,scope=z80emulatex
           cache-to: type=gha,mode=max,scope=z80emulatex
 
-      - name:
-        run: docker run -u "$(id -u):$(id -g)" --rm -v ./doc/out:/out emu-latex:latest
+      - name: Building documentation
+        run: docker run -u "$(id -u):$(id -g)" --rm -v ./doc/out:/out z80emu-latex:latest
 
       - name: Upload documentation
         uses: actions/upload-artifact@v4

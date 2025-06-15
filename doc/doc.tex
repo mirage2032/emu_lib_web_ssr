@@ -19,7 +19,7 @@
 %SETTINGS FOR CODE
 \lstset{
     basicstyle=\fontsize{10}{12}\selectfont\ttfamily,
-    keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
+keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
     commentstyle=\color{green}, % Comments in green
     stringstyle=\color{red}, % Strings in red
     backgroundcolor=\color{lightgray}, % Light gray background
@@ -93,6 +93,9 @@
         \acro {WASM}      {Web Assembly}
         \acro {DARPA}     {Defense Advanced Research Projects Agency}
         \acro {GPR}       {General Purpose Register}
+        \acro {IaaS}      {Infrastructure as a Service}
+        \acro {PaaS}      {Platform as a Service}
+        \acro {SaaS}      {Software as a Service}
     \end{acronym}
     \clearpage
 % Sections
@@ -572,6 +575,49 @@ CMD ["cargo", "run"]
 În exemplul din \cref{lst:dockerfile}, se construiește o imagine Docker pentru o aplicație Rust.
 Aceasta este compilată în mod optimizat (\code{--release}) și apoi rulată automat la pornirea containerului.
 
+\subsection{Kubernetes}
+
+Kubernetes este o platformă open-source pentru orchestrarea containerelor, care permite gestionarea automată a aplicațiilor containerizate la scară largă. Unul dintre principalele sale scopuri este de a facilita implementarea, scalarea și gestionarea aplicațiilor în containere, asigurându-se că acestea rulează în mod fiabil și eficient.
+Pe baza acestei platofrme se pot face deploy-uri automate, se pot gestiona resursele și se pot monitoriza aplicațiile într-un mod centralizat.
+
+\begin{itemize}
+    \item \textbf{Master Node}: Este responsabil pentru gestionarea întregului cluster. Include componente precum \textit{API Server}, \textit{Scheduler} și \textit{Controller Manager}.
+    \item \textbf{Worker Nodes}: Acestea găzduiesc aplicațiile containerizate. Fiecare nod conține un \textit{kubelet}, care comunică cu Master Node, și un \textit{Container Runtime} pentru rularea containerelor.
+    \item \textbf{etcd}: O bază de date distribuită care stochează toate datele de configurare ale clusterului.
+    \item \textbf{Controller Manager}: Gestionează controlerele care monitorizează starea clusterului și efectuează acțiuni corective.
+    \item \textbf{Scheduler}: Atribuie workload-urile (pod-urile) nodurilor disponibile, ținând cont de resursele acestora.
+\end{itemize}
+
+\paragraph{Concepte cheie}
+\begin{itemize}
+    \item \textbf{Pod}: Cea mai mică unitate de lucru din Kubernetes, care conține unul sau mai multe containere ce împart aceeași rețea și spațiu de stocare.
+    \item \textbf{Service}: O abstracție care expune un set de pod-uri ca un serviciu de rețea.
+    \item \textbf{Deployment}: Un obiect care definește modul în care aplicațiile sunt implementate și gestionate, permițând actualizări și rollback-uri.
+    \item \textbf{Namespace}: Un mecanism de izolare logică pentru organizarea resurselor dintr-un cluster.
+    \item \textbf{ConfigMap și Secret}: Resurse utilizate pentru a gestiona configurările aplicațiilor și datele sensibile, cum ar fi parolele.
+\end{itemize}
+
+\paragraph{Avantajele utilizării Kubernetes}
+\begin{itemize}
+    \item \textbf{Scalabilitate automată}: Kubernetes poate scala automat aplicațiile în funcție de cerințele de resurse.
+    \item \textbf{Toleranță la erori}: Asigură disponibilitatea aplicațiilor prin repornirea automată a pod-urilor defecte și redistribuirea acestora pe noduri sănătoase.
+    \item \textbf{Portabilitate}: Aplicațiile containerizate pot fi rulate pe orice infrastructură care suportă Kubernetes, fie că este vorba de cloud public, privat sau on-premises.
+    \item \textbf{Gestionare declarativă}: Configurațiile sunt definite într-un mod declarativ, utilizând fișiere YAML sau JSON.
+    \item \textbf{Integrare cu DevOps}: Kubernetes se integrează ușor cu pipeline-urile CI/CD, facilitând livrarea continuă a aplicațiilor.
+\end{itemize}
+
+\paragraph{Flux de lucru tipic}
+Un flux de lucru tipic în Kubernetes implică următorii pași:
+\begin{enumerate}
+    \item Crearea unui fișier de configurare YAML pentru resursele necesare (Pod, Deployment, Service etc.).
+    \item Aplicarea configurației folosind comanda \texttt{kubectl apply}.
+    \item Monitorizarea stării clusterului și a resurselor utilizând comanda \texttt{kubectl get}.
+    \item Scalarea aplicațiilor folosind comanda \texttt{kubectl scale}.
+    \item Actualizarea aplicațiilor prin modificarea configurației și reaplicarea acesteia.
+\end{enumerate}
+
+Kubernetes a devenit standardul de facto pentru orchestrarea containerelor, oferind un ecosistem robust și extensibil pentru gestionarea aplicațiilor moderne.
+
 \subsection{Version Control (Git)}
 
 Controlul versiunilor este un sistem esențial în gestionarea codului sursă pe parcursul dezvoltării software. Acesta permite urmărirea modificărilor aduse fișierelor de-a lungul timpului, facilitând gestionarea mai multor versiuni ale unui proiect, colaborarea între dezvoltatori și asigurarea integrității și consistenței codului sursă.
@@ -598,6 +644,55 @@ Un flux de lucru tipic cu Git implică următoarele etape:
 \end{enumerate}
 
 Comparativ cu alte sisteme de control al versiunilor, cum ar fi SVN (Subversion), Git oferă o mai mare flexibilitate și performanță. De exemplu, SVN este un sistem de control al versiunilor centralizat, ceea ce înseamnă că există un depozit central unde toate modificările sunt stocate. Git, pe de altă parte, este un sistem distribuit, permițând fiecărui dezvoltator să aibă o copie completă a întregului proiect, ceea ce îl face mai eficient în lucrul cu proiecte mari și echipe distribuite. Git este, de asemenea, mult mai rapid în gestionarea ramurilor și în combinarea modificărilor, fiind ideal pentru dezvoltarea de software agil.
+
+\subsection{Cloud Computing}
+
+Cloud Computing reprezintă livrarea de servicii IT, cum ar fi stocare, procesare, baze de date, rețele și software, prin intermediul internetului („cloud”), oferind acces la resurse scalabile și flexibile fără a necesita investiții în infrastructură fizică.
+
+\paragraph{Modele de servicii}
+Cloud Computing este clasificat în trei modele principale de servicii:
+\begin{itemize}
+    \item \ac {IaaS}: Oferă infrastructură virtualizată, cum ar fi servere, stocare și rețele. Exemple: Amazon EC2, Microsoft Azure Virtual Machines.
+    \item \ac {PaaS}: Oferă un mediu de dezvoltare și implementare pentru aplicații, eliminând necesitatea gestionării infrastructurii. Exemple: Google App Engine, Heroku.
+    \item \ac {SaaS}: Oferă aplicații software accesibile prin internet, fără a necesita instalare locală. Exemple: Google Workspace, Microsoft 365.
+\end{itemize}
+
+\paragraph{Modele de implementare}
+Există mai multe modele de implementare a cloud-ului:
+\begin{itemize}
+    \item \textbf{Cloud public}: Resursele sunt partajate între mai mulți utilizatori și sunt gestionate de un furnizor terț. Exemple: Amazon Web Services (AWS), Google Cloud Platform (GCP).
+    \item \textbf{Cloud privat}: Resursele sunt dedicate unei singure organizații, oferind un control mai mare asupra datelor și securității.
+    \item \textbf{Cloud hibrid}: Combină cloud-ul public și privat, permițând organizațiilor să beneficieze de flexibilitate și scalabilitate.
+    \item \textbf{Cloud comunitar}: Resursele sunt partajate între organizații cu interese comune, cum ar fi instituțiile guvernamentale.
+\end{itemize}
+
+\paragraph{Avantajele Cloud Computing}
+\begin{itemize}
+    \item \textbf{Scalabilitate}: Resursele pot fi ajustate rapid în funcție de cerințele utilizatorului.
+    \item \textbf{Costuri reduse}: Elimină necesitatea investițiilor în hardware și întreținere.
+    \item \textbf{Accesibilitate}: Serviciile sunt accesibile de oriunde, atâta timp cât există o conexiune la internet.
+    \item \textbf{Fiabilitate}: Majoritatea furnizorilor de cloud oferă redundanță și backup automat pentru a asigura disponibilitatea serviciilor.
+    \item \textbf{Securitate}: Furnizorii de cloud implementează măsuri avansate de securitate pentru protejarea datelor.
+\end{itemize}
+
+\paragraph{Google Cloud Platform (GCP)}
+a fost ales \textbf{Google Cloud Platform (GCP)} datorită serviciilor sale robuste și a integrării ușoare cu tehnologiile necesare. GCP oferă o infrastructură scalabilă și flexibilă, care a permis implementarea eficientă a aplicației.
+
+\begin{itemize}
+    \item \textbf{Docker Engine}: GCP oferă suport nativ pentru containere prin Google Kubernetes Engine (GKE) și alte servicii, facilitând rularea aplicației containerizate. Docker Engine a fost esențial pentru izolarea și gestionarea mediului de execuție al aplicației.
+    \item \textbf{Managementul certificatelor SSL}: GCP include servicii precum \textit{Certificate Manager}, care simplifică gestionarea certificatelor SSL. Acest lucru a asigurat o conexiune securizată între utilizatori și aplicație, respectând standardele moderne de securitate.
+    \item \textbf{Scalabilitate automată}: GCP a permis scalarea automată a resurselor în funcție de cerințele aplicației, reducând costurile și asigurând performanța optimă.
+    \item \textbf{Integrare cu CI/CD}: GCP s-a integrat ușor cu pipeline-urile de livrare continuă, facilitând implementarea rapidă a actualizărilor și testarea automată.
+\end{itemize}
+
+\paragraph{Provocări și limitări}
+\begin{itemize}
+    \item \textbf{Confidențialitatea datelor}: Datele stocate în cloud pot fi vulnerabile la acces neautorizat, dar GCP oferă măsuri avansate de securitate pentru a minimiza riscurile.
+    \item \textbf{Dependența de furnizor}: Migrarea către alt furnizor poate fi dificilă, dar flexibilitatea oferită de GCP a redus această preocupare.
+\end{itemize}
+
+Google Cloud Platform a oferit toate instrumentele necesare pentru a implementa și gestiona proiectul într-un mod eficient și sigur, contribuind semnificativ la succesul acestuia.
+
 
 \section{Implementare}
 \subsection{Librarie emulator}
