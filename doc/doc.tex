@@ -98,6 +98,10 @@ keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
         \acro {PaaS}      {Platform as a Service}
         \acro {SaaS}      {Software as a Service}
         \acro {CRT}       {C runtime}
+        \acro {AWS}       {Amazon Web Services}
+        \acro {GCP}       {Google Cloud Platform}
+        \acro {API}       {Application Programming Interface}
+        \acro {DNS}       {Domain Name System}
     \end{acronym}
     \clearpage
 % Sections
@@ -662,7 +666,7 @@ Cloud Computing este clasificat în trei modele principale de servicii:
 \paragraph{Modele de implementare}
 Există mai multe modele de implementare a cloud-ului:
 \begin{itemize}
-    \item \textbf{Cloud public}: Resursele sunt partajate între mai mulți utilizatori și sunt gestionate de un furnizor terț. Exemple: Amazon Web Services (AWS), Google Cloud Platform (GCP).
+    \item \textbf{Cloud public}: Resursele sunt partajate între mai mulți utilizatori și sunt gestionate de un furnizor terț. Exemple: \ac {AWS} , \ac {GCP}.
     \item \textbf{Cloud privat}: Resursele sunt dedicate unei singure organizații, oferind un control mai mare asupra datelor și securității.
     \item \textbf{Cloud hibrid}: Combină cloud-ul public și privat, permițând organizațiilor să beneficieze de flexibilitate și scalabilitate.
     \item \textbf{Cloud comunitar}: Resursele sunt partajate între organizații cu interese comune, cum ar fi instituțiile guvernamentale.
@@ -677,8 +681,8 @@ Există mai multe modele de implementare a cloud-ului:
     \item \textbf{Securitate}: Furnizorii de cloud implementează măsuri avansate de securitate pentru protejarea datelor.
 \end{itemize}
 
-\paragraph{Google Cloud Platform (GCP)}
-a fost ales \textbf{Google Cloud Platform (GCP)} datorită serviciilor sale robuste și a integrării ușoare cu tehnologiile necesare. GCP oferă o infrastructură scalabilă și flexibilă, care a permis implementarea eficientă a aplicației.
+\paragraph{Google Cloud Platform}
+a fost ales datorită serviciilor sale robuste și a integrării ușoare cu tehnologiile necesare. \ac {GCP} oferă o infrastructură scalabilă și flexibilă, care a permis implementarea eficientă a aplicației.
 
 \begin{itemize}
     \item \textbf{Docker Engine}: GCP oferă suport nativ pentru containere prin Google Kubernetes Engine (GKE) și alte servicii, facilitând rularea aplicației containerizate. Docker Engine a fost esențial pentru izolarea și gestionarea mediului de execuție al aplicației.
@@ -2109,12 +2113,234 @@ spec:
     - z80emu.online
 \end{lstlisting}
 
-\subsubsection{Domain}
-Pentru a putea accesa aplicatia de pe internet, a fost achizitionat un domeniu \code{z80emu.online}
+In \cref{fig:googlecluster} se poate vedea clusterul \ac {K8s} din consola Google Cloud. Prin a accesa consola online, se pot vedea toate resursele din cluster, cum ar fi serviciile, podurile, replicaset-urile si altele. De asemenea, se pot vedea si logurile aplicatiei, ceea ce permite monitorizarea si depanarea aplicatiei in timp real.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/googlecluster.png}
+    \caption{Clusterul Kubernetes in Google Cloud Platform}
+    \label{fig:googlecluster}
+\end{figure}
 
+\subsubsection{Domain}
+Pentru a putea accesa aplicatia de pe internet, a fost achizitionat un domeniu \code{z80emu.online} prin platforma Spaceship. Acest domeniu a fost necesar pentru a putea accesa aplicatia de pe internet si pentru a putea folosi un certificat \code{SSL} generat de Google Cloud Platform. Acest domeniu este folosit pentru a accesa aplicatia in siguranta prin intermediul unui domeniu securizat, fara a fi nevoie sa se configureze manual certificatele \code{SSL} si redirectionarea traficului.
+
+Un motiv datorita caruia Spaceship a fost ales pentru inregistrarea domeniului este faptul ca ofera un API simplu si usor de folosit pentru a gestiona domeniile. Acest lucru permite ca domeniul sa fie gestionat usor si rapid, fara a fi nevoie sa se acceseze manual platforma Spaceship. De asemenea, Spaceship ofera suport pentru \ac {DNS}, ceea ce permite ca domeniul sa fie configurat usor pentru a fi folosit cu Google Cloud Platform.
+
+\subsection{CI/CD}
+
+Pentru a putea implementa aplicatia in mod continuu si pentru a putea testa automat codul, s-a folosit GitHub Actions. Acesta permite ca codul sa fie testat automat la fiecare push si sa fie implementat automat in productie atunci cand este gata. Acest lucru permite ca aplicatia sa fie dezvoltata si testata rapid, fara a fi nevoie sa se faca manual teste sau implementari.
+
+\subsubsection{Testarea librariei}
+Un workflow de testare a fost creat pentru a testa libraria \code{z80emu-lib} la fiecare push. Acest workflow este definit in fisierul \code{.github/workflows/build.yml} si este folosit pentru a rula testele unitare ale librariei. In \cref{lst:libtestworkflow} este prezentat workflow-ul ce apelease \code{cargo test}. Acest workflow este declansat la fiecare push si la fiecare pull request. Acest lucru permite ca libraria sa fie testata automat si sa se asigure ca nu sunt introduse erori in codul sursa.
+\begin{lstlisting}[language=yaml,caption={Workflow de testare a librariei},label={lst:libtestworkflow}]
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Build
+      run: cargo build --verbose
+    - name: Run tests
+      run: cargo test --verbose
+\end{lstlisting}
+
+\begin{minipage}[c]{0.55\textwidth}
+Datorita faptului ca fiecare commit de pe branchul \code{master} este testat automat, un utilizator care doreste sa foloseasca libraria va putea vedea chemarkul \cref{fig:libtestcheckmark} in pagina de GitHub a librariei, ceea ce indica faptul ca libraria a trecut toate testele si este stabila pentru a fi folosita. Acest lucru ofera un nivel suplimentar de incredere utilizatorilor care doresc sa foloseasca libraria in proiectele lor.
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/libtestcheckmark.png}
+    \captionof{figure}{Workflow de testare a librariei}
+    \label{fig:libtestcheckmark}
+\end{minipage}
+
+\subsubsection{Construirea imaginilor Docker}
+Pentru a putea construi imaginile Docker ale aplicatiei, s-a folosit un workflow de GitHub Actions care este definit in fisierul \code{.github/workflows/dockerhub.yml}. Acest workflow este folosit pentru a construi imaginile Docker ale aplicatiei si pentru a le publica pe Docker Hub. In acest workflow \cref{lst:dockerhubworkflow} se poate observa cum pentru procesul de build, parametrii de setare ai cache-ului sunt setati pentru a folosi cache-ul de la GitHub Actions, ceea ce permite ca procesul de build sa fie mai rapid si mai eficient. De asemenea, se pot observa cum imaginile sunt etichetate cu versiunea scurta a commit-ului si cu \code{latest}, ceea ce permite ca imaginile sa fie usor de identificat si de folosit.
+
+\begin{lstlisting}[language=yaml,caption={Workflow de construire a imaginilor Docker},label={lst:dockerhubworkflow}]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Get short SHA
+        run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build and run Z80 Emulator Web
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      - name: Build and run Z80 Compiler Api
+        uses: docker/build-push-action@v6
+        with:
+          context: ./ccompiler
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
+          cache-from: type=gha,scope=ccompiler
+          cache-to: type=gha,mode=max,scope=ccompiler
+
+      - name: Build and run Z80 Emulator Database
+        uses: docker/build-push-action@v6
+        with:
+          context: ./db
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:${{ env.VERSION }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
+          cache-from: type=gha,scope=db
+          cache-to: type=gha,mode=max,scope=db
+\end{lstlisting}
+
+\subsubsection{Deployment}
+Acest workflow are ca scop crearea si resetarea clusterului \ac {K8s} in Google Cloud Platform. Acesta va folosi comanda \code{gcloud container clusters get-credentials} pentru a obtine credentialele clusterului si pentru a putea rula comenzi \code{kubectl} pe clusterul respectiv. In \cref{lst:k8sdeployworkflow} este prezentat workflow-ul de deployment al aplicatiei pe clusterul \ac {K8s}. Acest workflow va rula la fiecare push pe branchul \code{master} si va actualiza resursele din clusterul \ac {K8s} cu noile imagini Docker construite anterior. De asemenea, va reporni serviciile din cluster pentru a se asigura ca noile imagini sunt folosite.
+
+\begin{lstlisting}[language=yaml,caption={Workflow deployment K8s},label={lst:k8sdeployworkflow}]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: z80emu-462619
+          version: 'latest'
+
+      - name: Install kubectl gcloud component
+        run: gcloud components install kubectl
+
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials \
+         autopilot-cluster-1 --zone europe-north1 \
+         --project z80emu-462619
+
+      - name: Update Deployment
+        run: |
+          kubectl apply -f k8s/ccompiler
+          kubectl apply -f k8s/db
+          kubectl apply -f k8s/web
+
+      - name: Restart # In case docketimage changes to get new one
+        run: |
+          kubectl rollout restart deployment web-container
+          kubectl rollout restart deployment db-container
+          kubectl rollout restart deployment compiler-service
+\end{lstlisting}
+
+\subsubsection{Update DNS}
+Pentru a putea actualiza inregistrarile \ac {DNS} ale domeniului, s-a folosit un workflow de GitHub Actions care este definit in fisierul \code{.github/workflows/updatedns.yml}. Acest workflow este folosit pentru a actualiza inregistrarile \ac {DNS} ale domeniului la fiecare push pe branchul \code{master} si foloseste API-ul Spaceship pentru acest lucru. In \cref{lst:updatednsworkflow} este prezentat workflow-ul de actualizare a inregistrarilor \ac {DNS}. Acest workflow este programat sa ruleze la fiecare ora si va obtine adresa IP a serviciului \code{Ingress} din clusterul \ac {K8s} si o va actualiza inregistrarea \ac {DNS} a domeniului \code{z80emu.online}. Acest lucru permite ca domeniul sa fie actualizat automat cu adresa IP a serviciului, fara a fi nevoie sa se faca manual actualizari ale inregistrarilor \ac {DNS}.
+
+\begin{lstlisting}[language=yaml,caption={Workflow de actualizare a inregistrarilor DNS},label={lst:updatednsworkflow}]
+name: Update DNS Configuration
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  schedule:
+    - cron: '0 * * * *'  # Runs hourly (optional)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Google Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
+      - name: Set up gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: z80emu-462619
+          version: 'latest'
+
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials \
+         autopilot-cluster-1 --zone europe-north1 \
+         --project z80emu-462619
+
+      - name: Install kubectl gcloud component
+        run: gcloud components install kubectl
+
+      - name: Update Deployment
+        env:
+          SPACESHIP_KEY: ${{ secrets.SPACESHIP_KEY }}
+          SPACESHIP_SECRET: ${{ secrets.SPACESHIP_SECRET }}
+        run: |
+          # Get IP and update DNS
+          IP=$(kubectl get ingress z80emu-ingress \
+           -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          curl -X PUT "https://spaceship.dev/api/v1/dns/records/z80emu.online" \
+            -H "X-API-Key: ${SPACESHIP_KEY}" \
+            -H "X-API-Secret: ${SPACESHIP_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "force": true,
+              "items": [
+                {
+                  "type": "A",
+                  "address": "'"${IP}"'",
+                  "name": "@",
+                  "ttl": 3600
+                }
+              ]
+            }'
+          echo "Updated DNS record with IP: ${IP}"
+\end{lstlisting}
 
 \section{Rezultate experimentale}
-This is the conclusion.
+Pentru a testa capabilitatile aplicatiei, diferite programe au fost scrise in limbajul C, compilate si apoi rulate in emulatorul Z80. Aceste programe au fost folosite pentru a verifica daca aplicatia functioneaza corect si daca poate rula programe scrise in limbajul C. De asemenea, au fost testate si capabilitatile de formatare a codului sursa si de verificare a sintaxei.
+Programul \code{rainbowclear.c} este un program simplu care va umple ecranul in mod continuu folosind culori diferite. Scopul acestui program este de a verifica compilarea, executarea programului cat si ecranul conectat la memoria emulatorlui. In \cref{lst:rainbowclearccode} se poate vedea codul sursa C al acestui program.
+
+\begin{lstlisting}[language=C,caption={Cod sursa C pentru \code{rainbowclear.c}},label={lst:rainbowclearccode}]
+char* DISPLAY=(char*)0x4000;
+void main() {
+    char color = 2;
+    for(;;) {
+        for(int i=0; i<0x6000; i++) {
+            DISPLAY[i]=color;
+        }
+        color+=5;
+    }
+}
+\end{lstlisting}
+
+In timpul executiei acestui program \cref{fig:rainbowtestrun}, s-a facut observatia ca prin a pune un breakpoint la adresa de memorie \code{0x0030} unde se afla instructiunea \code{JR 0xDB}, executia programului va fi oprita fix dupa ce programul a terminat de umplut ecranul cu o culoare, marcand finalul unei iteratii a buclei exterioare.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/rainbowtestrun.png}
+    \caption{Testare program \code{rainbowclear.c}}
+    \label{fig:rainbowtestrun}
+\end{figure}
 
 \section{Contributii}
 This is the conclusion.
