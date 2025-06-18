@@ -69,23 +69,28 @@ fn StepButton() -> impl IntoView {
     }
 }
 
+fn step_fn<F>(start_time:f64,chunk_ticks:Memo<f64>, chunk_duration:Memo<f64>, step_ticks: F,running:RwSignal<bool>)
+where F:  Fn(f64) + 'static{
+        step_ticks(chunk_ticks());
+        let target_chunk_time = start_time + chunk_duration();
+        let real_chunk_time = Date::now();
+        let delta_time = target_chunk_time - real_chunk_time;
+        if delta_time < 0.0 {
+            // log!("Step ran too long");
+            // log!("Expected chunk duration: {} ms, but took: {} ms", chunk_duration(), real_chunk_time - start_time);
+        }
+        if running.get()==true {
+            set_timeout(
+                move || step_fn(target_chunk_time,chunk_ticks, chunk_duration, step_ticks, running),
+                Duration::from_millis(delta_time as u64),
+            );
+        }
+}
+
 #[island]
 fn RunButton() -> impl IntoView {
     let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
     let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
-    let handle_sig: RwSignal<Option<IntervalHandle>> = RwSignal::new(None);
-
-    let stop = move || {
-        handle_sig.update(|handle_opt| {
-            if let Some(handle) = handle_opt {
-                handle.clear();
-                *handle_opt = None;
-            }
-            emu_cfg_ctx.update(|emu_cfg| {
-                emu_cfg.control.real_frequency.set(None);
-            });
-        })
-    };
 
     let cpu_frequency = Memo::new(move |_| {
         emu_cfg_ctx.with(|emu_cfg| emu_cfg.control.target_frequency.get())
@@ -94,11 +99,19 @@ fn RunButton() -> impl IntoView {
         emu_cfg_ctx.with(|emu_cfg| emu_cfg.display.refresh_rate.get())
     });
     let chunk_ticks = Memo::new(move |_| {
-        cpu_frequency.get() / refresh_rate.get()
+        (cpu_frequency.get() / refresh_rate.get()) as f64
     });
     let chunk_duration = Memo::new(move |_| {
         Duration::from_millis((1000.0 / refresh_rate.get() as f64) as u64).as_millis_f64()
     });
+
+    let running = RwSignal::new(false);
+    let stop = move || {
+        running.set(false);
+        emu_cfg_ctx.update(|emu_cfg| {
+            emu_cfg.logstore.log_info("Emulator stopped", "Emulator stopped".to_string());
+        });
+    };
 
     let step_ticks = move |ticks: f64| {
         emu_ctx.update(|emu| {
@@ -128,59 +141,32 @@ fn RunButton() -> impl IntoView {
                 });
                 stop();
             }
-            // if emu.emu.breakpoints.contains(&emu.emu.cpu.registers.pc) {
-            //     log!("Breakpoint hit at {:#04X}", emu.emu.cpu.registers.pc);
-            //     stop();
-            // }
         })
     };
-    let last_frame_time = RwSignal::new(None);
 
-    let step = move || {
-        let last_frame = last_frame_time.with(|time| time.unwrap_or_else(|| Date::now()));
-        for i in 1..=refresh_rate.get() {
-            step_ticks(chunk_ticks.get() as f64);
-            let target_chunk_time = last_frame + chunk_duration.get() * i as f64;
-            while Date::now() < target_chunk_time {
-            }
+    let start = move || {
+        if running.get() {
+            return;
         }
-        let ticks_run = refresh_rate.get() * chunk_ticks.get();
-        let final_time = Date::now();
-        let delta_time = final_time - last_frame;
-        let frequency_hz = if delta_time > 0.0 {
-            1000.0 * ticks_run as f64 / delta_time
-        } else {
-            0.0
-        };
         emu_cfg_ctx.update(|emu_cfg| {
-            emu_cfg.control.real_frequency.set(Some(frequency_hz as usize));
+            emu_cfg.logstore.log_info("Emulator started", "Emulator started".to_string());
         });
-        last_frame_time.set(Some(final_time));
-    };
-//TODO: USE SET_TIMEOUT and recurse 0.0
-    let start = move |duration| {
-        let handle = set_interval_with_handle(step, duration).expect("Could not set interval");
-        handle_sig.set(Some(handle));
-        emu_cfg_ctx.update(|emu_cfg| {
-            emu_cfg
-                .logstore
-                .log_info("Emulator started", "Emulator started".to_string());
-        });
+        running.set(true);
+        step_fn(
+            Date::now(),
+            chunk_ticks.clone(),
+            chunk_duration.clone(),
+            step_ticks,
+            running.clone(),
+        );
     };
 
-    let switch = move |duration| {
-        let is_handle = handle_sig.with(|handle| handle.is_some());
-        match is_handle {
-            true => {
-                stop();
-                emu_cfg_ctx.update(|emu_cfg| {
-                    emu_cfg
-                        .logstore
-                        .log_info("Emulator stopped", "Emulator stopped".to_string());
-                });
-            }
-            false => start(duration),
-        };
+    let switch = move || {
+        if running.get() {
+            stop();
+        } else {
+            start();
+        }
     };
 
     view! {
@@ -189,10 +175,10 @@ fn RunButton() -> impl IntoView {
             value="Run"
             class=move || {
                 classes!(
-                    "button",handle_sig.with(|&opt|if opt.is_some() {emu_style::activeinput} else {""})
+                    "button",running.with(|running|if *running==true {emu_style::activeinput} else {""})
                 )
             }
-            on:click=move |_| switch(Duration::from_millis(0))
+            on:click=move |_| switch()
         />
     }
 }
