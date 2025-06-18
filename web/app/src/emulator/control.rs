@@ -228,7 +228,37 @@ fn RunButton() -> impl IntoView {
             start();
         }
     };
-
+    Effect::watch(
+        // Dependency getter: takes 0 arguments, returns tuple of dependencies
+        move || (cpu_frequency.get(), refresh_rate.get()),
+        // Effect closure: takes (new_value, prev_value, context)
+        move |(_cpu_freq, _refresh), _prev, _ctx| {
+            if running.get() {
+                running.set(false);
+                set_timeout(
+                    move || {
+                        if !running.get() {
+                            running.set(true);
+                            let now = Date::now();
+                            step_fn(
+                                1,
+                                chunk_ticks.clone(),
+                                chunk_duration.clone(),
+                                step_ticks.clone(),
+                                set_frequency.clone(),
+                                running.clone(),
+                                0.0,
+                                now,
+                                0.0,
+                            );
+                        }
+                    },
+                    Duration::from_millis(10),
+                );
+            }
+        },
+        true,
+    );
     view! {
         <input
             type="button"
