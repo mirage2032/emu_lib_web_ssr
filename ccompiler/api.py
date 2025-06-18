@@ -30,16 +30,14 @@ class SyntaxCheckData:
 
 FILENAME = "main"
 
-
-def compile_str(b64data_in: str) -> CompileData:
+def compile_data(b64data_in: str) -> CompileData:
     data_in = base64.b64decode(b64data_in).decode("utf-8")
     with TemporaryDirectory() as temp_dir:
         with open(f"{temp_dir}/{FILENAME}.c", "w") as f:
             f.write(data_in)
-        command = ["zcc", "+z80", "-vn", "-O3", "-startup=31",
-                   "-o", f"{FILENAME}.rom", "-create-app",
-                   f"{FILENAME}.c", "-compiler=sdcc",
-                   "-zorg=0x0", "-lm"]
+        command = ["zcc", "+z80", "-vn", "-O3", "-startup=0", "-clib=new",
+                   "-o", f"{FILENAME}.out", "-create-app",
+                   f"{FILENAME}.c", "-lm"]
         result = subprocess.run(
             command,
             cwd=temp_dir,
@@ -48,7 +46,7 @@ def compile_str(b64data_in: str) -> CompileData:
         )
         data: bytes = b""
         try:
-            with open(f"{temp_dir}/{FILENAME}.rom", "rb") as f:
+            with open(f"{temp_dir}/{FILENAME}.bin", "rb") as f:
                 data = f.read()
         except  FileNotFoundError:
             data = b""
@@ -103,7 +101,7 @@ class RequestDataModel(BaseModel):
 
 @app.post("/compile")
 def compile_data_endpoint(item: RequestDataModel):
-    return compile_str(item.b64data)
+    return compile_data(item.b64data)
 
 
 @app.post("/format")

@@ -23,6 +23,7 @@ use info::Info;
 use leptos::prelude::*;
 use leptos_meta::{Meta, Title};
 use memory::Memory;
+use crate::emulator::control::ControlContext;
 use crate::emulator::display::DisplayMemoryDevice;
 
 stylance::import_style!(emu_style, "./emulator.module.scss");
@@ -57,7 +58,8 @@ pub struct EmulatorCfgContext {
     pub disasm_config: DisassemblerContext,
     pub logstore: LogStore,
     pub editor: EditorContext,
-    pub display: DisplayMemoryDevice
+    pub display: DisplayMemoryDevice,
+    pub control: ControlContext,
 }
 
 impl EmulatorCfgContext {
@@ -68,6 +70,7 @@ impl EmulatorCfgContext {
             logstore: LogStore::default(),
             editor: EditorContext::default(),
             display,
+            control: ControlContext::default(),
         }
     }
 }

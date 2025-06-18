@@ -19,14 +19,14 @@
 %SETTINGS FOR CODE
 \lstset{
     basicstyle=\fontsize{10}{12}\selectfont\ttfamily,
-keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
-    commentstyle=\color{green}, % Comments in green
-    stringstyle=\color{red}, % Strings in red
-    backgroundcolor=\color{lightgray}, % Light gray background
-    frame=single, % Frame around the code
-    numbers=left, % Line numbers on the left
-    stepnumber=1, % Step between line numberssada
-    numberstyle=\tiny\color{gray}, % Style for line numbers/
+    keywordstyle=\color{violet}\bfseries,
+    commentstyle=\color{olive}\itshape,
+    stringstyle=\color{orange},
+    backgroundcolor=\color{gray!5}, % Very light gray (near-white)
+    frame=single,
+    numbers=right,
+    stepnumber=2,
+    numberstyle=\scriptsize\color{gray},
 }
 %\usepackage{fontspec}
 %\setmainfont{Times New Roman}
@@ -132,11 +132,12 @@ keywordstyle=\color{blue}\bfseries, % Keywords in blue and bold
     Executarea instructiunilor se face cat mai realist si tinand cont de factori cum ar fi: lungimea instructiunii, ciclurile acesteia si a vitezei de ceas(clock) aleasa.
     Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind \ac {ROM}/\ac {RAM} sau chiar nealocata.
 
-
+    \clearpage
     \section{Stadiul actual}
     This is the introduction.
 
 
+    \clearpage
     \section{Fundamentare teoretica}
     In aceasta sectiune se va discuta despre fundamentele teoretice ale proiectului, cum ar fi microcontrolerul Z80, emulatorul si limbajul de programare ales.
 
@@ -269,6 +270,7 @@ Proiecte precum MiSTer folosesc \emph{Field‑Programmable Gate Array} pentru a 
 
 Astăzi, emulatoarele combină multiple straturi (interpreter, DBT, hardware virtualization) şi tehnologii (FPGA, HLE, JIT), oferind atât flexibilitate extinsă pentru dezvoltare şi cercetare, cât şi performanțe aproape native pe hardware modern.
 
+\clearpage
 \section{Cercetare}
 Pentru a putea realiza acest proiect, a fost necesara o cercetare amanuntita a din capitolele de mai jos.
 Prin aceasta cercetare s-a putut pune la punct o arhitectura structurala a proiectului, pregatita de faza de implementare.
@@ -699,7 +701,7 @@ a fost ales datorită serviciilor sale robuste și a integrării ușoare cu tehn
 
 Google Cloud Platform a oferit toate instrumentele necesare pentru a implementa și gestiona proiectul într-un mod eficient și sigur, contribuind semnificativ la succesul acestuia.
 
-
+\clearpage
 \section{Implementare}
 \subsection{Librarie emulator}
 Implementarea emulatorului a fost realizata in limbajul de programare Rust, acesta fiind un limbaj modern, rapid si sigur. Deoarece se doreste o modularitate cat mai mare si posibilitatea de a integra proiectul in altele, nucleul emulatorului a fost realizat ca o librarie.
@@ -1902,6 +1904,10 @@ CREATE OR REPLACE FUNCTION check_email(email text) RETURNS bool
     LANGUAGE plperlu
 AS $$
 use Email::Address;
+
+my @addresses = Email::Address->parse($_[0]);
+return scalar(@addresses) > 0 ? 1 : 0;
+$$;
 \end{lstlisting}
 
 Tabela \code{users} este folosita pentru a stoca informatiile despre utilizatori, cum ar fi numele, emailul, hashul parolei, tokenul de \code{OAuth2}, tipul precum si data de creeare si ultimul update al utilizatorului. In \cref{lst:usersdb} este prezentata structura tabelei \code{users} din baza de date.
@@ -2027,7 +2033,8 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
-      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --locale-provider=icu --icu-locale=en-US"
+      POSTGRES_INITDB_ARGS:"--auth-host=scram-sha-256 \
+        --locale-provider=icu --icu-locale=en-US"
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
@@ -2316,6 +2323,7 @@ jobs:
           echo "Updated DNS record with IP: ${IP}"
 \end{lstlisting}
 
+\clearpage
 \section{Rezultate experimentale}
 Pentru a testa capabilitatile aplicatiei, diferite programe au fost scrise in limbajul C, compilate si apoi rulate in emulatorul Z80. Aceste programe au fost folosite pentru a verifica daca aplicatia functioneaza corect si daca poate rula programe scrise in limbajul C. De asemenea, au fost testate si capabilitatile de formatare a codului sursa si de verificare a sintaxei.
 Programul \code{rainbowclear.c} este un program simplu care va umple ecranul in mod continuu folosind culori diferite. Scopul acestui program este de a verifica compilarea, executarea programului cat si ecranul conectat la memoria emulatorlui. In \cref{lst:rainbowclearccode} se poate vedea codul sursa C al acestui program.
@@ -2342,18 +2350,21 @@ In timpul executiei acestui program \cref{fig:rainbowtestrun}, s-a facut observa
     \label{fig:rainbowtestrun}
 \end{figure}
 
+\clearpage
 \section{Contributii}
-This is the conclusion.
+In cadrul acestui proiect, au fost realizate mai multe contributii semnificative, atat in ceea ce priveste dezvoltarea aplicatiei, cat si in ceea ce priveste documentarea si testarea acesteia. Printre acestea se numara:
+\begin{itemize}
+    \item Implementarea unei librarii in Rust care sa ofere functionalitati de baza pentru un emulator Z80, cum ar fi emularea memoriei, a registrilor si a instructiunilor.
+    \item Crearea unei aplicatii web folosind framework-ul Leptos, care sa permita utilizatorilor sa ruleze programe scrise in limbajul C pe un emulator Z80.
+    \item Implementarea unui serviciu de compilare in Python care sa permita verificarea sintaxei si compilarea codului sursa in limbajul C.
+    \item Crearea unei baze de date PostgreSQL pentru a stoca informatiile despre utilizatori si sesiunile acestora.
+    \item Containerizarea aplicatiei folosind Docker si implementarea acesteia pe un cluster Kubernetes in Google Cloud Platform.
+    \item Implementarea unui sistem de CI/CD folosind GitHub Actions pentru a testa automat codul si pentru a implementa aplicatia in productie.
+\end{itemize}
 
+\clearpage
 \section{Bibliografie}
 \printbibliography
-\clearpage
-
-\section{Anexe}
-This is the conclusion.
-
-\section{Planificarea activitatii}
-This is the conclusion.
 
 
 \end{document}

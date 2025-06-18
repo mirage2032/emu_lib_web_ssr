@@ -1,5 +1,5 @@
 use std::ops::Deref;
-use crate::emulator::EmulatorCfgContext;
+use crate::emulator::{EmulatorCfgContext, EmulatorContext};
 use emu_lib::memory::errors::{MemoryRWCommonError, MemoryReadError, MemoryWriteError};
 use emu_lib::memory::MemoryDevice;
 use leptos::html::Canvas;
@@ -106,19 +106,24 @@ impl DisplayData {
 
 #[derive(Clone,Copy, Debug)]
 pub struct DisplayMemoryDevice{
+    pub refresh_rate: RwSignal<usize>, // Refresh rate in Hz
     pub display: RwSignal<DisplayData>,
 }
+
+const DEFAULT_REFRESH_RATE: usize = 50; // Default refresh rate in Hz
 
 impl DisplayMemoryDevice {
     pub fn new(width: usize, height: usize) -> Self {
         let display_data = DisplayData::new(width, height);
         DisplayMemoryDevice {
+            refresh_rate: RwSignal::new(DEFAULT_REFRESH_RATE), // Default refresh rate
             display: RwSignal::new(display_data),
         }
     }
 
     pub fn new_with_display(display_data: DisplayData) -> Self {
         DisplayMemoryDevice {
+            refresh_rate: RwSignal::new(DEFAULT_REFRESH_RATE), // Default refresh rate
             display: RwSignal::new(display_data),
         }
     }
@@ -167,6 +172,7 @@ fn DisplayData() -> impl IntoView {
 #[island]
 pub fn Display() -> impl IntoView {
     let canvas_ref:NodeRef<Canvas> = NodeRef::new();
+    let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
     let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     let draw = move |dsp: &DisplayData| {
         if let Some(canvas) = canvas_ref.get_untracked() {
@@ -239,7 +245,7 @@ pub fn Display() -> impl IntoView {
         }
     };
     Effect::watch(
-        move || emu_cfg_ctx.with_untracked(|cfg| cfg.display.display.get()),
+        move || { emu_ctx.track();emu_cfg_ctx.with_untracked(|cfg| { cfg.display.display.get_untracked() }) },
         move |dd,prev_dd,_| {
         draw(dd);
     },true

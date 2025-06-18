@@ -1,3 +1,5 @@
+#![feature(duration_millis_float)]
+
 use crate::footer::Footer;
 use crate::home::HomePage;
 use crate::utils::icons::IconsCDN;

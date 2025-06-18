@@ -62,12 +62,36 @@ $mc-border: #dee2e6; // Borders
   display: flex;
   background-color: $color-bg;
 
-  .save{
+  .frequency{
+    display: flex;
+    input{
+      width:100%;
+      border: none;
+      padding: 0.2rem 0.3rem;
+      background: $color-bg;
+      color: $mc-text-light;
+      -moz-appearance: textfield;
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+    select{
 
+      padding: 0.2rem 0.3rem;
+      background: $color-bg;
+      color: $mc-text-light;
+    }
+  }
+
+  .save{
+    display: flex;
+    align-items: center;
   }
   .load {
     display: flex;
-
+    align-items: center;
     label {
       padding: 0.2rem 0.3rem;
       border: none;
@@ -651,7 +675,13 @@ $mc-border: #dee2e6; // Borders
           border: 1px solid $mc-border;
           position: relative;
           background-color: $mc-row-even;
-
+          .outerinfo{
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+          .frequencyinfo{
+            text-align: center;
+          }
           .infocounters {
             padding: 0.8rem 0.8rem;
             display: flex;
@@ -676,7 +706,7 @@ $mc-border: #dee2e6; // Borders
                 }
               }
             }
-
+          }
             .resetbutton {
               margin: 0.3rem 0.5rem;
 

@@ -14,8 +14,22 @@ use emu_lib::memory::MemoryDevice;
 use leptos::wasm_bindgen;
 use stylance::classes;
 use web_sys::{Blob, BlobPropertyBag, HtmlAnchorElement, Url};
+use js_sys::Date;
 
-const BTN_CLASS: &str = "button";
+pub struct ControlContext {
+    pub target_frequency: RwSignal<usize>,
+    pub real_frequency: RwSignal<Option<usize>>
+}
+
+impl Default for ControlContext {
+    fn default() -> Self {
+        Self {
+            target_frequency: RwSignal::new(3_579_545),
+            real_frequency: RwSignal::new(None),
+        }
+    }
+}
+
 #[island]
 fn StepButton() -> impl IntoView {
     let emu_ctx = expect_context::<RwSignal<EmulatorContext>>();
@@ -67,13 +81,29 @@ fn RunButton() -> impl IntoView {
                 handle.clear();
                 *handle_opt = None;
             }
+            emu_cfg_ctx.update(|emu_cfg| {
+                emu_cfg.control.real_frequency.set(None);
+            });
         })
     };
 
-    let step = move || {
+    let cpu_frequency = Memo::new(move |_| {
+        emu_cfg_ctx.with(|emu_cfg| emu_cfg.control.target_frequency.get())
+    });
+    let refresh_rate = Memo::new(move |_| {
+        emu_cfg_ctx.with(|emu_cfg| emu_cfg.display.refresh_rate.get())
+    });
+    let chunk_ticks = Memo::new(move |_| {
+        cpu_frequency.get() / refresh_rate.get()
+    });
+    let chunk_duration = Memo::new(move |_| {
+        Duration::from_millis((1000.0 / refresh_rate.get() as f64) as u64).as_millis_f64()
+    });
+
+    let step_ticks = move |ticks: f64| {
         emu_ctx.update(|emu| {
             if let Err(err) = emu.emu.run_ticks(
-                100000.0,
+                ticks,
                 &Some(move |emu: &mut Emulator<_>, instruction: &dyn ExecutableInstruction<_>| {}),
             ) {
                 emu_cfg_ctx.update(|emu_cfg| match err {
@@ -104,7 +134,30 @@ fn RunButton() -> impl IntoView {
             // }
         })
     };
+    let last_frame_time = RwSignal::new(None);
 
+    let step = move || {
+        let last_frame = last_frame_time.with(|time| time.unwrap_or_else(|| Date::now()));
+        for i in 1..=refresh_rate.get() {
+            step_ticks(chunk_ticks.get() as f64);
+            let target_chunk_time = last_frame + chunk_duration.get() * i as f64;
+            while Date::now() < target_chunk_time {
+            }
+        }
+        let ticks_run = refresh_rate.get() * chunk_ticks.get();
+        let final_time = Date::now();
+        let delta_time = final_time - last_frame;
+        let frequency_hz = if delta_time > 0.0 {
+            1000.0 * ticks_run as f64 / delta_time
+        } else {
+            0.0
+        };
+        emu_cfg_ctx.update(|emu_cfg| {
+            emu_cfg.control.real_frequency.set(Some(frequency_hz as usize));
+        });
+        last_frame_time.set(Some(final_time));
+    };
+//TODO: USE SET_TIMEOUT and recurse 0.0
     let start = move |duration| {
         let handle = set_interval_with_handle(step, duration).expect("Could not set interval");
         handle_sig.set(Some(handle));
@@ -136,11 +189,80 @@ fn RunButton() -> impl IntoView {
             value="Run"
             class=move || {
                 classes!(
-                    BTN_CLASS,handle_sig.with(|&opt|if opt.is_some() {emu_style::activeinput} else {""})
+                    "button",handle_sig.with(|&opt|if opt.is_some() {emu_style::activeinput} else {""})
                 )
             }
-            on:click=move |_| switch(Duration::from_millis(1))
+            on:click=move |_| switch(Duration::from_millis(0))
         />
+    }
+}
+
+#[derive(Clone,Copy)]
+enum FrequencyMultiplier {
+    MHz,
+    KHz,
+    Hz,
+}
+
+impl FrequencyMultiplier {
+    fn to_hz(&self, value: usize) -> usize {
+        match self {
+            FrequencyMultiplier::MHz => value * 1_000_000,
+            FrequencyMultiplier::KHz => value * 1_000,
+            FrequencyMultiplier::Hz => value,
+        }
+    }
+
+    fn from_hz(&self, value: usize) -> usize {
+        match self {
+            FrequencyMultiplier::MHz => value / 1_000_000,
+            FrequencyMultiplier::KHz => value / 1_000,
+            FrequencyMultiplier::Hz => value,
+        }
+    }
+}
+
+#[island]
+fn FrequencySelect() -> impl IntoView {
+    let emu_cfg_ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
+    let multiplier = RwSignal::new(FrequencyMultiplier::MHz);
+    let frequency = Memo::new(move |_| emu_cfg_ctx.with(|emu_cfg| multiplier.with(|mul|mul.from_hz(emu_cfg.control.target_frequency.get()))));
+    let set_frequency = move |val| emu_cfg_ctx.update(|emu_cfg|emu_cfg.control.target_frequency.set(multiplier.with(|mul|mul.to_hz(val))));
+    view! {
+        <div class=emu_style::frequency>
+            <input
+            type="number"
+            prop:value=frequency
+            on:input=move |ev| {
+                    let value = event_target_value(&ev);
+                    if let Ok(val) = value.parse::<usize>() {
+                        set_frequency(val);
+                    } else {
+                        emu_cfg_ctx.update(|emu_cfg| {
+                            emu_cfg.logstore.log_error(
+                                "Invalid frequency",
+                                format!("Invalid frequency value: {}", value),
+                            );
+                        });
+                    }
+            }
+            />
+            <select
+                on:change=move |ev| {
+                        let value = event_target_value(&ev);
+                        match value.as_str() {
+                            "MHz" => multiplier.set(FrequencyMultiplier::MHz),
+                            "KHz" => multiplier.set(FrequencyMultiplier::KHz),
+                            "Hz" => multiplier.set(FrequencyMultiplier::Hz),
+                            _ => log!("Unknown frequency multiplier: {}", value),
+                        }
+                }
+            >
+                <option value="MHz">MHz</option>
+                <option value="KHz">KHz</option>
+                <option value="Hz">Hz</option>
+            </select>
+        </div>
     }
 }
 
@@ -400,6 +522,7 @@ pub fn Control() -> impl IntoView {
         <div class=emu_style::emucontrol>
             <StepButton />
             <RunButton />
+            <FrequencySelect />
             <HaltButton />
             <ResetButton />
             <ClearMemoryButton />
