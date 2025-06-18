@@ -27,7 +27,7 @@ pub fn InfoCounters() -> impl IntoView {
     view! {
         <div class=emu_style::outerinfo>
         <Show when=move || emu_cfg.with(|emu_cfg| emu_cfg.control.real_frequency.get().is_some())>
-            <div class=emu_style::frequencyinfo>Frequency: {move || real_frequency()}</div>
+            <div class=emu_style::frequencyinfo>Frequency: {move || real_frequency()} Hz</div>
         </Show>
         <div class=emu_style::infocounters>
             <div class=emu_style::counters>

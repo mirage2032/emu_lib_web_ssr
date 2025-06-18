@@ -69,22 +69,64 @@ fn StepButton() -> impl IntoView {
     }
 }
 
-fn step_fn<F>(start_time:f64,chunk_ticks:Memo<f64>, chunk_duration:Memo<f64>, step_ticks: F,running:RwSignal<bool>)
-where F:  Fn(f64) + 'static{
-        step_ticks(chunk_ticks());
-        let target_chunk_time = start_time + chunk_duration();
-        let real_chunk_time = Date::now();
-        let delta_time = target_chunk_time - real_chunk_time;
-        if delta_time < 0.0 {
-            // log!("Step ran too long");
-            // log!("Expected chunk duration: {} ms, but took: {} ms", chunk_duration(), real_chunk_time - start_time);
-        }
-        if running.get()==true {
-            set_timeout(
-                move || step_fn(target_chunk_time,chunk_ticks, chunk_duration, step_ticks, running),
-                Duration::from_millis(delta_time as u64),
-            );
-        }
+fn step_fn<FST, FSF>(
+    step_count: usize,
+    chunk_ticks: Memo<f64>,
+    chunk_duration: Memo<f64>,
+    step_ticks: FST,
+    set_frequency: FSF,
+    running: RwSignal<bool>,
+    refresh_rate: Memo<usize>,
+    mut total_ticks: f64,
+    start_time: f64,
+    mut tick_accum: f64,
+)
+where
+    FST: Fn(f64) + 'static,
+    FSF: Fn(Option<usize>) + 'static,
+{
+    let now = Date::now();
+    let ticks_per_step = chunk_ticks();
+    let ticks_this_step = ticks_per_step.floor();
+    tick_accum += ticks_per_step - ticks_this_step;
+    let mut ticks = ticks_this_step;
+    if tick_accum >= 1.0 {
+        ticks += 1.0;
+        tick_accum -= 1.0;
+    }
+
+    step_ticks(ticks);
+    total_ticks += ticks;
+
+    let elapsed = now - start_time;
+    let real_frequency = if elapsed > 0.0 {
+        total_ticks / elapsed * 1000.0
+    } else {
+        0.0
+    };
+
+    if running.get() {
+        set_frequency(Some(real_frequency as usize));
+        let next_target_time = start_time + (step_count as f64) * chunk_duration();
+        let delay = (next_target_time - Date::now()).max(0.0);
+        set_timeout(
+            move || step_fn(
+                step_count + 1,
+                chunk_ticks,
+                chunk_duration,
+                step_ticks,
+                set_frequency,
+                running,
+                refresh_rate,
+                total_ticks,
+                start_time,
+                tick_accum,
+            ),
+            Duration::from_millis(delay as u64),
+        );
+    } else {
+        set_frequency(None);
+    }
 }
 
 #[island]
@@ -99,10 +141,10 @@ fn RunButton() -> impl IntoView {
         emu_cfg_ctx.with(|emu_cfg| emu_cfg.display.refresh_rate.get())
     });
     let chunk_ticks = Memo::new(move |_| {
-        (cpu_frequency.get() / refresh_rate.get()) as f64
+        (cpu_frequency.get() as f64) / (refresh_rate.get() as f64)
     });
     let chunk_duration = Memo::new(move |_| {
-        Duration::from_millis((1000.0 / refresh_rate.get() as f64) as u64).as_millis_f64()
+        1000.0 / (refresh_rate.get() as f64)
     });
 
     let running = RwSignal::new(false);
@@ -144,6 +186,12 @@ fn RunButton() -> impl IntoView {
         })
     };
 
+    let set_frequency = move |val: Option<usize>| {
+        emu_cfg_ctx.update(|emu_cfg| {
+            emu_cfg.control.real_frequency.set(val);
+        });
+    };
+
     let start = move || {
         if running.get() {
             return;
@@ -152,12 +200,18 @@ fn RunButton() -> impl IntoView {
             emu_cfg.logstore.log_info("Emulator started", "Emulator started".to_string());
         });
         running.set(true);
+        let now = Date::now();
         step_fn(
-            Date::now(),
+            1, // step_count
             chunk_ticks.clone(),
             chunk_duration.clone(),
             step_ticks,
+            set_frequency,
             running.clone(),
+            refresh_rate.clone(),
+            0.0, // total_ticks
+            now, // start_time
+            0.0, // tick_accum
         );
     };
 
