@@ -70,13 +70,12 @@ fn StepButton() -> impl IntoView {
 }
 
 fn step_fn<FST, FSF>(
-    step_count: usize,
+    mut step_count: usize,
     chunk_ticks: Memo<f64>,
     chunk_duration: Memo<f64>,
     step_ticks: FST,
     set_frequency: FSF,
     running: RwSignal<bool>,
-    refresh_rate: Memo<usize>,
     mut total_ticks: f64,
     start_time: f64,
     mut tick_accum: f64,
@@ -86,19 +85,28 @@ where
     FSF: Fn(Option<usize>) + 'static,
 {
     let now = Date::now();
-    let ticks_per_step = chunk_ticks();
-    let ticks_this_step = ticks_per_step.floor();
-    tick_accum += ticks_per_step - ticks_this_step;
-    let mut ticks = ticks_this_step;
-    if tick_accum >= 1.0 {
-        ticks += 1.0;
-        tick_accum -= 1.0;
+    let elapsed = now - start_time;
+    let chunk_dur = chunk_duration();
+
+    // Calculate how many steps should have happened by now
+    let expected_steps = (elapsed / chunk_dur).floor() as usize + 1;
+    let missed_steps = expected_steps.saturating_sub(step_count);
+
+    // Run enough ticks to catch up
+    for _ in 0..=missed_steps {
+        let ticks_per_step = chunk_ticks();
+        let ticks_this_step = ticks_per_step.floor();
+        tick_accum += ticks_per_step - ticks_this_step;
+        let mut ticks = ticks_this_step;
+        if tick_accum >= 1.0 {
+            ticks += 1.0;
+            tick_accum -= 1.0;
+        }
+        step_ticks(ticks);
+        total_ticks += ticks;
+        step_count += 1;
     }
 
-    step_ticks(ticks);
-    total_ticks += ticks;
-
-    let elapsed = now - start_time;
     let real_frequency = if elapsed > 0.0 {
         total_ticks / elapsed * 1000.0
     } else {
@@ -107,17 +115,16 @@ where
 
     if running.get() {
         set_frequency(Some(real_frequency as usize));
-        let next_target_time = start_time + (step_count as f64) * chunk_duration();
+        let next_target_time = start_time + (step_count as f64) * chunk_dur;
         let delay = (next_target_time - Date::now()).max(0.0);
         set_timeout(
             move || step_fn(
-                step_count + 1,
+                step_count,
                 chunk_ticks,
                 chunk_duration,
                 step_ticks,
                 set_frequency,
                 running,
-                refresh_rate,
                 total_ticks,
                 start_time,
                 tick_accum,
@@ -141,10 +148,10 @@ fn RunButton() -> impl IntoView {
         emu_cfg_ctx.with(|emu_cfg| emu_cfg.display.refresh_rate.get())
     });
     let chunk_ticks = Memo::new(move |_| {
-        (cpu_frequency.get() as f64) / (refresh_rate.get() as f64)
+        (cpu_frequency.get() / refresh_rate.get()) as f64
     });
     let chunk_duration = Memo::new(move |_| {
-        1000.0 / (refresh_rate.get() as f64)
+        Duration::from_millis((1000.0 / refresh_rate.get() as f64) as u64).as_millis_f64()
     });
 
     let running = RwSignal::new(false);
@@ -208,7 +215,6 @@ fn RunButton() -> impl IntoView {
             step_ticks,
             set_frequency,
             running.clone(),
-            refresh_rate.clone(),
             0.0, // total_ticks
             now, // start_time
             0.0, // tick_accum
