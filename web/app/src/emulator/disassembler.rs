@@ -108,6 +108,9 @@ pub fn DisassemblerTBody() -> impl IntoView {
     let ctx = expect_context::<RwSignal<EmulatorCfgContext>>();
     let disasm = Memo::new(move |_| ctx.with(|ctx| ctx.disasm_config));
     let emu = expect_context::<RwSignal<EmulatorContext>>();
+    let pc = Memo::new(move |_| {
+        emu.with(|emu| emu.emu.cpu.registers.pc)
+    });
     let table_rows = move || {
         let mut offset = 0;
         let mut rows = vec![];
