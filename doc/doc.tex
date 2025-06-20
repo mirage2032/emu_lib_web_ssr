@@ -64,160 +64,175 @@
 
 \begin{document}
 % Title
-    \title{Licenta}
-    \author{Popescu Ionut-Alexandru}
-    \date{\today}
+\title{Licenta}
+\author{Popescu Ionut-Alexandru}
+\date{\today}
 
-    \maketitle
-    \renewcommand{\contentsname}{Cuprins}
-    \renewcommand{\listfigurename}{Lista figurilor}
-    \renewcommand{\listtablename}{Lista tabelelor}
-    \renewcommand{\figurename}{Figura}
-    \renewcommand{\tablename}{Tabela}
-    \renewcommand{\lstlistingname}{Cod}
-% Table of Contents
-    \tableofcontents
-    \clearpage
-    \listoffigures
-    \clearpage
-    \listoftables
-    \clearpage
-    \section*{Lista acronimelor} % Use \section* to avoid it being numbered
-    \begin{acronym}
-        \acro {Z80}       {Microcontroler Zilog Z80}
-        \acro {I8080}     {Intel 8080}
-        \acro {IO}        {Input/Output}
-        \acro {ROM}       {Read Only Memory}
-        \acro {RAM}       {Random Access Memory}
-        \acro {Rust}      {Limbajul de programare Rust}
-        \acro {WASM}      {Web Assembly}
-        \acro {DARPA}     {Defense Advanced Research Projects Agency}
-        \acro {GPR}       {General Purpose Register}
-        \acro {K8s}       {Kubernetes}
-        \acro {IaaS}      {Infrastructure as a Service}
-        \acro {PaaS}      {Platform as a Service}
-        \acro {SaaS}      {Software as a Service}
-        \acro {CRT}       {C runtime}
-        \acro {AWS}       {Amazon Web Services}
-        \acro {GCP}       {Google Cloud Platform}
-        \acro {API}       {Application Programming Interface}
-        \acro {DNS}       {Domain Name System}
-    \end{acronym}
-    \clearpage
-% Sections
+\maketitle
+\renewcommand{\contentsname}{Cuprins}
+\renewcommand{\listfigurename}{Lista figurilor}
+\renewcommand{\listtablename}{Lista tabelelor}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabela}
+\renewcommand{\lstlistingname}{Cod}
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+\section*{Lista acronimelor} % Use \section* to avoid it being numbered
+\begin{acronym}
+    \acro {Z80}       {Microcontroler Zilog Z80}
+    \acro {I8080}     {Intel 8080}
+    \acro {IO}        {Input/Output}
+    \acro {ROM}       {Read Only Memory}
+    \acro {RAM}       {Random Access Memory}
+    \acro {Rust}      {Limbajul de programare Rust}
+    \acro {WASM}      {Web Assembly}
+    \acro {DARPA}     {Defense Advanced Research Projects Agency}
+    \acro {GPR}       {General Purpose Register}
+    \acro {K8s}       {Kubernetes}
+    \acro {IaaS}      {Infrastructure as a Service}
+    \acro {PaaS}      {Platform as a Service}
+    \acro {SaaS}      {Software as a Service}
+    \acro {CRT}       {C runtime}
+    \acro {AWS}       {Amazon Web Services}
+    \acro {GCP}       {Google Cloud Platform}
+    \acro {API}       {Application Programming Interface}
+    \acro {DNS}       {Domain Name System}
+\end{acronym}
+\clearpage
 
+\section{Introducere}
+Acest proiect reprezinta un emulator complet functional pentru un \ac {Z80}, implementat complet in \ac {Rust}.
+Emulatorul este conceput sa functioneze ca o librarie flexibila ce poate fi inclusa cu usurinta in alte proiecte scrise Rust. Acest lucru permite utilizatorilor sa il adapteze la propriile necesitati.
 
-    \section{Introducere}
-    Acest proiect reprezinta un emulator complet functional pentru un \ac {Z80}, implementat complet in \ac {Rust}.
-    Emulatorul este conceput sa functioneze ca o librarie flexibila ce poate fi inclusa cu usurinta in alte proiecte scrise Rust. Acest lucru permite utilizatorilor sa il adapteze la propriile necesitati.
+\ac {Z80} este un procesor pe 8 biti, produs din 1976 de catre firma Zilog. Desi acest procesor are magistrala de adrese de 16 biti, magistrala de adrese este de 8 biti.
+Desi registrii procesorului functioneaza pe 8 biti, acesta poate face operatiuni pe valori de 16biti prin folosirea registrilor combinati(BC,DE,HL).
+Z80 are are un set de 158 tipuri de instructioni considerate oficiale, dar exista si altele care nu au fost documentate oficial de Zilog. Instructiunile pot face o multime de operatiuni cum ar fi: transfer de date, interschimbare, operatiuni aritmetice/logice, rotiri/shiftari, instructiuni la nivel de bit si comunicare cu porturile I/O.
 
-    \ac {Z80} este un procesor pe 8 biti, produs din 1976 de catre firma Zilog. Desi acest procesor are magistrala de adrese de 16 biti, magistrala de adrese este de 8 biti.
-    Desi registrii procesorului functioneaza pe 8 biti, acesta poate face operatiuni pe valori de 16biti prin folosirea registrilor combinati(BC,DE,HL).
-    Z80 are are un set de 158 tipuri de instructioni considerate oficiale, dar exista si altele care nu au fost documentate oficial de Zilog. Instructiunile pot face o multime de operatiuni cum ar fi: transfer de date, interschimbare, operatiuni aritmetice/logice, rotiri/shiftari, instructiuni la nivel de bit si comunicare cu porturile I/O.
+Impreuna cu libraria ce se ocupa strict cu partea de emulate, proiectul contine si o aplicatie web bazata pe aceasta librarie.
+Aceasta aplicatie web este de asemenea scrisa in Rust, apoi compilata in \ac {WASM}. Deoarece \ac {WASM} este mai preformant decat JavaScript, aceasta compilare din Rust va aduce un bonus de performanta, un lucru necesar pentru o emulare cat mai fluida.
+Principalul avantaj compilarii programului in \ac {WASM} a fost avantajul dat de faptul ca acest lucru ii va permite sa ruleze din orice browser web modern.
+Aplicatia web este de tipul server-client insa ofera si capacitatea de a rula standalone, putand fi utilizate si fara server in modul offline.
 
-    Impreuna cu libraria ce se ocupa strict cu partea de emulate, proiectul contine si o aplicatie web bazata pe aceasta librarie.
-    Aceasta aplicatie web este de asemenea scrisa in Rust, apoi compilata in \ac {WASM}. Deoarece \ac {WASM} este mai preformant decat JavaScript, aceasta compilare din Rust va aduce un bonus de performanta, un lucru necesar pentru o emulare cat mai fluida.
-    Principalul avantaj compilarii programului in \ac {WASM} a fost avantajul dat de faptul ca acest lucru ii va permite sa ruleze din orice browser web modern.
-    Aplicatia web este de tipul server-client insa ofera si capacitatea de a rula standalone, putand fi utilizate si fara server in modul offline.
+Motivatia principala a acestui proiect a fost lipsa unui astfel de emulator, acestea fiind putine, reprezentan uneori dificultati la instalare sau unele fiind chiar incomplete.
+Acest proiect isi propune sa ofere o solutie completa, accesibila si usor de folosit si de integrat in alte proiecte. Un alt scop de asemene al acestei lucrari, poate fi unul educativ, oferind un mediu usor de dezvoltare si testare.
 
-    Motivatia principala a acestui proiect a fost lipsa unui astfel de emulator, acestea fiind putine, reprezentan uneori dificultati la instalare sau unele fiind chiar incomplete.
-    Acest proiect isi propune sa ofere o solutie completa, accesibila si usor de folosit si de integrat in alte proiecte. Un alt scop de asemene al acestei lucrari, poate fi unul educativ, oferind un mediu usor de dezvoltare si testare.
+Emulatorul ar trebui sa faciliteze utilizatorului un mod cat mai usor de a dezvolta aplicatii pe platforma Z80.
+Libraria permite direct scrierea de cod in Assembly iar apoi rularea acestuia in cadrul emulatorului. Acest lucru va permite utilizatorului sa testeze si sa depaneze aplicatia fara a avea nevoie de un hardware real.
+Pe langa faptul ca utilizatorul poate sa puna pauza executiei in orice moment si sa vizualizeze registrii, este de asemenea posibila si modificarea acestora.
+Acest control fin asupra executiei aplcatiei, ar trebui sa confere un avantaj in dezvoltarea aplicatiilor, permitand o monitorizare cat mai buna asupra cursului executiei.
 
-    Emulatorul ar trebui sa faciliteze utilizatorului un mod cat mai usor de a dezvolta aplicatii pe platforma Z80.
-    Libraria permite direct scrierea de cod in Assembly iar apoi rularea acestuia in cadrul emulatorului. Acest lucru va permite utilizatorului sa testeze si sa depaneze aplicatia fara a avea nevoie de un hardware real.
-    Pe langa faptul ca utilizatorul poate sa puna pauza executiei in orice moment si sa vizualizeze registrii, este de asemenea posibila si modificarea acestora.
-    Acest control fin asupra executiei aplcatiei, ar trebui sa confere un avantaj in dezvoltarea aplicatiilor, permitand o monitorizare cat mai buna asupra cursului executiei.
+Pentru o simulare cat mai corecta si apropiata de un Zilog Z80 adevarat, toate instructiunile acestuia au fost implementate.
+Executarea instructiunilor se face cat mai realist si tinand cont de factori cum ar fi: lungimea instructiunii, ciclurile acesteia si a vitezei de ceas(clock) aleasa.
+Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind \ac {ROM}/\ac {RAM} sau chiar nealocata.
 
-    Pentru o simulare cat mai corecta si apropiata de un Zilog Z80 adevarat, toate instructiunile acestuia au fost implementate.
-    Executarea instructiunilor se face cat mai realist si tinand cont de factori cum ar fi: lungimea instructiunii, ciclurile acesteia si a vitezei de ceas(clock) aleasa.
-    Memoria emulatorului de asemenea este complet configurabila de catre utilizator, acesta putand fi configurata ca fiind \ac {ROM}/\ac {RAM} sau chiar nealocata.
-
-    \clearpage
-    \section{Stadiul actual}
-    This is the introduction.
+\clearpage
 
 
-    \clearpage
-    \section{Fundamentare teoretica}
-    In aceasta sectiune se va discuta despre fundamentele teoretice ale proiectului, cum ar fi microcontrolerul Z80, emulatorul si limbajul de programare ales.
+\section{Stadiul actual}
+In momentul de fata, proiectul este functional si accessibil online la adresa \code{https://z80emu.online}.
 
-    Aceste detalii vor reprezenta baza teoretica a proiectului, oferind o intelegere mai buna a modului in care functioneaza emulatorul si cum poate fi folosit.
+Accesul la aplicatie se face direct din browser, fara a fi necesara instalarea unui software suplimentar. Orice browser modern ar trebui sa fie capabil sa ruleze aplicatia, insa aplicatia a fost testata doar pe Google Chrome, Mozilla Firefox si Microsoft Edge.
 
-    \subsection{Microrocesoarele pe 8 biti}
+Pe pagina principala, utilizatorul va avea de ales daca doreste sa se autentifice sau sa continue in emulator fara cont. Chiar daca utilizatorul nu doreste sa isi faca cont, el va avea in continuare access la majoritatea functionalitatilor emulatorului. Singura functionalitate care este limitata doar utilizatorilor autentificati este de a compila programe din C.
 
-    Microprocesoarele pe 8 biți reprezintă una dintre cele mai importante etape din evoluția calculatoarelor și a sistemelor electronice. Aceste componente au capacitatea de a prelucra date în cuvinte de 8 biți, ceea ce înseamnă că registrele interne, magistrala de date și instrucțiunile sunt proiectate pentru a lucra cu unități de 8 biți. Deși în prezent există procesoare mult mai avansate, cele pe 8 biți sunt încă relevante în anumite contexte datorită simplității și eficienței lor.
+Odata ajuns la emulator, utilizatorul este liber sa il foloseasca. Initial emulatorul va fi gol, utilizator fiind nevoit sa scrie un program in limbajul de asamblare al \ac {Z80} sau C sau sa incarce unul deja scris. Dupa ce un program a fost incarcat cu succes in memoria emulatorului, utilizatorul il va putea controla executia ca in orice alt debugger.
 
-    Primele microprocesoare pe 8 biți, precum Intel 8080, MOS Technology 6502 sau Zilog Z80, au fost utilizate în computerele personale timpurii, console de jocuri și dispozitive electronice de larg consum. De exemplu, Intel 8080 a fost inima calculatorului Altair 8800, în timp ce 6502 a fost folosit în Apple II și consola NES. Aceste procesoare ofereau o combinație remarcabilă de performanță și cost redus, fiind accesibile pentru dezvoltatorii și pasionații vremii.
+In figura \cref{fig:upitemu} se poate vedea o captura de ecran cu emulatorul in actiune, acesta ruland un program ce afiseaza un mesaj pe ecranul emulatorului.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/upitemu.png}
+    \caption{Captura de ecran a emulatorului in actiune.}
+    \label{fig:upitemu}
+\end{figure}
 
-    Caracteristicile generale ale acestor microprocesoare includ o magistrală de date de 8 biți, o magistrală de adrese de obicei de 16 biți (permițând accesul la 64 KB memorie), un set de instrucțiuni relativ restrâns și un consum energetic scăzut. Toate acestea le-au făcut ideale pentru aplicații embedded, unde cerințele de calcul sunt limitate, dar fiabilitatea este esențială.
 
-    Chiar și astăzi, microprocesoarele pe 8 biți sunt utilizate pe scară largă în sisteme încorporate, cum ar fi controlerele Arduino (cu cipuri precum ATmega328P), în telecomenzi, jucării, echipamente medicale de bază și electrocasnice. Longevitatea acestor procesoare demonstrează versatilitatea și eficiența lor în aplicații în care puterea de calcul ridicată nu este o necesitate.
+\clearpage
 
-    Prin urmare, microprocesoarele pe 8 biți nu sunt doar relicve ale trecutului, ci componente esențiale în arhitectura multor sisteme moderne. Ele continuă să joace un rol vital în educație, prototipare rapidă și industrie, dovedind că simplitatea poate fi un avantaj strategic în multe domenii tehnologice.
 
-    \subsubsection{Registrii}
+\section{Fundamentare teoretica}
+In aceasta sectiune se va discuta despre fundamentele teoretice ale proiectului, cum ar fi microcontrolerul Z80, emulatorul si limbajul de programare ales.
 
-    Un registru este o zona de memorie interna a procesorului care este utilizata pentru a stoca date temporar. Acestea sunt folosite pentru a efectua operatiuni aritmetice si logice, precum si pentru a stoca adresele de memorie.
-    Registrii sunt foarte rapizi, deoarece sunt situati in interiorul procesorului si pot fi accesati mult mai repede decat memoria externa, ceea ce contribuie la cresterea performantei globale.
+Aceste detalii vor reprezenta baza teoretica a proiectului, oferind o intelegere mai buna a modului in care functioneaza emulatorul si cum poate fi folosit.
 
-    Acesti registrii se pot categoriza dupa mai multe criterii, unul dintre ele fiind tipul acestora:
+\subsection{Microrocesoarele pe 8 biti}
+
+Microprocesoarele pe 8 biți reprezintă una dintre cele mai importante etape din evoluția calculatoarelor și a sistemelor electronice. Aceste componente au capacitatea de a prelucra date în cuvinte de 8 biți, ceea ce înseamnă că registrele interne, magistrala de date și instrucțiunile sunt proiectate pentru a lucra cu unități de 8 biți. Deși în prezent există procesoare mult mai avansate, cele pe 8 biți sunt încă relevante în anumite contexte datorită simplității și eficienței lor.
+
+Primele microprocesoare pe 8 biți, precum Intel 8080, MOS Technology 6502 sau Zilog Z80, au fost utilizate în computerele personale timpurii, console de jocuri și dispozitive electronice de larg consum. De exemplu, Intel 8080 a fost inima calculatorului Altair 8800, în timp ce 6502 a fost folosit în Apple II și consola NES. Aceste procesoare ofereau o combinație remarcabilă de performanță și cost redus, fiind accesibile pentru dezvoltatorii și pasionații vremii.
+
+Caracteristicile generale ale acestor microprocesoare includ o magistrală de date de 8 biți, o magistrală de adrese de obicei de 16 biți (permițând accesul la 64 KB memorie), un set de instrucțiuni relativ restrâns și un consum energetic scăzut. Toate acestea le-au făcut ideale pentru aplicații embedded, unde cerințele de calcul sunt limitate, dar fiabilitatea este esențială.
+
+Chiar și astăzi, microprocesoarele pe 8 biți sunt utilizate pe scară largă în sisteme încorporate, cum ar fi controlerele Arduino (cu cipuri precum ATmega328P), în telecomenzi, jucării, echipamente medicale de bază și electrocasnice. Longevitatea acestor procesoare demonstrează versatilitatea și eficiența lor în aplicații în care puterea de calcul ridicată nu este o necesitate.
+
+Prin urmare, microprocesoarele pe 8 biți nu sunt doar relicve ale trecutului, ci componente esențiale în arhitectura multor sisteme moderne. Ele continuă să joace un rol vital în educație, prototipare rapidă și industrie, dovedind că simplitatea poate fi un avantaj strategic în multe domenii tehnologice.
+
+\subsubsection{Registrii}
+
+Un registru este o zona de memorie interna a procesorului care este utilizata pentru a stoca date temporar. Acestea sunt folosite pentru a efectua operatiuni aritmetice si logice, precum si pentru a stoca adresele de memorie.
+Registrii sunt foarte rapizi, deoarece sunt situati in interiorul procesorului si pot fi accesati mult mai repede decat memoria externa, ceea ce contribuie la cresterea performantei globale.
+
+Acesti registrii se pot categoriza dupa mai multe criterii, unul dintre ele fiind tipul acestora:
+\begin{itemize}
+
+    \item \ac {GPR}, acesta este folosit pentru operatiuni aritmetice, logice si pentru indexare. In arhitecturi comune pe 8 biti exista adesea 4-8 astfel de registre (ex: A,B,C,D in familia Intel 8080).
+    \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero, semn, carry, overflow, semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
+    \item Registrii cu scop special.
     \begin{itemize}
-
-        \item \ac {GPR}, acesta este folosit pentru operatiuni aritmetice, logice si pentru indexare. In arhitecturi comune pe 8 biti exista adesea 4-8 astfel de registre (ex: A,B,C,D in familia Intel 8080).
-        \item Flags(stare), acest registru reprezinta rezultatul ultimei operatiuni (ex: zero, semn, carry, overflow, semn). Registrul de stare are ca principala responsabilitate ghidarea ramificatiilor din program.
-        \item Registrii cu scop special.
-        \begin{itemize}
-            \item PC(Program Counter), acest registru are 16 biti (in majoritatea procesoarelor pe 8 biti), care contine adresa urmatoarei instructiuni ce urmeaza a fi executata.
-            \item SP(Stack Pointer), acest registru are de asemenea 16 biti si contine varful stivei in memoria RAM.
-        \end{itemize}
-
+        \item PC(Program Counter), acest registru are 16 biti (in majoritatea procesoarelor pe 8 biti), care contine adresa urmatoarei instructiuni ce urmeaza a fi executata.
+        \item SP(Stack Pointer), acest registru are de asemenea 16 biti si contine varful stivei in memoria RAM.
     \end{itemize}
 
-    Microprocesorul functioneaza prin a rula secvential instructiunile aflate la adresa stocata in PC.
-    In majoritatea cazurilor dupa ce se ruleaza o instructiune, PC este incrementat cu lungimea instructiunii executate.
-    In cazul salturilor(ex: JMP), ramificatiilor(ex: CMP), sau instructiunilor de apel(ex: CALL), PC este setat la o alta adresa.
+\end{itemize}
 
-    Procesorul de asemenea foloseste o stiva pentru a stoca date temporare. Un astfel de tip de date salvate temporar pe stiva sunt adresele de returnare.
-    Cand o functie este apelata(CALL), adresa de returnare(urmataoarea instructiuni) este salvata in stiva. La returnare(RET), valoarea de returnare va fi extrasa din stiva si apoi plasta in PC.
+Microprocesorul functioneaza prin a rula secvential instructiunile aflate la adresa stocata in PC.
+In majoritatea cazurilor dupa ce se ruleaza o instructiune, PC este incrementat cu lungimea instructiunii executate.
+In cazul salturilor(ex: JMP), ramificatiilor(ex: CMP), sau instructiunilor de apel(ex: CALL), PC este setat la o alta adresa.
 
-    \subsubsection{I/O}
+Procesorul de asemenea foloseste o stiva pentru a stoca date temporare. Un astfel de tip de date salvate temporar pe stiva sunt adresele de returnare.
+Cand o functie este apelata(CALL), adresa de returnare(urmataoarea instructiuni) este salvata in stiva. La returnare(RET), valoarea de returnare va fi extrasa din stiva si apoi plasta in PC.
 
-    Pentru a putea interactiona cu un microprocesor, acesta trebuie sa aiba un sistem de intrare/iesire (I/O).
-    Acest sistem permite procesorului sa comunice cu alte dispozitive externe, cum ar fi tastaturi, ecrane sau dispozitive de stocare.
-    In majoritatea cazurilor comunicarea cu dispozitivele externe se face prin porturi/pini fizici conectati la procesor.
+\subsubsection{I/O}
 
-    Multe microporcesoare au de asemenea si un sistem de intreruperi. Acesta permite procesorului sa fie notificat atunci cand un dispozitiv extern are nevoie de atentie.
-    Acest sistem de inreruperi creste eficienta unui microprocesor, deoarece acesta nu trebuie sa verifice constant starea dispozitivelor externe.
+Pentru a putea interactiona cu un microprocesor, acesta trebuie sa aiba un sistem de intrare/iesire (I/O).
+Acest sistem permite procesorului sa comunice cu alte dispozitive externe, cum ar fi tastaturi, ecrane sau dispozitive de stocare.
+In majoritatea cazurilor comunicarea cu dispozitivele externe se face prin porturi/pini fizici conectati la procesor.
 
-    Accessul la dispozitivele IO se poate face in 2 feluri:
-    \begin{itemize}
-        \item \textbf{Mapat pe memorie}, accessul la dispozitivul extern se face prin acelasi tip de instructiuni de citire/scriere ca pentru memorie.
-        \item \textbf{Prin porturi}, accessul se va face prin instructiuni speciale IN si OUT.
-    \end{itemize}
+Multe microporcesoare au de asemenea si un sistem de intreruperi. Acesta permite procesorului sa fie notificat atunci cand un dispozitiv extern are nevoie de atentie.
+Acest sistem de inreruperi creste eficienta unui microprocesor, deoarece acesta nu trebuie sa verifice constant starea dispozitivelor externe.
 
-    \subsubsection{Date tehnice și comparaţie între modele}
+Accessul la dispozitivele IO se poate face in 2 feluri:
+\begin{itemize}
+    \item \textbf{Mapat pe memorie}, accessul la dispozitivul extern se face prin acelasi tip de instructiuni de citire/scriere ca pentru memorie.
+    \item \textbf{Prin porturi}, accessul se va face prin instructiuni speciale IN si OUT.
+\end{itemize}
 
-    \begin{table}[htb]
-        \centering
-        \resizebox{\textwidth}{!}{%
-            \begin{tabular}{lccc}
-                \hline
-                Caracteristică    & Intel 8080          & MOS 6502  & Zilog Z80                   \\
-                \hline
-                Anul lansării     & 1974                & 1975      & 1976                        \\
-                Frecvenţă ceas    & 2 MHz               & 1 - 3 MHz & 2.5 - 8.0 MHz               \\
-                Registre generale & A, B, C, D, E, H, L & A, X, Y   & A, B, C, D, E, H, L, IX, IY \\
-                Spaţiu adresabil  & 64 KB               & 64 KB     & 64 KB                       \\
-                Instrucţiuni      & 256                 & 151       & ≈ 698                       \\
-                \hline
-            \end{tabular}%
-        }
-        \caption{Date tehnice și comparaţie între modele}
-    \end{table}
+\subsubsection{Date tehnice și comparaţie între modele}
 
-    \subsection{Evoluția webului}
+\begin{table}[htb]
+    \centering
+    \resizebox{\textwidth}{!}{%
+        \begin{tabular}{lccc}
+            \hline
+            Caracteristică    & Intel 8080          & MOS 6502  & Zilog Z80                   \\
+            \hline
+            Anul lansării     & 1974                & 1975      & 1976                        \\
+            Frecvenţă ceas    & 2 MHz               & 1 - 3 MHz & 2.5 - 8.0 MHz               \\
+            Registre generale & A, B, C, D, E, H, L & A, X, Y   & A, B, C, D, E, H, L, IX, IY \\
+            Spaţiu adresabil  & 64 KB               & 64 KB     & 64 KB                       \\
+            Instrucţiuni      & 256                 & 151       & ≈ 698                       \\
+            \hline
+        \end{tabular}%
+    }
+    \caption{Date tehnice și comparaţie între modele}
+\end{table}
 
-    De la primele pagini statice publicate la începutul anilor ’90 până la aplicațiile interactive și descentralizate de astăzi, webul a parcurs câteva etape majore de evoluție. În faza inițială, denumită adesea Web 1.0, site-urile erau în esență documente HTML simple, statice, fără posibilitatea interacțiunii avansate cu utilizatorul. Conținutul era creat și actualizat manual, iar navigarea se baza pe hyperlink-uri elementare. Browserele timpurii (Netscape Navigator, Internet Explorer) interpretau fragmente de HTML și imagini GIF, fără suport pentru CSS sau JavaScript.
+\subsection{Evoluția webului}
+
+De la primele pagini statice publicate la începutul anilor ’90 până la aplicațiile interactive și descentralizate de astăzi, webul a parcurs câteva etape majore de evoluție. În faza inițială, denumită adesea Web 1.0, site-urile erau în esență documente HTML simple, statice, fără posibilitatea interacțiunii avansate cu utilizatorul. Conținutul era creat și actualizat manual, iar navigarea se baza pe hyperlink-uri elementare. Browserele timpurii (Netscape Navigator, Internet Explorer) interpretau fragmente de HTML și imagini GIF, fără suport pentru CSS sau JavaScript.
 
 Odată cu apariția limbajelor de scripting pe server (PHP, ASP.NET, JSP) și a bazelor de date relaționale (MySQL, PostgreSQL), webul a început să devină dinamic: paginile erau generate on‑the‑fly, iar datele utilizatorilor puteau fi stocate și prelucrate. Aceasta a deschis calea către Web 2.0, unde site‑urile s-au transformat în platforme participative—bloguri, forumuri, rețele sociale—în care conținutul era creat și moderat chiar de utilizatori. Tehnici precum AJAX au permis încărcarea asincronă a datelor, reducând timpul de așteptare și eliminând refresh‑ul complet al paginilor.
 
@@ -589,39 +604,39 @@ Aceasta este compilată în mod optimizat (\code{--release}) și apoi rulată au
 Pe baza acestei platofrme se pot face deploy-uri automate, se pot gestiona resursele și se pot monitoriza aplicațiile într-un mod centralizat.
 
 \begin{itemize}
-    \item \textbf{Master Node}: Este responsabil pentru gestionarea întregului cluster. Include componente precum \textit{API Server}, \textit{Scheduler} și \textit{Controller Manager}.
-    \item \textbf{Worker Nodes}: Acestea găzduiesc aplicațiile containerizate. Fiecare nod conține un \textit{kubelet}, care comunică cu Master Node, și un \textit{Container Runtime} pentru rularea containerelor.
-    \item \textbf{etcd}: O bază de date distribuită care stochează toate datele de configurare ale clusterului.
-    \item \textbf{Controller Manager}: Gestionează controlerele care monitorizează starea clusterului și efectuează acțiuni corective.
-    \item \textbf{Scheduler}: Atribuie workload-urile (pod-urile) nodurilor disponibile, ținând cont de resursele acestora.
+\item \textbf{Master Node}: Este responsabil pentru gestionarea întregului cluster. Include componente precum \textit{API Server}, \textit{Scheduler} și \textit{Controller Manager}.
+\item \textbf{Worker Nodes}: Acestea găzduiesc aplicațiile containerizate. Fiecare nod conține un \textit{kubelet}, care comunică cu Master Node, și un \textit{Container Runtime} pentru rularea containerelor.
+\item \textbf{etcd}: O bază de date distribuită care stochează toate datele de configurare ale clusterului.
+\item \textbf{Controller Manager}: Gestionează controlerele care monitorizează starea clusterului și efectuează acțiuni corective.
+\item \textbf{Scheduler}: Atribuie workload-urile (pod-urile) nodurilor disponibile, ținând cont de resursele acestora.
 \end{itemize}
 
 \paragraph{Concepte cheie}
 \begin{itemize}
-    \item \textbf{Pod}: Cea mai mică unitate de lucru din \ac {K8s}, care conține unul sau mai multe containere ce împart aceeași rețea și spațiu de stocare.
-    \item \textbf{Service}: O abstracție care expune un set de pod-uri ca un serviciu de rețea.
-    \item \textbf{Deployment}: Un obiect care definește modul în care aplicațiile sunt implementate și gestionate, permițând actualizări și rollback-uri.
-    \item \textbf{Namespace}: Un mecanism de izolare logică pentru organizarea resurselor dintr-un cluster.
-    \item \textbf{ConfigMap și Secret}: Resurse utilizate pentru a gestiona configurările aplicațiilor și datele sensibile, cum ar fi parolele.
+\item \textbf{Pod}: Cea mai mică unitate de lucru din \ac {K8s}, care conține unul sau mai multe containere ce împart aceeași rețea și spațiu de stocare.
+\item \textbf{Service}: O abstracție care expune un set de pod-uri ca un serviciu de rețea.
+\item \textbf{Deployment}: Un obiect care definește modul în care aplicațiile sunt implementate și gestionate, permițând actualizări și rollback-uri.
+\item \textbf{Namespace}: Un mecanism de izolare logică pentru organizarea resurselor dintr-un cluster.
+\item \textbf{ConfigMap și Secret}: Resurse utilizate pentru a gestiona configurările aplicațiilor și datele sensibile, cum ar fi parolele.
 \end{itemize}
 
 \paragraph{Avantajele utilizării \ac {K8s}}
 \begin{itemize}
-    \item \textbf{Scalabilitate automată}: Kubernetes poate scala automat aplicațiile în funcție de cerințele de resurse.
-    \item \textbf{Toleranță la erori}: Asigură disponibilitatea aplicațiilor prin repornirea automată a pod-urilor defecte și redistribuirea acestora pe noduri sănătoase.
-    \item \textbf{Portabilitate}: Aplicațiile containerizate pot fi rulate pe orice infrastructură care suportă Kubernetes, fie că este vorba de cloud public, privat sau on-premises.
-    \item \textbf{Gestionare declarativă}: Configurațiile sunt definite într-un mod declarativ, utilizând fișiere YAML sau JSON.
-    \item \textbf{Integrare cu DevOps}: Kubernetes se integrează ușor cu pipeline-urile CI/CD, facilitând livrarea continuă a aplicațiilor.
+\item \textbf{Scalabilitate automată}: Kubernetes poate scala automat aplicațiile în funcție de cerințele de resurse.
+\item \textbf{Toleranță la erori}: Asigură disponibilitatea aplicațiilor prin repornirea automată a pod-urilor defecte și redistribuirea acestora pe noduri sănătoase.
+\item \textbf{Portabilitate}: Aplicațiile containerizate pot fi rulate pe orice infrastructură care suportă Kubernetes, fie că este vorba de cloud public, privat sau on-premises.
+\item \textbf{Gestionare declarativă}: Configurațiile sunt definite într-un mod declarativ, utilizând fișiere YAML sau JSON.
+\item \textbf{Integrare cu DevOps}: Kubernetes se integrează ușor cu pipeline-urile CI/CD, facilitând livrarea continuă a aplicațiilor.
 \end{itemize}
 
 \paragraph{Flux de lucru tipic}
 Un flux de lucru tipic în Kubernetes implică următorii pași:
 \begin{enumerate}
-    \item Crearea unui fișier de configurare YAML pentru resursele necesare (Pod, Deployment, Service etc.).
-    \item Aplicarea configurației folosind comanda \texttt{kubectl apply}.
-    \item Monitorizarea stării clusterului și a resurselor utilizând comanda \texttt{kubectl get}.
-    \item Scalarea aplicațiilor folosind comanda \texttt{kubectl scale}.
-    \item Actualizarea aplicațiilor prin modificarea configurației și reaplicarea acesteia.
+\item Crearea unui fișier de configurare YAML pentru resursele necesare (Pod, Deployment, Service etc.).
+\item Aplicarea configurației folosind comanda \texttt{kubectl apply}.
+\item Monitorizarea stării clusterului și a resurselor utilizând comanda \texttt{kubectl get}.
+\item Scalarea aplicațiilor folosind comanda \texttt{kubectl scale}.
+\item Actualizarea aplicațiilor prin modificarea configurației și reaplicarea acesteia.
 \end{enumerate}
 
 Kubernetes a devenit standardul de facto pentru orchestrarea containerelor, oferind un ecosistem robust și extensibil pentru gestionarea aplicațiilor moderne.
@@ -660,43 +675,43 @@ Cloud Computing reprezintă livrarea de servicii IT, cum ar fi stocare, procesar
 \paragraph{Modele de servicii}
 Cloud Computing este clasificat în trei modele principale de servicii:
 \begin{itemize}
-    \item \textbf{\ac {IaaS}}: Oferă infrastructură virtualizată, cum ar fi servere, stocare și rețele. Exemple: Amazon EC2, Microsoft Azure Virtual Machines.
-    \item \textbf{\ac {PaaS}}: Oferă un mediu de dezvoltare și implementare pentru aplicații, eliminând necesitatea gestionării infrastructurii. Exemple: Google App Engine, Heroku.
-    \item \textbf{\ac {SaaS}}: Oferă aplicații software accesibile prin internet, fără a necesita instalare locală. Exemple: Google Workspace, Microsoft 365.
+\item \textbf{\ac {IaaS}}: Oferă infrastructură virtualizată, cum ar fi servere, stocare și rețele. Exemple: Amazon EC2, Microsoft Azure Virtual Machines.
+\item \textbf{\ac {PaaS}}: Oferă un mediu de dezvoltare și implementare pentru aplicații, eliminând necesitatea gestionării infrastructurii. Exemple: Google App Engine, Heroku.
+\item \textbf{\ac {SaaS}}: Oferă aplicații software accesibile prin internet, fără a necesita instalare locală. Exemple: Google Workspace, Microsoft 365.
 \end{itemize}
 
 \paragraph{Modele de implementare}
 Există mai multe modele de implementare a cloud-ului:
 \begin{itemize}
-    \item \textbf{Cloud public}: Resursele sunt partajate între mai mulți utilizatori și sunt gestionate de un furnizor terț. Exemple: \ac {AWS} , \ac {GCP}.
-    \item \textbf{Cloud privat}: Resursele sunt dedicate unei singure organizații, oferind un control mai mare asupra datelor și securității.
-    \item \textbf{Cloud hibrid}: Combină cloud-ul public și privat, permițând organizațiilor să beneficieze de flexibilitate și scalabilitate.
-    \item \textbf{Cloud comunitar}: Resursele sunt partajate între organizații cu interese comune, cum ar fi instituțiile guvernamentale.
+\item \textbf{Cloud public}: Resursele sunt partajate între mai mulți utilizatori și sunt gestionate de un furnizor terț. Exemple: \ac {AWS} , \ac {GCP}.
+\item \textbf{Cloud privat}: Resursele sunt dedicate unei singure organizații, oferind un control mai mare asupra datelor și securității.
+\item \textbf{Cloud hibrid}: Combină cloud-ul public și privat, permițând organizațiilor să beneficieze de flexibilitate și scalabilitate.
+\item \textbf{Cloud comunitar}: Resursele sunt partajate între organizații cu interese comune, cum ar fi instituțiile guvernamentale.
 \end{itemize}
 
 \paragraph{Avantajele Cloud Computing}
 \begin{itemize}
-    \item \textbf{Scalabilitate}: Resursele pot fi ajustate rapid în funcție de cerințele utilizatorului.
-    \item \textbf{Costuri reduse}: Elimină necesitatea investițiilor în hardware și întreținere.
-    \item \textbf{Accesibilitate}: Serviciile sunt accesibile de oriunde, atâta timp cât există o conexiune la internet.
-    \item \textbf{Fiabilitate}: Majoritatea furnizorilor de cloud oferă redundanță și backup automat pentru a asigura disponibilitatea serviciilor.
-    \item \textbf{Securitate}: Furnizorii de cloud implementează măsuri avansate de securitate pentru protejarea datelor.
+\item \textbf{Scalabilitate}: Resursele pot fi ajustate rapid în funcție de cerințele utilizatorului.
+\item \textbf{Costuri reduse}: Elimină necesitatea investițiilor în hardware și întreținere.
+\item \textbf{Accesibilitate}: Serviciile sunt accesibile de oriunde, atâta timp cât există o conexiune la internet.
+\item \textbf{Fiabilitate}: Majoritatea furnizorilor de cloud oferă redundanță și backup automat pentru a asigura disponibilitatea serviciilor.
+\item \textbf{Securitate}: Furnizorii de cloud implementează măsuri avansate de securitate pentru protejarea datelor.
 \end{itemize}
 
 \paragraph{Google Cloud Platform}
 a fost ales datorită serviciilor sale robuste și a integrării ușoare cu tehnologiile necesare. \ac {GCP} oferă o infrastructură scalabilă și flexibilă, care a permis implementarea eficientă a aplicației.
 
 \begin{itemize}
-    \item \textbf{Docker Engine}: GCP oferă suport nativ pentru containere prin Google Kubernetes Engine (GKE) și alte servicii, facilitând rularea aplicației containerizate. Docker Engine a fost esențial pentru izolarea și gestionarea mediului de execuție al aplicației.
-    \item \textbf{Managementul certificatelor SSL}: GCP include servicii precum \textit{Certificate Manager}, care simplifică gestionarea certificatelor SSL. Acest lucru a asigurat o conexiune securizată între utilizatori și aplicație, respectând standardele moderne de securitate.
-    \item \textbf{Scalabilitate automată}: GCP a permis scalarea automată a resurselor în funcție de cerințele aplicației, reducând costurile și asigurând performanța optimă.
-    \item \textbf{Integrare cu CI/CD}: GCP s-a integrat ușor cu pipeline-urile de livrare continuă, facilitând implementarea rapidă a actualizărilor și testarea automată.
+\item \textbf{Docker Engine}: GCP oferă suport nativ pentru containere prin Google Kubernetes Engine (GKE) și alte servicii, facilitând rularea aplicației containerizate. Docker Engine a fost esențial pentru izolarea și gestionarea mediului de execuție al aplicației.
+\item \textbf{Managementul certificatelor SSL}: GCP include servicii precum \textit{Certificate Manager}, care simplifică gestionarea certificatelor SSL. Acest lucru a asigurat o conexiune securizată între utilizatori și aplicație, respectând standardele moderne de securitate.
+\item \textbf{Scalabilitate automată}: GCP a permis scalarea automată a resurselor în funcție de cerințele aplicației, reducând costurile și asigurând performanța optimă.
+\item \textbf{Integrare cu CI/CD}: GCP s-a integrat ușor cu pipeline-urile de livrare continuă, facilitând implementarea rapidă a actualizărilor și testarea automată.
 \end{itemize}
 
 \paragraph{Provocări și limitări}
 \begin{itemize}
-    \item \textbf{Confidențialitatea datelor}: Datele stocate în cloud pot fi vulnerabile la acces neautorizat, dar GCP oferă măsuri avansate de securitate pentru a minimiza riscurile.
-    \item \textbf{Dependența de furnizor}: Migrarea către alt furnizor poate fi dificilă, dar flexibilitatea oferită de GCP a redus această preocupare.
+\item \textbf{Confidențialitatea datelor}: Datele stocate în cloud pot fi vulnerabile la acces neautorizat, dar GCP oferă măsuri avansate de securitate pentru a minimiza riscurile.
+\item \textbf{Dependența de furnizor}: Migrarea către alt furnizor poate fi dificilă, dar flexibilitatea oferită de GCP a redus această preocupare.
 \end{itemize}
 
 Google Cloud Platform a oferit toate instrumentele necesare pentru a implementa și gestiona proiectul într-un mod eficient și sigur, contribuind semnificativ la succesul acestuia.
@@ -715,12 +730,12 @@ Pentru crearea emulatorului diferite structuri de date au fost create, unele din
 
 \begin{lstlisting}[language=Rust,caption={Structura Emulator},label={lst:emulator_struct}]
 pub struct Emulator<T: Cpu> {
-    pub memory: Memory,
-    pub cpu: T,
-    pub breakpoints: Vec<u16>,
-    pub io: IO,
-    pub cycle_counter: usize,
-    pub instruction_counter: usize,
+pub memory: Memory,
+pub cpu: T,
+pub breakpoints: Vec<u16>,
+pub io: IO,
+pub cycle_counter: usize,
+pub instruction_counter: usize,
 }
 \end{lstlisting}
 
@@ -734,17 +749,17 @@ Principala functie care va fi folosita in aceasta structura va fi cea de step \c
 
 \begin{lstlisting}[language=Rust,caption={Functia step a emulatorului},label={lst:emulator_step}]
 pub fn step(&mut self) -> Result<Box<dyn ExecutableInstruction<T>>, String> {
-    if self.cpu.halted() {
-        return Err("CPU is halted".to_string());
-    }
-    self.memory.clear_changes();
-    let instruction = self.cpu.step(&mut self.memory, &mut self.io);
-    self.io.step();
-    if let Ok(instruction) = &instruction {
-        self.cycle_counter += instruction.common().cycles as usize;
-        self.instruction_counter += 1;
-    }
-    instruction
+if self.cpu.halted() {
+return Err("CPU is halted".to_string());
+}
+self.memory.clear_changes();
+let instruction = self.cpu.step(&mut self.memory, &mut self.io);
+self.io.step();
+if let Ok(instruction) = &instruction {
+self.cycle_counter += instruction.common().cycles as usize;
+self.instruction_counter += 1;
+}
+instruction
 }
 \end{lstlisting}
 Aceasta functie cand va fi apelata va emula executia a unei singure instructiuni. Acest lucru este facut prin a apela instructiunea de step a structurii \code{Cpu}. Cand se va face acest apel, controlul memoriei si al \code{IO} va fi momentan pasat catre functia apelata. Dupa executarea functiei, contoarele vor creste corespunzator.
@@ -755,10 +770,10 @@ Aceasta structura \cref{lst:memory_struct} reprezinta intreaga memorie accesibil
 
 \begin{lstlisting}[language=Rust,caption={Structura Memorie},label={lst:memory_struct}]
 pub struct Memory {
-    data: Vec<Box<dyn MemoryDevice>>,
-    changes: Option<Vec<u16>>,
-    readcallback: Option<fn(u16, u8)>,
-    writecallback: Option<fn(u16, u8)>,
+data: Vec<Box<dyn MemoryDevice>>,
+changes: Option<Vec<u16>>,
+readcallback: Option<fn(u16, u8)>,
+writecallback: Option<fn(u16, u8)>,
 }
 \end{lstlisting}
 
@@ -799,46 +814,46 @@ Crearea unui \code{ROM} se face prin functia \code{new}, aceasta primind ca para
 \begin{lstlisting}[language=Rust,caption={Structura ROM},label={lst:rom-struct}]
 #[derive(Debug, Clone)]
 pub struct ROM {
-    data: Vec<u8>,
+data: Vec<u8>,
 }
 
 impl ROM {
-    pub fn new(size: usize) -> ROM {
-        ROM {
-            data: vec![0; size],
-        }
-    }
+pub fn new(size: usize) -> ROM {
+ROM {
+data: vec![0; size],
+}
+}
 }
 
 impl MemoryDevice for ROM {
-    fn size(&self) -> usize {
-        self.data.len()
-    }
-    fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
-        match self.data.get(addr as usize) {
-            None => Err(MemoryRWCommonError::OutOfBounds(addr).into()),
-            Some(val) => Ok(*val),
-        }
-    }
-    fn write_8(&mut self, addr: u16, _: u8) -> Result<(), MemoryWriteError> {
-        Err(MemoryWriteError::ReadOnly(addr))
-    } 
+fn size(&self) -> usize {
+self.data.len()
+}
+fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
+match self.data.get(addr as usize) {
+None => Err(MemoryRWCommonError::OutOfBounds(addr).into()),
+Some(val) => Ok(*val),
+}
+}
+fn write_8(&mut self, addr: u16, _: u8) -> Result<(), MemoryWriteError> {
+Err(MemoryWriteError::ReadOnly(addr))
+}
 
-    fn write_8_force(&mut self, addr: u16, data: u8) 
-    -> Result<(), MemoryWriteError> {
-        let val = self
-        .data
-        .get_mut(addr as usize)
-        .ok_or(MemoryRWCommonError::OutOfBounds(addr))?;
-        *val = data;
-        Ok(())
-    }
+fn write_8_force(&mut self, addr: u16, data: u8)
+-> Result<(), MemoryWriteError> {
+let val = self
+.data
+.get_mut(addr as usize)
+.ok_or(MemoryRWCommonError::OutOfBounds(addr))?;
+*val = data;
+Ok(())
+}
 }
 
 impl From<Vec<u8>> for ROM {
-    fn from(data: Vec<u8>) -> ROM {
-        ROM { data }
-    }
+fn from(data: Vec<u8>) -> ROM {
+ROM { data }
+}
 }
 \end{lstlisting}
 
@@ -850,34 +865,34 @@ Singura diferenta in structura \code{RAM} este ca aceasta implementeaza alta fun
 \begin{lstlisting}[language=Rust,caption={Trait CPU},label={lst:cpu_trait}]
 pub trait Cpu:
 Send + Copy + Clone + Default + Serialize + for<'a> Deserialize<'a> {
-    fn step(&mut self, memory: &mut Memory, io: &mut IO,)
-    -> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
-    fn parser(&self) -> &dyn InstructionParser<Self>;
-    fn registers(&self) -> AllRegisters;
-    fn registers_mut(&mut self) -> AllMutRegisters;
-    fn pc(&self) -> u16;
-    fn halted(&self) -> bool;
-    fn set_halted(&mut self, halted: bool);
+fn step(&mut self, memory: &mut Memory, io: &mut IO,)
+-> Result<Box<(dyn ExecutableInstruction<Self>)>, String>;
+fn parser(&self) -> &dyn InstructionParser<Self>;
+fn registers(&self) -> AllRegisters;
+fn registers_mut(&mut self) -> AllMutRegisters;
+fn pc(&self) -> u16;
+fn halted(&self) -> bool;
+fn set_halted(&mut self, halted: bool);
 }
 \end{lstlisting}
 Orice structura ce implementeaza toate functiile traitului \code{Cpu} va putea fi folosita ca procesor pentru emulator. Principala implementare prezentata in proiect a acestui trait este pentru structura \code{Z80}, functia de step a acestuia fiind vizibila in \cref{lst:z80_step}
 \begin{lstlisting}[language=Rust,caption={Functia step Z80},label={lst:z80_step}]
 fn step(&mut self, memory: &mut Memory, io: &mut IO,)
 -> Result<Box<(dyn ExecutableInstruction<Self>)>, String> {
-    let res = self.handle_interrupt(memory, io)?;
-    let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
-        Some(instruction) => instruction,
-        None => parser::Z80_PARSER
-        .ins_from_machinecode(memory, self.registers.pc)
-        .map_err(|e| e.to_string())?,
-    };
-    instruction.execute(memory, self, io)?;
-    let common = instruction.common();
-    self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
-    if common.increment_pc {
-    let inst_length = common.length;
-    let new_pc = self.registers.pc.wrapping_add(inst_length);
-    self.registers.pc = new_pc;
+let res = self.handle_interrupt(memory, io)?;
+let mut instruction: Box<dyn ExecutableInstruction<Z80>> = match res {
+Some(instruction) => instruction,
+None => parser::Z80_PARSER
+.ins_from_machinecode(memory, self.registers.pc)
+.map_err(|e| e.to_string())?,
+};
+instruction.execute(memory, self, io)?;
+let common = instruction.common();
+self.registers.r = self.registers.r.wrapping_add(1) % 0x80;
+if common.increment_pc {
+let inst_length = common.length;
+let new_pc = self.registers.pc.wrapping_add(inst_length);
+self.registers.pc = new_pc;
 }
 Ok(instruction)
 }
@@ -891,14 +906,14 @@ In aceasta structura \cref{lst:z80registers-struct} sunt reprezentati toti regis
 
 \begin{lstlisting}[language=Rust,caption={Structura Z80Registers},label={lst:z80registers-struct}]
 pub struct Z80Registers {
-    pub gp: GPByteRegisters,
-    pub gp_alt: GPByteRegisters,
-    pub ix: u16,
-    pub iy: u16,
-    pub i: u8,
-    pub r: u8,
-    pub sp: u16,
-    pub pc: u16,
+pub gp: GPByteRegisters,
+pub gp_alt: GPByteRegisters,
+pub ix: u16,
+pub iy: u16,
+pub i: u8,
+pub r: u8,
+pub sp: u16,
+pub pc: u16,
 }
 \end{lstlisting}
 
@@ -907,27 +922,27 @@ Deoarece se doreste un nivel cat mai inalt de accessibilitate, prin implementare
 
 \begin{lstlisting}[language=Rust,caption={Structura GPByteRegisters},label={lst:gpbyteregisters-struct}]
 pub struct GPByteRegisters {
-    pub f: Flags,
-    pub a: u8,
-    pub c: u8,
-    pub b: u8,
-    pub e: u8,
-    pub d: u8,
-    pub l: u8,
-    pub h: u8,
+pub f: Flags,
+pub a: u8,
+pub c: u8,
+pub b: u8,
+pub e: u8,
+pub d: u8,
+pub l: u8,
+pub h: u8,
 }
 
 pub struct GPWordRegisters {
-    pub af: u16,
-    pub bc: u16,
-    pub de: u16,
-    pub hl: u16,
+pub af: u16,
+pub bc: u16,
+pub de: u16,
+pub hl: u16,
 }
 
 impl Deref for GPByteRegisters {
-    type Target = GPWordRegisters;
-    fn deref(&self) -> &Self::Target {
-        unsafe { std::mem::transmute(self) }
+type Target = GPWordRegisters;
+fn deref(&self) -> &Self::Target {
+unsafe { std::mem::transmute(self) }
 }
 \end{lstlisting}
 
@@ -954,14 +969,14 @@ Structura \code{Flags} \cref{lst:flags-struct} este un bitfield, acest lucru pen
 #[bitfield(u8)]
 #[derive(PartialEq, Eq, Serialize, Deserialize)]
 pub struct Flags {
-    pub carry: bool,           //C
-    pub add_sub: bool,         //N
-    pub parity_overflow: bool, //P/V
-    pub bit3: bool,            //3
-    pub half_carry: bool,      //H
-    pub bit5: bool,            //5
-    pub zero: bool,            //Z
-    pub sign: bool,            //S
+pub carry: bool,           //C
+pub add_sub: bool,         //N
+pub parity_overflow: bool, //P/V
+pub bit3: bool,            //3
+pub half_carry: bool,      //H
+pub bit5: bool,            //5
+pub zero: bool,            //Z
+pub sign: bool,            //S
 }
 \end{lstlisting}
 
@@ -972,14 +987,14 @@ Pentru instructiuni au fost implementate 2 traituri, \code{BaseInstruction} si \
 
 \begin{lstlisting}[language=Rust,caption={Trait BaseInstruction},label={lst:baseinstruction-trait}]
 pub struct InstructionCommon {
-    pub length: u16,
-    pub cycles: u16,
-    pub increment_pc: bool,
+pub length: u16,
+pub cycles: u16,
+pub increment_pc: bool,
 }
 
 pub trait BaseInstruction: Display + Debug + Send + Sync + 'static {
-    fn common(&self) -> &InstructionCommon;
-    fn to_bytes(&self) -> Vec<u8>;
+fn common(&self) -> &InstructionCommon;
+fn to_bytes(&self) -> Vec<u8>;
 }
 \end{lstlisting}
 Pentru a putea vizualiza instructionile in format text, traitul \code{BaseInstruction} va depinde de traitul \code{Display}, acest necesitand implementarea functiei \code{fmt} ce va returna un string cu instructiunea intr-un format usor de citit (ex: \code{LD (HL), A}).
@@ -988,8 +1003,8 @@ Pentru a putea executa instructiunea, traitul \code{ExecutableInstruction} \cref
 
 \begin{lstlisting}[language=Rust,caption={Trait ExecutableInstruction},label={lst:executableinstruction-trait}]
 pub trait ExecutableInstruction<T: Cpu>: BaseInstruction {
-    fn execute(&mut self, memory: &mut Memory, cpu: &mut T, io: &mut IO)
-        -> Result<(), String>;
+fn execute(&mut self, memory: &mut Memory, cpu: &mut T, io: &mut IO)
+-> Result<(), String>;
 }
 \end{lstlisting}
 
@@ -997,45 +1012,45 @@ Un exemplu complet de instructiune care implementeaza cele doua traituri poate f
 \begin{lstlisting}[language=Rust,caption={Exemplu instructiune},label={lst:instruction-rlca}]
 #[derive(Debug)]
 pub struct RLCA {
-    common: InstructionCommon,
+common: InstructionCommon,
 }
 
 impl RLCA {
-    pub fn new() -> RLCA {
-        RLCA {
-            common: InstructionCommon::new(1, 4, true),
-        }
-    }
+pub fn new() -> RLCA {
+RLCA {
+common: InstructionCommon::new(1, 4, true),
+}
+}
 }
 
 impl Display for RLCA {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "RLCA")
-    }
+fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+write!(f, "RLCA")
+}
 }
 
 impl BaseInstruction for RLCA {
-    fn common(&self) -> &InstructionCommon {
-        &self.common
-    }
-    fn to_bytes(&self) -> Vec<u8> {
-        vec![0x07]
-    }
+fn common(&self) -> &InstructionCommon {
+&self.common
+}
+fn to_bytes(&self) -> Vec<u8> {
+vec![0x07]
+}
 }
 
 impl ExecutableInstruction<Z80> for RLCA {
-    fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO)
-    -> Result<(), String> {
-        let carry = cpu.registers.gp.a >> 7;
-        cpu.registers.gp.f.set_carry(carry != 0);
-        let a = (cpu.registers.gp.a << 1) | carry;
-        cpu.registers.gp.a = a;
-        cpu.registers.gp.f.set_add_sub(false);
-        cpu.registers.gp.f.set_half_carry(false);
-        cpu.registers.gp.f.set_bit3((a >> 3) & 1 == 1);
-        cpu.registers.gp.f.set_bit5((a >> 5) & 1 == 1);
-        Ok(())
-    }
+fn execute(&mut self, _memory: &mut Memory, cpu: &mut Z80, _: &mut IO)
+-> Result<(), String> {
+let carry = cpu.registers.gp.a >> 7;
+cpu.registers.gp.f.set_carry(carry != 0);
+let a = (cpu.registers.gp.a << 1) | carry;
+cpu.registers.gp.a = a;
+cpu.registers.gp.f.set_add_sub(false);
+cpu.registers.gp.f.set_half_carry(false);
+cpu.registers.gp.f.set_bit3((a >> 3) & 1 == 1);
+cpu.registers.gp.f.set_bit5((a >> 5) & 1 == 1);
+Ok(())
+}
 }
 \end{lstlisting}
 
@@ -1050,10 +1065,10 @@ Deoarece fiecare dispozitiv este reprezentat de un trait \code{IODevice}, acest 
 
 \begin{lstlisting}[language=Rust,caption={Structura IO},label={lst:io-struct}]
 pub struct IO {
-    pub port_map: HashMap<u8, Weak<Mutex<Box<dyn IODevice>>>>,
-    devices: Vec<Arc<Mutex<Box<dyn IODevice>>>>,
-    pub iff1: bool,
-    pub iff2: bool,
+pub port_map: HashMap<u8, Weak<Mutex<Box<dyn IODevice>>>>,
+devices: Vec<Arc<Mutex<Box<dyn IODevice>>>>,
+pub iff1: bool,
+pub iff2: bool,
 }
 \end{lstlisting}
 
@@ -1094,77 +1109,77 @@ Una dintre componentele centrale ale emulatorului este decodorul de instrucțiun
 
 Executorul de instrucțiuni gestionează ciclurile procesorului și efectuează operațiile logice, aritmetice, de memorie sau de control al fluxului, actualizând contextul procesorului (registre, steaguri, program counter etc.) la fiecare pas.
 
-In proiect deoarece dorim sa putem transforma un cod masina cat si un String intr-o instructiune ce poate fi executata, au fost implementate doua decodoare de instructiuni. 
+In proiect deoarece dorim sa putem transforma un cod masina cat si un String intr-o instructiune ce poate fi executata, au fost implementate doua decodoare de instructiuni.
 
 In \cref{lst:decoder-machinecode} se poate observa o sectiune de cod din functia care transforma codul masina in instructiuni executable pentru emulator. Aceasta functie primeste 2 parametrii, unul fiind un dispozitiv de memorie \code{memory} , iar celalalt \code{pos} fiind locatia din memorie de unde sa fie decodata instructiunea.
 
 \begin{lstlisting}[language=Rust,caption={Sectiune decodor din cod masina},label={lst:decoder-machinecode}]
 fn ins_from_machinecode(
-        &self,
-        memory: &dyn MemoryDevice,
-        pos: u16,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
-        let ins_byte0 = memory.read_8(pos)?;
-        let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
-            0x00u8 => Box::new(nop::NOP::new()),
-            //...
-            0xCB => match memory.read_8(pos.wrapping_add(1))? {
-                0x00 => Box::new(bit::rlc::RLC_B::new()),
-                0x01 => Box::new(bit::rlc::RLC_C::new()),
-                //...
-            }
-        }
-    }
+&self,
+memory: &dyn MemoryDevice,
+pos: u16,
+) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+let ins_byte0 = memory.read_8(pos)?;
+let instruction: Box<dyn ExecutableInstruction<Z80>> = match ins_byte0 {
+0x00u8 => Box::new(nop::NOP::new()),
+//...
+0xCB => match memory.read_8(pos.wrapping_add(1))? {
+0x00 => Box::new(bit::rlc::RLC_B::new()),
+0x01 => Box::new(bit::rlc::RLC_C::new()),
+//...
+}
+}
+}
 \end{lstlisting}
 
 In \cref{lst:decoder-string} se poate observa si decodorul care poate transforma o instructiune assembly din format \code{string} in format executabil de emulator. Aceasta functie necesita un singur parametru, acesta fiind \code{instruction} ce este o referinta la un \code{string} ce contine instructiunea in format citibil de catre utilizator.
 
 \begin{lstlisting}[language=Rust,caption={Sectiune decodor din string},label={lst:decoder-string}]
 impl InstructionParser<Z80> for Z80Parser {
-    fn ins_from_asm_string(
-        &self,
-        instruction: &str,
-    ) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
-        let filtered = instruction.to_lowercase().replace(",", " ");
-        //regex
-        let re = Regex::new(
-            r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
-            .expect("Error building Z80 instruction parsing regex");
-        let op = match re.captures(&filtered) {
-            Some(caps) => caps,
-            None => {
-                return Err(ParseError::InvalidInstruction(format!(
-                    "Invalid instruction: {}",
-                    instruction
-                )))
-            }
-        };
-        let get_op = |i: usize| -> Result<&str, ParseError> {
-            op.get(i)
-                .ok_or(ParseError::InvalidInstruction(format!(
-                    "Invalid instruction: {}",
-                    instruction
-                )))
-                .map(|m| m.as_str())
-        };
-        let instruction: Box<dyn ExecutableInstruction<Z80>> =
-            match get_op(1)? {
-            "nop" => Box::new(nop::NOP::new()),
-            "scf" => Box::new(scf::SCF::new()),
-            "ccf" => Box::new(ccf::CCF::new()),
-            "exx" => Box::new(exx::EXX::new()),
-            "retn" => Box::new(retn::RETN::new()),
-            "di" => Box::new(di::DI::new()),
-            "ei" => Box::new(ei::EI::new()),
-            "neg" => Box::new(neg::NEG::new()),
-            "ldi" => Box::new(ldi::LDI::new()),
-            "ldir" => Box::new(ldir::LDIR::new()),
-            "lddr" => Box::new(lddr::LDDR::new()),
-            "im" => match get_op(2)? {
-                "0" => Box::new(im0::IM0::new()),
-                "1" => Box::new(im1::IM1::new()),
-                "2" => Box::new(im2::IM2::new()),
-        \\...
+fn ins_from_asm_string(
+&self,
+instruction: &str,
+) -> Result<Box<(dyn ExecutableInstruction<Z80>)>, ParseError> {
+let filtered = instruction.to_lowercase().replace(",", " ");
+//regex
+let re = Regex::new(
+r"^([a-z]+)(?: +([(a-z0-9+')]+)(?: ?+,? ?+([(a-z0-9+')]+))?)?$")
+.expect("Error building Z80 instruction parsing regex");
+let op = match re.captures(&filtered) {
+Some(caps) => caps,
+None => {
+return Err(ParseError::InvalidInstruction(format!(
+"Invalid instruction: {}",
+instruction
+)))
+}
+};
+let get_op = |i: usize| -> Result<&str, ParseError> {
+op.get(i)
+.ok_or(ParseError::InvalidInstruction(format!(
+"Invalid instruction: {}",
+instruction
+)))
+.map(|m| m.as_str())
+};
+let instruction: Box<dyn ExecutableInstruction<Z80>> =
+match get_op(1)? {
+"nop" => Box::new(nop::NOP::new()),
+"scf" => Box::new(scf::SCF::new()),
+"ccf" => Box::new(ccf::CCF::new()),
+"exx" => Box::new(exx::EXX::new()),
+"retn" => Box::new(retn::RETN::new()),
+"di" => Box::new(di::DI::new()),
+"ei" => Box::new(ei::EI::new()),
+"neg" => Box::new(neg::NEG::new()),
+"ldi" => Box::new(ldi::LDI::new()),
+"ldir" => Box::new(ldir::LDIR::new()),
+"lddr" => Box::new(lddr::LDDR::new()),
+"im" => match get_op(2)? {
+"0" => Box::new(im0::IM0::new()),
+"1" => Box::new(im1::IM1::new()),
+"2" => Box::new(im2::IM2::new()),
+\\...
 \end{lstlisting}
 
 Decodarea instructiunilor din string este mult mai dificila decat din cod masina, acest lucru se datoreaza faptului ca trebuie sa se faca o verificare a sintaxei, pentru a fi siguri ca instructiunea este valida. In cazul in care instructiunea nu este valida, se va returna o eroare \code{ParseError::InvalidInstruction}.
@@ -1175,51 +1190,51 @@ Pentru a facilita extragerea parametriilor din instructiune, a fost implementat 
 \begin{lstlisting}[language=Rust,caption={Enumerator ImmediateValue},label={lst:immediatevalue-enum}]
 #[derive(Debug, Clone)]
 enum ImmediateValue {
-    Val8(u8),
-    Val16(u16),
-    OffsetIX(u8),
-    OffsetIY(u8),
-    Ptr(u16),
+Val8(u8),
+Val16(u16),
+OffsetIX(u8),
+OffsetIY(u8),
+Ptr(u16),
 }
 
 fn is_num(number: &str) -> Result<u16, String> {
-    let num = if number.starts_with("0x") && number.len() <= 6 {
-        u16::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?
-    } else if number.starts_with("0b") && number.len() <= 18 {
-        u16::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?
-    } else {
-        u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?
-    };
-    Ok(num)
+let num = if number.starts_with("0x") && number.len() <= 6 {
+u16::from_str_radix(&number[2..], 16).map_err(|e| e.to_string())?
+} else if number.starts_with("0b") && number.len() <= 18 {
+u16::from_str_radix(&number[2..], 2).map_err(|e| e.to_string())?
+} else {
+u16::from_str_radix(&number, 10).map_err(|e| e.to_string())?
+};
+Ok(num)
 }
 
 fn is_val(number: &str) -> Result<ImmediateValue, String> {
-    if number.starts_with("(") && number.ends_with(")") {
-        let parsed = &number[1..number.len() - 1];
-        if parsed.contains("+") {
-            match &parsed[0..2] {
-                "ix" => {
-                    let offset = parsed.split("+").collect::<Vec<&str>>()[1];
-                    let num = is_num(offset)?;
-                    return Ok(ImmediateValue::OffsetIX(num as u8));
-                }
-                "iy" => {
-                    let offset = parsed.split("+").collect::<Vec<&str>>()[1];
-                    let num = is_num(offset)?;
-                    return Ok(ImmediateValue::OffsetIY(num as u8));
-                }
-                _ => (),
-            };
-        }
-        Ok(ImmediateValue::Ptr(is_num(parsed)?))
-    } else {
-        let num = is_num(number)?;
-        if number.len() != 6 {
-            Ok(ImmediateValue::Val8(num as u8))
-        } else {
-            Ok(ImmediateValue::Val16(num))
-        }
-    }
+if number.starts_with("(") && number.ends_with(")") {
+let parsed = &number[1..number.len() - 1];
+if parsed.contains("+") {
+match &parsed[0..2] {
+"ix" => {
+let offset = parsed.split("+").collect::<Vec<&str>>()[1];
+let num = is_num(offset)?;
+return Ok(ImmediateValue::OffsetIX(num as u8));
+}
+"iy" => {
+let offset = parsed.split("+").collect::<Vec<&str>>()[1];
+let num = is_num(offset)?;
+return Ok(ImmediateValue::OffsetIY(num as u8));
+}
+_ => (),
+};
+}
+Ok(ImmediateValue::Ptr(is_num(parsed)?))
+} else {
+let num = is_num(number)?;
+if number.len() != 6 {
+Ok(ImmediateValue::Val8(num as u8))
+} else {
+Ok(ImmediateValue::Val16(num))
+}
+}
 }
 \end{lstlisting}
 
@@ -1258,16 +1273,16 @@ Testele functioneaza prin a seta starea initiala a procesorului, a incarca codul
 
 \begin{lstlisting}[language=Rust,caption={Metoda de testare a unei singure instructiuni},label={lst:singletestmethod}]
 pub fn test_z80_w_data(test_data_vec: Vec<TestData>) {
-    for test_data in test_data_vec {
-        let mut memory = Memory::new();
-        let rom = RAM::new(0x10000);
-        memory.add_device(Box::new(rom));
-        let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
-        setup_z80(&mut emulator, &test_data).expect("Failed to setup Z80");
-        emulator.step().expect("Failed to step");
-        assert_z80(&mut emulator, &test_data);
-        assert_eq!(emulator.cycles, test_data.cycles.len());
-    }
+for test_data in test_data_vec {
+let mut memory = Memory::new();
+let rom = RAM::new(0x10000);
+memory.add_device(Box::new(rom));
+let mut emulator: Emulator<Z80> = Emulator::new_w_mem(memory);
+setup_z80(&mut emulator, &test_data).expect("Failed to setup Z80");
+emulator.step().expect("Failed to step");
+assert_z80(&mut emulator, &test_data);
+assert_eq!(emulator.cycles, test_data.cycles.len());
+}
 }
 \end{lstlisting}
 
@@ -1283,18 +1298,18 @@ Testarea se va rula prin comanda \code{cargo test}, aceasta va cauta toate funct
 Pentru fiecare instructiune au fost implementate 3 teste. 2 Teste fiind pentru testarea decodarii, iar unul pentru functionalitatea instructiunii.
 
 \begin{itemize}
-    \item {\code{as\_string\_and\_back}} Testul va transforma instructiunea in reprezentarea sa in string, apoi va incerca sa o decodeze inapoi in instructiune executabila. Pentru a trece testul instructiunea decodata trebuie sa fie instructiunea testata.
-    \item {\code{as\_bytes\_and\_back}} Testul va transforma instructiunea in reprezentarea sa in cod masina, apoi va incerca sa o decodeze codul masina inapoi in instructiune executabila. Pentru a trece testul instructiunea decodata trebuie sa fie instructiunea testata.
-    \item {\code{test\_json}} Testul va rula toate cele 1000 de cazuri specificate de SingleStepTests \cite {ref:singlesteptestsz80} pentru instructiunea testata. Pentru a trece testul toate cazurile trebuie sa fie finalizate cu succes, iar starea procesorului la final sa fie cea asteptata.
+\item {\code{as\_string\_and\_back}} Testul va transforma instructiunea in reprezentarea sa in string, apoi va incerca sa o decodeze inapoi in instructiune executabila. Pentru a trece testul instructiunea decodata trebuie sa fie instructiunea testata.
+\item {\code{as\_bytes\_and\_back}} Testul va transforma instructiunea in reprezentarea sa in cod masina, apoi va incerca sa o decodeze codul masina inapoi in instructiune executabila. Pentru a trece testul instructiunea decodata trebuie sa fie instructiunea testata.
+\item {\code{test\_json}} Testul va rula toate cele 1000 de cazuri specificate de SingleStepTests \cite {ref:singlesteptestsz80} pentru instructiunea testata. Pentru a trece testul toate cazurile trebuie sa fie finalizate cu succes, iar starea procesorului la final sa fie cea asteptata.
 \end{itemize}
 
 In timpul testarii instructiunilor au fost observate anomalii in special cu bitii 3 si 5 ai flag-ului F. Acestia nu sunt documentati in arhitectura Z80, dar totusi sunt folositi de unele instructiuni. Datorita faptului ca folosirea acestor biti nu este documentata, am decis sa ignoram verificarea lor in testele automate. Acest lucru a fost facut pentru a evita confuzii si pentru a nu introduce erori in emulator.
 
 \begin{lstlisting}[language=Rust,caption={Ignorarea bitilor nedocumentati din testare},label={lst:testingignore35flags}]
-    let mut result_flags = registers.gp.f;
-    result_flags.set_bit3(false);
-    result_flags.set_bit5(false);
-    assert_eq!(result_flags, (state.f & 0b11010111).into());
+let mut result_flags = registers.gp.f;
+result_flags.set_bit3(false);
+result_flags.set_bit5(false);
+assert_eq!(result_flags, (state.f & 0b11010111).into());
 \end{lstlisting}
 \subsection{Interfata web}
 
@@ -1308,31 +1323,31 @@ Motivul principal din cauza caruia s-a ales Axum, a fost faptul ca are o compati
 Aplicatia este formata din 4 pagini:
 \paragraph {Pagina principala} \cref {fig:homepage} Aceasta este pagina unde utiliztorul poate alege intre a se autentifica, inregistra sau a porni emulatorul
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/homepage.png}
-    \caption{Pagina principala a aplicatiei}
-    \label{fig:homepage}
+\centering
+\includegraphics[width=0.8\textwidth]{images/homepage.png}
+\caption{Pagina principala a aplicatiei}
+\label{fig:homepage}
 \end{figure}
 
 \paragraph {Register} \cref {fig:registerpage} Pagina de inregistrare, unde utilizatorul trebuie sa isi numele de utilizator, emailul si parola pentru a se inregistra in aplicatie.
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/registerpage.png}
-    \caption{Pagina de inregistrare a aplicatiei}
-    \label{fig:registerpage}
+\centering
+\includegraphics[width=0.8\textwidth]{images/registerpage.png}
+\caption{Pagina de inregistrare a aplicatiei}
+\label{fig:registerpage}
 \end{figure}
 
 \paragraph {Login} \cref {fig:loginpage} Pagina de autentificare, unde utilizatorul poate introduce numele de utilizator sau emailul si parola pentru a se autentifica in aplicatie.
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/loginpage.png}
-    \caption{Pagina de autentificare a aplicatiei}
-    \label{fig:loginpage}
+\centering
+\includegraphics[width=0.8\textwidth]{images/loginpage.png}
+\caption{Pagina de autentificare a aplicatiei}
+\label{fig:loginpage}
 \end{figure}
 
 Elementul \code{<input>} pentru login este configurat sa accepte atat numele de utilizator cat si emailul, acest lucru fiind util pentru a permite utilizatorilor sa se autentifice cu oricare dintre cele doua. Acest element este reactiv si verifica in timp real existenta utilizatorului in baza de date prin a accesa APIul \code{/api/login\_exists}.\cref{lst:loginexistsapi}
 
- Cand utilizatorul modifica continutul campului, se va face o cerere catre server pentru a verifica daca utilizatorul exista. Daca utilizatorul nu exista, casuta va fi colorata in rosu, daca exista, aceasta va fi colorata in verde. Acest lucru ofera o feedback imediat utilizatorului si il ajuta sa evite erorile de autentificare.
+Cand utilizatorul modifica continutul campului, se va face o cerere catre server pentru a verifica daca utilizatorul exista. Daca utilizatorul nu exista, casuta va fi colorata in rosu, daca exista, aceasta va fi colorata in verde. Acest lucru ofera o feedback imediat utilizatorului si il ajuta sa evite erorile de autentificare.
 Din motive de securitate, parola nu este verificata in timp real, aceasta fiind verificata doar la trimiterea formularului de autentificare. Daca aceasta functionalitate ar fi fost implementata si pentru campul de parola, acest lucru ar fi putut expune proiectul la atacuri de tip \emph{brute force}, deoarece un atacator ar fi putut incerca sa ghiceasca parola si sa primeasca feedback imediat daca aceasta este corecta sau nu. Limitarea numarului de incercari de accesare a acestui API pentru parola ar putea limita suprafata de atac, insa nu ar fi mitigat complet riscurile.
 
 Cand butonul de login este apasat, se va face o cerere catre API-ul \code{/api/login} \cref{lst:loginapi}, care va verifica daca utilizatorul si parola sunt corecte. Daca acestea sunt corecte, utilizatorul va fi autentificat si redirectionat catre pagina emulatorului. Daca nu, se va afisa un mesaj de eroare.
@@ -1341,70 +1356,70 @@ Datorita faptului ca un numar mare de utilizatori au cont de Google, am implemen
 Pentru implementarea acestei functionalitati, urmatoarele elemente au fost incluse in continutul \code{HTML} al paginii de autentificare:
 \begin{lstlisting}[language=HTML,caption={Script necesar Google OAuth2},label={lst:googleauthscript}]
 <Script src="https://accounts.google.com/gsi/client"
- defer="defer"
- async_="async"
+defer="defer"
+async_="async"
 />
 \end{lstlisting}
 \begin{lstlisting}[language=HTML,caption={Butonul de autentificare cu Google},label={lst:googleauthbutton}]
 <div id="g_id_onload"
-    data-client_id=
-    "652756675182-jij1vm0aiacih2mnhohc51tu32099n85.apps.googleusercontent.com"
-    data-ux_mode="redirect"
-    data-login_uri=format!("https://{public_url}/api/google_login_callback")
+data-client_id=
+"652756675182-jij1vm0aiacih2mnhohc51tu32099n85.apps.googleusercontent.com"
+data-ux_mode="redirect"
+data-login_uri=format!("https://{public_url}/api/google_login_callback")
 ></div>
 \end{lstlisting}
 
 
 \paragraph {Emulator} \cref {fig:emulatorpage} Pagina in care utilizatorul poate interactiona cu emulatorul.
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/emulatorpage.png}
-    \caption{Pagina emulatorului}
-    \label{fig:emulatorpage}
+\centering
+\includegraphics[width=0.8\textwidth]{images/emulatorpage.png}
+\caption{Pagina emulatorului}
+\label{fig:emulatorpage}
 \end{figure}
 
 Aceasta pagina este impartita in mai multe sectiuni:
 \begin{itemize}
-    \item {Status} - Aceasta va contine butoane pentru a controla emulatorul cat si ultimul mesaj de informare, avertisment sau eroare.
-    \item {Memory} - Tabela ce contine si permite modificarea valorilor din memoria emulatorului.
-    \item {Registrii} - Toti registrii emulatorului
-    \item {Disassembler} - Contine instructiunile dezasamblate din memoria emulatorului.
-    \item {Info} - Afiseaza numarul de ciclii si instructiuni executate de emulator.
-    \item {Display} - Un ecran conectat la memoria emulatorului.
-    \item {Assembler} - Editor si compiler de cod ASM si C.
-    \item {Account} - Detalii cont
+\item {Status} - Aceasta va contine butoane pentru a controla emulatorul cat si ultimul mesaj de informare, avertisment sau eroare.
+\item {Memory} - Tabela ce contine si permite modificarea valorilor din memoria emulatorului.
+\item {Registrii} - Toti registrii emulatorului
+\item {Disassembler} - Contine instructiunile dezasamblate din memoria emulatorului.
+\item {Info} - Afiseaza numarul de ciclii si instructiuni executate de emulator.
+\item {Display} - Un ecran conectat la memoria emulatorului.
+\item {Assembler} - Editor si compiler de cod ASM si C.
+\item {Account} - Detalii cont
 \end{itemize}
 
 Pe partea de sus a paginii se poate vedea bara de comanda si status. Butoanele de comanda au urmatorul rol:
 \begin{itemize}
-    \item {\code{Step}} - Va trasa un singur pas in executia emulatorului, acest lucru va executa o singura instructiune si va actualiza registrii si statusul.
-    \item {\code{Run}} - Va rula emulatorul pana cand acesta se opreste singur (Halt) sau pana cand utilizatorul apasa butonul din nou.
-    \item {\code{Halt}} - Seteaza starea emulatorului la Halt, acest lucru va opri executia emulatorului. Acest status este setat de obicei doar de instructiunea Halt, si va restrictiona executarea instructiunilor pana este dezactivat de utilizator
-    \item {\code{Reset}} - Reseteaza complet starea microprocesorului lasand memoria intacta. Doar registrii si numaratoarele de instructiuni si ciclii vor fi resetate.
-    \item {\code{Clear Memory}} - Va reseta toata memoria emulatorului la valoarea de 0 in fiecare adresa. 
-    \item {\code{Save}} - Va crea un fisier \code{emu\_memory.bin} cu datele din memoria emulatorului.
-    \item {\code{Load}} - Va incarca un fisier ales de utilizator in memoria emulatorului.
+\item {\code{Step}} - Va trasa un singur pas in executia emulatorului, acest lucru va executa o singura instructiune si va actualiza registrii si statusul.
+\item {\code{Run}} - Va rula emulatorul pana cand acesta se opreste singur (Halt) sau pana cand utilizatorul apasa butonul din nou.
+\item {\code{Halt}} - Seteaza starea emulatorului la Halt, acest lucru va opri executia emulatorului. Acest status este setat de obicei doar de instructiunea Halt, si va restrictiona executarea instructiunilor pana este dezactivat de utilizator
+\item {\code{Reset}} - Reseteaza complet starea microprocesorului lasand memoria intacta. Doar registrii si numaratoarele de instructiuni si ciclii vor fi resetate.
+\item {\code{Clear Memory}} - Va reseta toata memoria emulatorului la valoarea de 0 in fiecare adresa.
+\item {\code{Save}} - Va crea un fisier \code{emu\_memory.bin} cu datele din memoria emulatorului.
+\item {\code{Load}} - Va incarca un fisier ales de utilizator in memoria emulatorului.
 \end{itemize}
 
 Memoria emulatorului poate fi configurata astfel incat sa reprezinte datele in mai multe formate. Acestea pot fi: Hexadecimal, Decimal si ASCII. Utilizatorul poate alege formatul dorit din meniul dropdown din partea de sus-dreapta a tabelului de memorie. \cref{fig:memoryformat} arata cum se poate schimba formatul memoriei.
 
 
 \begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/memoryformat.png}
-    \caption{Schimbarea formatului memoriei}
-    \label{fig:memoryformat}
+\centering
+\includegraphics[width=0.8\textwidth]{images/memoryformat.png}
+\caption{Schimbarea formatului memoriei}
+\label{fig:memoryformat}
 \end{figure}
 
 \begin{minipage}{0.55\textwidth} % Text on the left
-    In Disassembler \cref{fig:disassembler}, utilizatorul poate vedea instructiunile dezasamblate din memoria emulatorului. Acesta este configurat sa urmeze PC, instructiunile ce urmeaza a fi executate fiind mereu vizibile. Aici utilizatorul de asemenea are capabilitatea de a include breakpoint-uri. Introducerea de breakpoint-uri se face simplu, doar prin a da click in stanga instructiunii astfel incat sa apara un cerc rosu. Pentru stergerea unui breakpoint, utilizatorul trebuie sa dea click din nou pe cercul rosu, acesta va disparea si instructiunea nu va mai opri executia emulatorului. Capacitatea de a citii instructiunile impreuna cu cea de a oprii executia conditional la oricare dintre acestea este oferita cu scopul de a ajuta utilizatorul sa depaneze codul sursa al programului rulat in emulator. Acest lucru este util in special pentru programatorii care doresc sa inteleaga cum functioneaza codul lor sau pentru a gasi erori in acesta. Pentru o claritate mai ridicata, instructiunile sunt afisate in limbaj de asamblare Z80 dar si in cod masina.
+In Disassembler \cref{fig:disassembler}, utilizatorul poate vedea instructiunile dezasamblate din memoria emulatorului. Acesta este configurat sa urmeze PC, instructiunile ce urmeaza a fi executate fiind mereu vizibile. Aici utilizatorul de asemenea are capabilitatea de a include breakpoint-uri. Introducerea de breakpoint-uri se face simplu, doar prin a da click in stanga instructiunii astfel incat sa apara un cerc rosu. Pentru stergerea unui breakpoint, utilizatorul trebuie sa dea click din nou pe cercul rosu, acesta va disparea si instructiunea nu va mai opri executia emulatorului. Capacitatea de a citii instructiunile impreuna cu cea de a oprii executia conditional la oricare dintre acestea este oferita cu scopul de a ajuta utilizatorul sa depaneze codul sursa al programului rulat in emulator. Acest lucru este util in special pentru programatorii care doresc sa inteleaga cum functioneaza codul lor sau pentru a gasi erori in acesta. Pentru o claritate mai ridicata, instructiunile sunt afisate in limbaj de asamblare Z80 dar si in cod masina.
 \end{minipage}%
 \hfill
 \begin{minipage}{0.4\textwidth} % Image on the right
-    \centering
-    \includegraphics[width=\linewidth]{images/disassembler.png}
-    \captionof{figure}{Disassembler} % needs \usepackage{caption}
-    \label{fig:disassembler}
+\centering
+\includegraphics[width=\linewidth]{images/disassembler.png}
+\captionof{figure}{Disassembler} % needs \usepackage{caption}
+\label{fig:disassembler}
 \end{minipage}
 
 Ecranul emulatorului are o rezolutie de \code{192 X 128} pixeli, fiecare pixel fiind reprezentat de un byte in memorie. Fiecare byte reprezinta o culoare in format RGB in formatul \code{0xRRRGGGBB}, unde R, G si B sunt valorile de culoare rosu, verde si albastru. Acest lucru permite o paleta de 256 de culori diferite. Datorita rezolutiei sale si a faptului ca fiecare pixel este reprezentat de un byte, ecranul va ocupa 24KB in memorie. Memoria ecranului incepe de la adresa \code{0x4000} si se termina la adresa \code{0x9999}. Ecranul este actualizat la fiecare pas al emulatorului, astfel incat utilizatorul poate vedea imediat modificarile aduse de programul rulat in emulator.
@@ -1414,22 +1429,22 @@ Ecranul este creat prin a implementa \cref{lst:displaymemdevice} traitul \code{M
 
 \begin{lstlisting}[language=Rust,caption={Implementare \code{MemoryDevice} display},label={lst:displaymemdevice}]
 fn read_8(&self, addr: u16) -> Result<u8, MemoryReadError> {
-    self.display.with(|data| {
-        data.get(addr as usize)
-            .map(|pixel| pixel.0)
-            .map_err(|_| MemoryRWCommonError::OutOfBounds(addr).into())
-    })
+self.display.with(|data| {
+data.get(addr as usize)
+.map(|pixel| pixel.0)
+.map_err(|_| MemoryRWCommonError::OutOfBounds(addr).into())
+})
 }
 
 fn write_8(&mut self, addr: u16, value: u8) -> Result<(), MemoryWriteError> {
-    let mut result: Result<(), MemoryWriteError> =
-     Err(MemoryRWCommonError::OutOfBounds(addr).into());
-    self.display.update(|data| {
-        if let Ok(()) = data.set(addr as usize, U8Pixel::from(value)){
-            result = Ok(());
-        };
-    });
-    result
+let mut result: Result<(), MemoryWriteError> =
+Err(MemoryRWCommonError::OutOfBounds(addr).into());
+self.display.update(|data| {
+if let Ok(()) = data.set(addr as usize, U8Pixel::from(value)){
+result = Ok(());
+};
+});
+result
 }
 \end{lstlisting}
 
@@ -1437,35 +1452,35 @@ Datorita implementarii traitului \code{MemoryDevice}, in initializarea emulatoru
 Primii 16KB din memorie vor fi ocupati de \code{RAM}, fiind urmati de ecranul emulatorului, iar restul de memorie va fi ocupat tot de \code{RAM}. Aceasta structura de memorie permite ca emulatorul sa aiba o memorie de 64KB, ceea ce este suficient pentru a rula majoritatea programelor scrise pentru \ac {Z80}. Aceasat functie de initializare a emulatorului va activa si inregistrarea modificarilor in memorie, astfel incat sa se poata urmari modificarile aduse de programul rulat in emulator. Acest lucru este util pentru a putea depana codul sursa al programului sau pentru a putea vedea cum functioneaza acesta. La fiecare pas al emulatorului, tabela \code{Memory} va afisa cu galben doar valorile care au fost schimbate.
 \begin{lstlisting}[language=Rust,caption={Initializarea emulatorului},label={lst:emulatorinitialization}]
 fn build_z80_emu(display: DisplayMemoryDevice) -> Emulator<Z80> {
-    use emu_lib::memory;
-    use emu_lib::memory::MemoryDevice;
-    let mut memory = memory::Memory::new();
-    let initial_ram_size = 0x4000;
-    let initial_ram = memory::memdevices::RAM::new(initial_ram_size);
-    let post_ram = memory::memdevices::RAM::new(
-        0x10000 - initial_ram_size - display.size()
-    );
-    memory.add_device(Box::new(initial_ram));
-    memory.add_device(Box::new(display));
-    memory.add_device(Box::new(post_ram));
-    let mut emu = Emulator::<Z80>::new_w_mem(memory);
-    emu.memory.record_changes(true);
-    emu
+use emu_lib::memory;
+use emu_lib::memory::MemoryDevice;
+let mut memory = memory::Memory::new();
+let initial_ram_size = 0x4000;
+let initial_ram = memory::memdevices::RAM::new(initial_ram_size);
+let post_ram = memory::memdevices::RAM::new(
+0x10000 - initial_ram_size - display.size()
+);
+memory.add_device(Box::new(initial_ram));
+memory.add_device(Box::new(display));
+memory.add_device(Box::new(post_ram));
+let mut emu = Emulator::<Z80>::new_w_mem(memory);
+emu.memory.record_changes(true);
+emu
 }
 \end{lstlisting}
 
 Pentru ecranul afisarea datelor de pe ecranul emulatorlui un element de tip \code{<canvas>} este folosit, acesta va fi actualizat la fiecare pas al emulatorului. In acest fel, utilizatorul poate vedea imediat modificarile aduse de programul rulat in emulator. Datele de pe ecran sunt luate direct din structura \code {DisplayData}, aceasta implementand urmatoarele metode \cref {lst:displaydatamethods} pentru setarea si citirea unui pixel la coordonatele \code{(x, y)}:
 \begin{lstlisting}[language=Rust,caption={Metodele de setare si citire a pixelilor},label={lst:displaydatamethods}]
 pub fn set_pixel(&mut self, x: usize, y: usize, color: U8Pixel) ->
-    Result<(), &'static str> {
-        let index = self.get_index(x, y)?;
-        self.set(index, color)
-    }
+Result<(), &'static str> {
+let index = self.get_index(x, y)?;
+self.set(index, color)
+}
 
-    pub fn get_pixel(&self, x: usize, y: usize) -> Result<U8Pixel, &'static str> {
-        let index = self.get_index(x, y)?;
-        self.get(index)
-    }
+pub fn get_pixel(&self, x: usize, y: usize) -> Result<U8Pixel, &'static str> {
+let index = self.get_index(x, y)?;
+self.get(index)
+}
 \end{lstlisting}
 
 Functia \code{set\_pixel} va primi pe langa coordonatele pixelului si culoarea acestuia. Culoarea fiind reprezentata de un \code{U8Pixel}, un tip de date care permite convertirea usoara in sau din formatul RGB. \cref{lst:u8pixel}
@@ -1475,32 +1490,32 @@ Functia \code{set\_pixel} va primi pe langa coordonatele pixelului si culoarea a
 pub struct U8Pixel(pub u8);
 
 impl U8Pixel {
-    pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
-        // r 3 bits, g 3 bits, b 2 bits
-        let pixel_value = (r & 0b11100000)
-            | ((g & 0b11100000) >> 3)
-            | (b & 0b11000000 >> 6);
-        U8Pixel(pixel_value)
-    }
+pub fn from_rgb(r: u8, g: u8, b: u8) -> Self {
+// r 3 bits, g 3 bits, b 2 bits
+let pixel_value = (r & 0b11100000)
+| ((g & 0b11100000) >> 3)
+| (b & 0b11000000 >> 6);
+U8Pixel(pixel_value)
+}
 
-    pub fn to_rgb(&self) -> (u8, u8, u8) {
-        //topmost bits
-        let r = self.0 & 0b11100000; // 3 bits for red
-        let g = (self.0 & 0b00011100) << 3; // 3 bits for green
-        let b = (self.0 & 0b00000011) << 5; // 2 bits for blue
-        (r, g, b)
-    }
+pub fn to_rgb(&self) -> (u8, u8, u8) {
+//topmost bits
+let r = self.0 & 0b11100000; // 3 bits for red
+let g = (self.0 & 0b00011100) << 3; // 3 bits for green
+let b = (self.0 & 0b00000011) << 5; // 2 bits for blue
+(r, g, b)
+}
 }
 impl From<u8> for U8Pixel {
-    fn from(value: u8) -> Self {
-        U8Pixel(value)
-    }
+fn from(value: u8) -> Self {
+U8Pixel(value)
+}
 }
 
 impl From<U8Pixel> for u8 {
-    fn from(value: U8Pixel) -> Self {
-        value.0
-    }
+fn from(value: U8Pixel) -> Self {
+value.0
+}
 }
 \end{lstlisting}
 
@@ -1509,10 +1524,10 @@ Un lucru important este ca transformarea din RGB in U8Pixel este \code{lossy}, a
 Partea de \code{Assembler} \cref{fig:assembler} este un editor de cod sursa care permite utilizatorului sa scrie cod in limbajul de asamblare Z80 sau in limbajul C. Acesta este un editor simplu de text care ofera functionalitat de baza precum asamblare/compilare, formatare si verificare a sintaxei programului.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/assembler.png}
-    \caption{Editorul de cod sursa al emulatorului}
-    \label{fig:assembler}
+\centering
+\includegraphics[width=0.8\textwidth]{images/assembler.png}
+\caption{Editorul de cod sursa al emulatorului}
+\label{fig:assembler}
 \end{figure}
 
 In partea de sus a editorului se pot vedea butoanele de asamblare/compilare, formatare si verificare a sintaxei. Butonul de asamblare/compilare va incerca sa transforme codul sursa in cod masina, iar daca acest lucru reuseste, il va copia in memoria emulatorului. In cazul in care asamblarea/compilarea esueaza, utilizatorul va primi un mesaj de eroare cu detalii despre eroarea intalnita. Butonul de formatare va incerca sa formateze codul sursa pentru a fi mai usor de citit, iar butonul de verificare a sintaxei va verifica daca codul sursa este valid si nu contine erori de sintaxa.
@@ -1522,14 +1537,14 @@ In partea din dreapta a editorului se va face selectia dintre limbajul de asambl
 In partea de jos a editorului se poate vedea un \code{<textbox>} in care utilizatorul poate introduce codul in limbajul de programare selectat. Fiecare limbaj de programare va avea propriul sa buffer, astfel incat atunci cand utilizatorul schimba limbajul de programare, codul sursa va fi salvat in bufferul corespunzator. Acest lucru permite utilizatorului sa schimbe intre limbajele de programare fara a pierde codul sursa scris.
 
 \begin{minipage}[c]{0.55\textwidth} % Text on the left
-    Sectiunea de \code{Registers} \cref{fig:registerssection} afiseaza toti registrii procesorului Z80, inclusiv registrii generali, registrii de indexare si registrul de stare. Acestia sunt afisati in format hexadecimal, iar utilizatorul poate modifica valorile acestora direct din interfata web. Aceasta functionalitate este utila pentru a putea depana codul sursa al programului rulat in emulator sau pentru a putea modifica starea procesorului in timpul executiei.
+Sectiunea de \code{Registers} \cref{fig:registerssection} afiseaza toti registrii procesorului Z80, inclusiv registrii generali, registrii de indexare si registrul de stare. Acestia sunt afisati in format hexadecimal, iar utilizatorul poate modifica valorile acestora direct din interfata web. Aceasta functionalitate este utila pentru a putea depana codul sursa al programului rulat in emulator sau pentru a putea modifica starea procesorului in timpul executiei.
 \end{minipage}%
 \hfill
 \begin{minipage}[c]{0.4\textwidth} % Image on the right
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/registerssection.png}
-    \captionof{figure}{Sectiunea de registrii a emulatorului}
-    \label{fig:registerssection}
+\centering
+\includegraphics[width=0.8\textwidth]{images/registerssection.png}
+\captionof{figure}{Sectiunea de registrii a emulatorului}
+\label{fig:registerssection}
 \end{minipage}
 
 \subsubsection{Backend}
@@ -1538,25 +1553,25 @@ In partea de jos a editorului se poate vedea un \code{<textbox>} in care utiliza
 
 \begin{lstlisting}[language=Rust,caption={Middleware pentru autentificare},label={lst:authmiddleware}]
 pub async fn auth_middleware(
-    State(app_state): State<AppState>,
-    mut req: Request,
-    next: Next,
+State(app_state): State<AppState>,
+mut req: Request,
+next: Next,
 ) -> Result<Response, StatusCode> {
-    let pool = app_state.pool;
-    if let Some(session_token) =
-     cookie::server::get(&CookieKey::Session, &req.headers()) {
-        if let Ok(session) =
-         Session::get_by_token(&session_token, &pool) {
-            if !session.is_expired() {
-                if let Ok(user) =
-                 User::get_by_id(session.user_id, &pool) {
-                    let user_data: UserData = user.into();
-                    req.extensions_mut().insert(user_data);
-                }
-            }
-        }
-    }
-    Ok(next.run(req).await)
+let pool = app_state.pool;
+if let Some(session_token) =
+cookie::server::get(&CookieKey::Session, &req.headers()) {
+if let Ok(session) =
+Session::get_by_token(&session_token, &pool) {
+if !session.is_expired() {
+if let Ok(user) =
+User::get_by_id(session.user_id, &pool) {
+let user_data: UserData = user.into();
+req.extensions_mut().insert(user_data);
+}
+}
+}
+}
+Ok(next.run(req).await)
 }
 \end{lstlisting}
 
@@ -1565,65 +1580,65 @@ Motivul din caza caruia s-a ales sa se foloseasca middleware-uri este faptul ca 
 \paragraph{API\-uri de autentificare} sunt implementare folosing server methods din framework-ul Leptos. Acestea sunt folosite pentru a permite utilizatorilor sa se autentifice, sa se inregistreze si sa se deconecteze din aplicatie. Aceste API-uri sunt implementate in modulul \code{auth} si sunt accesibile prin intermediul URL-urilor \code{/api/login}, \code{/api/register} si \code{/api/logout} ...etc. Acestea sunt implementate folosind server methods din framework-ul Leptos, care permite crearea de API-uri RESTful in mod simplu si eficient.
 
 \begin{lstlisting}[language=Rust,caption={API pentru verificarea existentei utilizatorului},label={lst:loginexistsapi}]
- #[server(LoginExistsApi, endpoint = "/login_exists")]
- pub async fn login_exists(login: String)
-  -> Result<bool, ServerFnError> {
-     use server_imports::*;
-     let state = expect_context::<AppState>();
-     let pool = &state.pool;
-     match User::get_by_login(&login, &pool) {
-         Ok(Some(_)) => Ok(true),
-         Ok(None) => Ok(false),
-         Err(err) => Err(ServerFnError::Response(format!(
-             "Failed to check login: {}",
-             err
-         ))),
-     }
- }
- \end{lstlisting}
- Functia \code{login\_exists} \cref{lst:loginexistsapi} ruleaza doar pe server si verifica daca utilizatorul exista in baza de date. Daca utilizatorul exista, va returna \code{true}, altfel va returna \code{false}.
+#[server(LoginExistsApi, endpoint = "/login_exists")]
+pub async fn login_exists(login: String)
+-> Result<bool, ServerFnError> {
+use server_imports::*;
+let state = expect_context::<AppState>();
+let pool = &state.pool;
+match User::get_by_login(&login, &pool) {
+Ok(Some(_)) => Ok(true),
+Ok(None) => Ok(false),
+Err(err) => Err(ServerFnError::Response(format!(
+"Failed to check login: {}",
+err
+))),
+}
+}
+\end{lstlisting}
+Functia \code{login\_exists} \cref{lst:loginexistsapi} ruleaza doar pe server si verifica daca utilizatorul exista in baza de date. Daca utilizatorul exista, va returna \code{true}, altfel va returna \code{false}.
 
 
- Pentru autentificare se va folosi functia \code{login} \cref{lst:loginapi}, aceasta va incerca sa obtina utilizatorul din baza de date folosind numele de utilizator sau emailul si parola. Daca utilizatorul este gasit si parola este corecta, se va crea o sesiune pentru utilizator si se va seta un cookie de sesiune. Daca utilizatorul nu este gasit sau parola este incorecta, se va returna o eroare.
- \begin{lstlisting}[language=Rust,caption={API pentru autentificare},label={lst:loginapi}]
- #[server(LoginApi, endpoint = "/login")]
- pub async fn login(login: String, password: String) -> Result<(), ServerFnError> {
-     use server_imports::*;
-     let response = expect_context::<ResponseOptions>();
-     let state = expect_context::<AppState>();
-     // let state: Extension<AppState> = extract().await?;
-     let pool = &state.pool;
-     let user_login = UserLogin::new(login, password);
-     match user_login.get_user(&pool) {
-         Ok(user) => {
-             if let Ok(session) =
-              user.authenticate(&pool, AUTH_TIMEOUT)
-             {
-                 cookie::server::set(&CookieKey::Session,
-                  &session.token, AUTH_TIMEOUT, &response)?;
-                 Ok(())
-             }else {
-                 Err(ServerFnError::ServerError(
-                 "Failed to authenticate user".to_string()))
-             }
-         }
-         Err(e) => {
-             cookie::server::remove(&CookieKey::Session, &response)?;
-             response.set_status(StatusCode::UNAUTHORIZED);
-             let msg = format!("Failed to login user: {}", e);
-             Err(ServerFnError::Response(msg))
-         }
-     }
- }
- \end{lstlisting}
+Pentru autentificare se va folosi functia \code{login} \cref{lst:loginapi}, aceasta va incerca sa obtina utilizatorul din baza de date folosind numele de utilizator sau emailul si parola. Daca utilizatorul este gasit si parola este corecta, se va crea o sesiune pentru utilizator si se va seta un cookie de sesiune. Daca utilizatorul nu este gasit sau parola este incorecta, se va returna o eroare.
+\begin{lstlisting}[language=Rust,caption={API pentru autentificare},label={lst:loginapi}]
+#[server(LoginApi, endpoint = "/login")]
+pub async fn login(login: String, password: String) -> Result<(), ServerFnError> {
+use server_imports::*;
+let response = expect_context::<ResponseOptions>();
+let state = expect_context::<AppState>();
+// let state: Extension<AppState> = extract().await?;
+let pool = &state.pool;
+let user_login = UserLogin::new(login, password);
+match user_login.get_user(&pool) {
+Ok(user) => {
+if let Ok(session) =
+user.authenticate(&pool, AUTH_TIMEOUT)
+{
+cookie::server::set(&CookieKey::Session,
+&session.token, AUTH_TIMEOUT, &response)?;
+Ok(())
+}else {
+Err(ServerFnError::ServerError(
+"Failed to authenticate user".to_string()))
+}
+}
+Err(e) => {
+cookie::server::remove(&CookieKey::Session, &response)?;
+response.set_status(StatusCode::UNAUTHORIZED);
+let msg = format!("Failed to login user: {}", e);
+Err(ServerFnError::Response(msg))
+}
+}
+}
+\end{lstlisting}
 
- Pentru autentificarea cu Google, se va folosi API-ul \code{/api/google\_login\_callback} \cref{lst:googleloginapi}. Dupa ce utilizatorul se autentifica cu Google, acesta va fi redirectionat catre acest API trimitand urmatorii parametri:
+Pentru autentificarea cu Google, se va folosi API-ul \code{/api/google\_login\_callback} \cref{lst:googleloginapi}. Dupa ce utilizatorul se autentifica cu Google, acesta va fi redirectionat catre acest API trimitand urmatorii parametri:
 \begin{itemize}
-    \item \code{clientId} - ID-ul clientului Google, create in consola Google Cloud pentru a putea folosi API-ul Google OAuth2
-    \item \code{client\_id} - ID-ul clientului Google (acesta este un parametru redundant, dar este necesar pentru a fi compatibil cu API-ul Google)
-    \item \code{select\_by} - metoda de selectare a utilizatorului (de obicei este \code{sub})
-    \item \code{g\_csrf\_token} - tokenul CSRF generat de Google
-    \item \code{credential} - credentialul primit de la Google
+\item \code{clientId} - ID-ul clientului Google, create in consola Google Cloud pentru a putea folosi API-ul Google OAuth2
+\item \code{client\_id} - ID-ul clientului Google (acesta este un parametru redundant, dar este necesar pentru a fi compatibil cu API-ul Google)
+\item \code{select\_by} - metoda de selectare a utilizatorului (de obicei este \code{sub})
+\item \code{g\_csrf\_token} - tokenul CSRF generat de Google
+\item \code{credential} - credentialul primit de la Google
 \end{itemize}
 
 Dupa ce API-ul primeste aceste date, acesta va folosi libraria \code{google\_oauth} pentru a valida tokenul primit de la Google. Daca tokenul este valid, API-ul va incerca sa obtina utilizatorul din baza de date folosind ID-ul utilizatorului Google. Daca utilizatorul exista, acesta va fi autentificat si se va crea o sesiune pentru acesta. Daca utilizatorul nu exista, acesta va fi creat in baza de date folosind numele si emailul primit de la Google. In cazul in care crearea utilizatorului esueaza, se va returna o eroare.
@@ -1633,49 +1648,49 @@ In baza de date, utilizatorul va avea un camp \code{oauth\_google} care va conti
 #[allow(non_snake_case)]
 #[server(GoogleLoginCallbackApi, endpoint = "/google_login_callback")]
 pub async fn google_login_callback(
-    clientId: String,
-    client_id: String,
-    select_by: String,
-    g_csrf_token: String,
-    credential: String,
+clientId: String,
+client_id: String,
+select_by: String,
+g_csrf_token: String,
+credential: String,
 ) -> Result<(), ServerFnError> {
-    use server_imports::*;
-    let oauth_client = google_oauth::AsyncClient::new(clientId);
-    let state = expect_context::<AppState>();
-    let payload = oauth_client
-        .validate_id_token(credential)
-        .await
-        .expect("Could not validate payload");
-    if let Some(user) = get_google_user(&payload.sub) {
-        user_auth(user, AUTH_TIMEOUT).await
-    } else {
-        //create random password
-        let random_password: String = (0..16)
-            .map(|_| rand::random::<char>()).collect();
-        if let (Some(name),Some(email)) =
-            (payload.name,payload.email) {
-            let name = name.split(" ").next();
-            let name = match name {
-                Some(n) => n.to_string(),
-                None => {
-                    return Err(ServerFnError::Response(
-                        "Could not get name for Google Auth registration"
-                            .to_string(),
-                    ))
-                }
-            };
-            let new_user = NewUser::new(
-                name,
-                email.clone(),
-                random_password.clone(),
-                Some(payload.sub.clone()),
-                None,
-            );
-            if let Ok(user) = new_user {
-                if let Ok(user) = User::add_user(user, &state.pool) {
-                    user_auth(user, time::Duration::seconds(60 * 60 * 24)).await?;
-                    Ok(())
-                    //...
+use server_imports::*;
+let oauth_client = google_oauth::AsyncClient::new(clientId);
+let state = expect_context::<AppState>();
+let payload = oauth_client
+.validate_id_token(credential)
+.await
+.expect("Could not validate payload");
+if let Some(user) = get_google_user(&payload.sub) {
+user_auth(user, AUTH_TIMEOUT).await
+} else {
+//create random password
+let random_password: String = (0..16)
+.map(|_| rand::random::<char>()).collect();
+if let (Some(name),Some(email)) =
+(payload.name,payload.email) {
+let name = name.split(" ").next();
+let name = match name {
+Some(n) => n.to_string(),
+None => {
+return Err(ServerFnError::Response(
+"Could not get name for Google Auth registration"
+.to_string(),
+))
+}
+};
+let new_user = NewUser::new(
+name,
+email.clone(),
+random_password.clone(),
+Some(payload.sub.clone()),
+None,
+);
+if let Ok(user) = new_user {
+if let Ok(user) = User::add_user(user, &state.pool) {
+user_auth(user, time::Duration::seconds(60 * 60 * 24)).await?;
+Ok(())
+//...
 \end{lstlisting}
 
 In functie de rezultatul autentificarii, utilizatorul va fi redirectionat catre pagina emulatorului sau va primi un mesaj de eroare.
@@ -1685,29 +1700,29 @@ Pentru inregistrare, se va folosi API-ul \code{/api/register} \cref{lst:register
 \begin{lstlisting}[language=Rust,caption={API pentru inregistrare},label={lst:registerapi}]
 #[server(RegisterApi, endpoint = "/register")]
 pub async fn register(
-    username: String,
-    email: String,
-    password: String,
+username: String,
+email: String,
+password: String,
 ) -> Result<(), ServerFnError> {
-    use server_imports::*;
-    let response = expect_context::<ResponseOptions>();
-    let state = expect_context::<AppState>();
-    let pool = &state.pool;
-    match NewUser::new(username, email, password, None, None) {
-        Ok(user) => match User::add_user(user, &pool) {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                response.set_status(StatusCode::BAD_REQUEST);
-                let msg = format!("Failed to register user: {}", e);
-                Err(ServerFnError::Response(msg))
-            }
-        },
-        Err(e) => {
-            response.set_status(StatusCode::BAD_REQUEST);
-            let msg = format!("Failed to register user: {}", e);
-            Err(ServerFnError::Response(msg))
-        }
-    }
+use server_imports::*;
+let response = expect_context::<ResponseOptions>();
+let state = expect_context::<AppState>();
+let pool = &state.pool;
+match NewUser::new(username, email, password, None, None) {
+Ok(user) => match User::add_user(user, &pool) {
+Ok(_) => Ok(()),
+Err(e) => {
+response.set_status(StatusCode::BAD_REQUEST);
+let msg = format!("Failed to register user: {}", e);
+Err(ServerFnError::Response(msg))
+}
+},
+Err(e) => {
+response.set_status(StatusCode::BAD_REQUEST);
+let msg = format!("Failed to register user: {}", e);
+Err(ServerFnError::Response(msg))
+}
+}
 }
 \end{lstlisting}
 
@@ -1716,13 +1731,13 @@ Pentru returnarea datelor despre utilizatorul autentificat, se va folosi API-ul 
 \begin{lstlisting}[language=Rust,caption={API pentru obtinerea datelor despre utilizatorul autentificat},label={lst:userdataapi}]
 #[server(GetUserData, endpoint = "/userdata")]
 pub async fn userdata() -> Result<UserData, UserDataError> {
-    use server_imports::*;
-    let userdata: Result<Extension<UserData>, _> = extract().await;
-    if let Ok(userdata) = userdata {
-        Ok(userdata.0.clone())
-    } else {
-        Err(UserDataError::Unauthenticated)
-    }
+use server_imports::*;
+let userdata: Result<Extension<UserData>, _> = extract().await;
+if let Ok(userdata) = userdata {
+Ok(userdata.0.clone())
+} else {
+Err(UserDataError::Unauthenticated)
+}
 }
 \end{lstlisting}
 
@@ -1732,9 +1747,9 @@ Deoarece compilerul functioneaza pe alta masina, pentru a fiecare endpoint pe ca
 
 API-ul Python care ruleaza in containerul cu compilatorul C este implementat in fisierul \code{api.py} \cref{lst:compilerapi}. Acesta expune urmatoarele endpoint-uri:
 \begin{itemize}
-    \item \code{/compile} - pentru a compila codul sursa in limbajul C
-    \item \code{/format} - pentru a formata codul sursa in limbajul C
-    \item \code{/check\_syntax} - pentru a verifica sintaxa codului sursa in limbajul C
+\item \code{/compile} - pentru a compila codul sursa in limbajul C
+\item \code{/format} - pentru a formata codul sursa in limbajul C
+\item \code{/check\_syntax} - pentru a verifica sintaxa codului sursa in limbajul C
 \end{itemize}
 
 \begin{lstlisting}[language=Python,caption={API-ul Python pentru compilatorul C},label={lst:compilerapi}]
@@ -1746,82 +1761,82 @@ import base64
 import subprocess
 #...
 def compile_str(b64data_in: str) -> CompileData:
-    data_in = base64.b64decode(b64data_in).decode("utf-8")
-    with TemporaryDirectory() as temp_dir:
-        with open(f"{temp_dir}/{FILENAME}.c", "w") as f:
-            f.write(data_in)
-        command = ["zcc", "+z80", "-vn", "-O3", "-startup=31",
-                   "-o", f"{FILENAME}.rom", "-create-app",
-                   f"{FILENAME}.c", "-compiler=sdcc",
-                   "-zorg=0x0", "-lm"]
-        result = subprocess.run(
-            command,
-            cwd=temp_dir,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        data: bytes = b""
-        try:
-            with open(f"{temp_dir}/{FILENAME}.rom", "rb") as f:
-                data = f.read()
-        except  FileNotFoundError:
-            data = b""
-        return CompileData(rc=result.returncode,
-                           b64stdout=base64.b64encode(result.stdout),
-                           b64stderr=base64.b64encode(result.stderr),
-                           b64data=base64.b64encode(data))
+data_in = base64.b64decode(b64data_in).decode("utf-8")
+with TemporaryDirectory() as temp_dir:
+with open(f"{temp_dir}/{FILENAME}.c", "w") as f:
+f.write(data_in)
+command = ["zcc", "+z80", "-vn", "-O3", "-startup=31",
+"-o", f"{FILENAME}.rom", "-create-app",
+f"{FILENAME}.c", "-compiler=sdcc",
+"-zorg=0x0", "-lm"]
+result = subprocess.run(
+command,
+cwd=temp_dir,
+stdout=subprocess.PIPE,
+stderr=subprocess.PIPE,
+)
+data: bytes = b""
+try:
+with open(f"{temp_dir}/{FILENAME}.rom", "rb") as f:
+data = f.read()
+except  FileNotFoundError:
+data = b""
+return CompileData(rc=result.returncode,
+b64stdout=base64.b64encode(result.stdout),
+b64stderr=base64.b64encode(result.stderr),
+b64data=base64.b64encode(data))
 
 def format_str(b64data_in: str) -> FormatData:
-    data_in = base64.b64decode(b64data_in).decode("utf-8")
-    with NamedTemporaryFile(mode="w+", suffix=".c") as f:
-        f.write(data_in)
-        f.flush()
-        command = [
-            "astyle",
-            "--style=attach",
-            "--indent=spaces=4",
-            "--suffix=none",
-            f.name
-        ]
-        result = subprocess.run(
-            command,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        data = b""
-        if result.returncode == 0:
-            f.seek(0)
-            data = f.read().encode("utf-8")
-        return FormatData(b64data=base64.b64encode(data))
+data_in = base64.b64decode(b64data_in).decode("utf-8")
+with NamedTemporaryFile(mode="w+", suffix=".c") as f:
+f.write(data_in)
+f.flush()
+command = [
+"astyle",
+"--style=attach",
+"--indent=spaces=4",
+"--suffix=none",
+f.name
+]
+result = subprocess.run(
+command,
+stdout=subprocess.DEVNULL,
+stderr=subprocess.DEVNULL,
+)
+data = b""
+if result.returncode == 0:
+f.seek(0)
+data = f.read().encode("utf-8")
+return FormatData(b64data=base64.b64encode(data))
 
 def syntax_check(b64data_in: str) -> SyntaxCheckData:
-    data_in = base64.b64decode(b64data_in).decode("utf-8")
-    with NamedTemporaryFile(mode="w+", suffix=".c") as f:
-        f.write(data_in)
-        f.flush()
-        command = ["gcc", "-fsyntax-only", f.name]
-        result = subprocess.run(
-            command,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-        )
-        return SyntaxCheckData(rc=result.returncode,
-                               b64stderr=base64.b64encode(result.stderr))
+data_in = base64.b64decode(b64data_in).decode("utf-8")
+with NamedTemporaryFile(mode="w+", suffix=".c") as f:
+f.write(data_in)
+f.flush()
+command = ["gcc", "-fsyntax-only", f.name]
+result = subprocess.run(
+command,
+stdout=subprocess.DEVNULL,
+stderr=subprocess.PIPE,
+)
+return SyntaxCheckData(rc=result.returncode,
+b64stderr=base64.b64encode(result.stderr))
 
 class RequestDataModel(BaseModel):
-    b64data: str
+b64data: str
 
 @app.post("/compile")
 def compile_data_endpoint(item: RequestDataModel):
-    return compile_str(item.b64data)
+return compile_str(item.b64data)
 
 @app.post("/format")
 def format_data_endpoint(item: RequestDataModel):
-    return format_str(item.b64data)
+return format_str(item.b64data)
 
 @app.post("/syntax_check")
 def syntax_check_endpoint(item: RequestDataModel):
-    return syntax_check(item.b64data)
+return syntax_check(item.b64data)
 \end{lstlisting}
 
 Pentru a serializa datele de intrare si iesire ale API-ului, se folosesc clasele \code{CompileData}, \code{FormatData} si \code{SyntaxCheckData}. Acestea sunt definite in fisierul \code{api.py} si sunt folosite pentru a serializa datele de intrare si iesire ale API-ului. Aceste clase sunt folosite pentru a serializa datele in format JSON, astfel incat sa poata fi trimise si primite prin intermediul API-ului.
@@ -1833,14 +1848,14 @@ Deoarece pentru compilarea programelor se doreste o eficienta cat mai ridicata, 
 \begin{lstlisting}[language=C,caption={Cod C fara CRT},label={lst:nocrtcode}]
 #include <intrinsic.h>
 void _start() {
-    main();
+main();
 }
 void set_val(){
-    *(char*)0x50=0x50;
+*(char*)0x50=0x50;
 }
 int main(){
-    set_val();
-    intrinsic_halt();
+set_val();
+intrinsic_halt();
 }
 \end{lstlisting}
 Functia \code{intrinsic\_halt} este o functie speciala care va seta starea procesorului in starea de \code{halt}, adica va opri executia programului. Aceasta functie este utila pentru a putea termina executia programului fara a fi nevoie sa se scrie cod suplimentar pentru a termina programul. In cazul in care aceasta functie nu este apelata, emulatorul va continua sa ruleze si va astepta ca utilizatorul sa apese butonul de oprire al emulatorului. Diferite functii pentru apel direct la instructiuni Z80 sunt implementate de libraria \code{intrinsic.h}.
@@ -1854,36 +1869,36 @@ Pentru fiecare dintre API-urile de mai sus, exista o pereche de functii in Rust 
 \begin{lstlisting}[language=Rust,caption={API Rust pentru compilarea codului C},label={lst:compilerustapi}]
 #[server(CCompile, endpoint = "/ccompile")]
 pub async fn c_compile(code: String) -> Result<CompileData, CompilerError> {
-    use crate::db::models::user::UserData;
-    use server_imports::*;
-    //encode code in b64
-    let data = RequestBody::new(code);
-    let state = expect_context::<AppState>();
-    let response = expect_context::<ResponseOptions>();
-    let userdata: Result<Extension<UserData>, _> = extract().await;
-    match userdata {
-        Ok(_) => {
-            let reqwest_client = &state.reqwest_client;
-            let response = reqwest_client
-                .post(format!("http://{}/compile",*COMPILER_HOST))
-                .header(
-                    "Content-Length",
-                    serde_json::to_string(&data).unwrap().len(),
-                )
-                .json(&data)
-                .send()
-                .await
-                .map_err(|e| CompilerError::RequestError(e.to_string()))?
-                .json::<EncCompileData>()
-                .await
-                .map_err(|e| CompilerError::RequestError(e.to_string()))?;
-            response.decode()
-        }
-        Err(_) => {
-            response.set_status(StatusCode::UNAUTHORIZED);
-            Err(CompilerError::Unauthorized)
-        }
-    }
+use crate::db::models::user::UserData;
+use server_imports::*;
+//encode code in b64
+let data = RequestBody::new(code);
+let state = expect_context::<AppState>();
+let response = expect_context::<ResponseOptions>();
+let userdata: Result<Extension<UserData>, _> = extract().await;
+match userdata {
+Ok(_) => {
+let reqwest_client = &state.reqwest_client;
+let response = reqwest_client
+.post(format!("http://{}/compile",*COMPILER_HOST))
+.header(
+"Content-Length",
+serde_json::to_string(&data).unwrap().len(),
+)
+.json(&data)
+.send()
+.await
+.map_err(|e| CompilerError::RequestError(e.to_string()))?
+.json::<EncCompileData>()
+.await
+.map_err(|e| CompilerError::RequestError(e.to_string()))?;
+response.decode()
+}
+Err(_) => {
+response.set_status(StatusCode::UNAUTHORIZED);
+Err(CompilerError::Unauthorized)
+}
+}
 }
 \end{lstlisting}
 
@@ -1901,7 +1916,7 @@ Deoarece dorim sa facem verificari mai complexe cum ar fi in cazul adresei de em
 CREATE EXTENSION plperl;
 CREATE LANGUAGE plperlu;
 CREATE OR REPLACE FUNCTION check_email(email text) RETURNS bool
-    LANGUAGE plperlu
+LANGUAGE plperlu
 AS $$
 use Email::Address;
 
@@ -1915,16 +1930,16 @@ Se poate observa ca adresa de email este verificata folosind functia \code{check
 \begin{lstlisting}[language=SQL,caption={Tabelele \code{users} din baza de date},label={lst:usersdb}]
 CREATE TABLE users
 (
-    id            SERIAL PRIMARY KEY,
-    username      VARCHAR(50) NOT NULL UNIQUE CHECK
-                  (LENGTH(username) >= 5 AND username !~ '[@!#\$%&*]'),
-    email         VARCHAR(254) NOT NULL UNIQUE CHECK(check_email(email)),
-    oauth_google  VARCHAR(100)                        NULL UNIQUE,
-    oauth_github  VARCHAR(100)                        NULL UNIQUE,
-    password_hash VARCHAR(150)                        NOT NULL,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    user_type     USERTYPE DEFAULT 'user' NOT NULL
+id            SERIAL PRIMARY KEY,
+username      VARCHAR(50) NOT NULL UNIQUE CHECK
+(LENGTH(username) >= 5 AND username !~ '[@!#\$%&*]'),
+email         VARCHAR(254) NOT NULL UNIQUE CHECK(check_email(email)),
+oauth_google  VARCHAR(100)                        NULL UNIQUE,
+oauth_github  VARCHAR(100)                        NULL UNIQUE,
+password_hash VARCHAR(150)                        NOT NULL,
+created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+user_type     USERTYPE DEFAULT 'user' NOT NULL
 );
 \end{lstlisting}
 
@@ -1936,11 +1951,11 @@ Momentan nu a fost implementata o metoda pentru curatarea sesiunilor expirate, d
 \begin{lstlisting}[language=SQL,caption={Tabelele \code{sessions} din baza de date},label={lst:sessionsdb}]
 CREATE TABLE sessions
 (
-    id         SERIAL PRIMARY KEY,
-    user_id    INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    token      VARCHAR(150)                        NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    expires_at TIMESTAMP NOT NULL
+id         SERIAL PRIMARY KEY,
+user_id    INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+token      VARCHAR(150)                        NOT NULL UNIQUE,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+expires_at TIMESTAMP NOT NULL
 );
 \end{lstlisting}
 
@@ -1973,18 +1988,18 @@ Pentru baza de date, se foloseste imaginea oficiala \code{postgres:17.5-alpine3.
 \begin{lstlisting}[language=docker,caption={Dockerfile pentru baza de date},label={lst:dbdocker}]
 FROM postgres:17.5-alpine3.22
 RUN apk add --no-cache \
-      perl-dev \
-      perl-email-address \
-      postgresql17-plperl
+perl-dev \
+perl-email-address \
+postgresql17-plperl
 RUN mkdir -p \
-      /usr/local/lib/postgresql \
-      /usr/local/share/postgresql/extension \
- && ln -sf /usr/lib/postgresql17/plperl.so \
-        /usr/local/lib/postgresql/plperl.so \
- && ln -sf /usr/share/postgresql17/extension/plperl.control \
-        /usr/local/share/postgresql/extension/plperl.control \
- && cp /usr/share/postgresql17/extension/plperl--*.sql \
-        /usr/local/share/postgresql/extension/
+/usr/local/lib/postgresql \
+/usr/local/share/postgresql/extension \
+&& ln -sf /usr/lib/postgresql17/plperl.so \
+/usr/local/lib/postgresql/plperl.so \
+&& ln -sf /usr/share/postgresql17/extension/plperl.control \
+/usr/local/share/postgresql/extension/plperl.control \
+&& cp /usr/share/postgresql17/extension/plperl--*.sql \
+/usr/local/share/postgresql/extension/
 COPY ./initdb /docker-entrypoint-initdb.d
 EXPOSE 5432
 \end{lstlisting}
@@ -1998,7 +2013,7 @@ FROM alpine:latest as builder
 
 RUN apk add --no-cache curl gcc musl-dev openssl-dev \
 libpq-dev pkgconfig perl make g++ dart-sass-js \
- libcrypto3 openssl-libs-static postgresql-dev
+libcrypto3 openssl-libs-static postgresql-dev
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 ENV PATH=/root/.cargo/bin:$PATH
 RUN rustup target add wasm32-unknown-unknown
@@ -2025,51 +2040,51 @@ In timpul dezvoltarii aplicatiei, pentru a putea rula toate serviciile necesare,
 
 \begin{lstlisting}[language=docker-compose,caption={Docker Compose pentru aplicatie},label={lst:dockercompose}]
 services:
-  db-container:
-    build:
-      context: ./db
-      dockerfile: Dockerfile
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
-      POSTGRES_INITDB_ARGS:"--auth-host=scram-sha-256 \
-        --locale-provider=icu --icu-locale=en-US"
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_TZ: Europe/Bucharest
-    volumes:
-      - ./db/data:/var/lib/postgresql/data
-  compiler-service:
-    build:
-      context: ./ccompiler
-      dockerfile: Dockerfile
-    ports:
-      - "4560:4560"
-  web-container:
-    build:
-      context: ./web
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    environment:
-      DB_HOST: db-container
-      COMPILER_HOST: compiler-service:4560
-      LEPTOS_SITE_ADDR: ${BIND_URL}
-      PUBLIC_URL: ${PUBLIC_URL}
-      DB_USER: ${DB_USER}
-      DB_NAME: ${DB_NAME}
-      DB_PASS: ${DB_PASS}
-    ports:
-      - "80:80"
-    depends_on:
-      - db-container
-      - compiler-service
+db-container:
+build:
+context: ./db
+dockerfile: Dockerfile
+ports:
+- "5432:5432"
+environment:
+POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+POSTGRES_INITDB_ARGS:"--auth-host=scram-sha-256 \
+--locale-provider=icu --icu-locale=en-US"
+POSTGRES_USER: ${DB_USER}
+POSTGRES_PASSWORD: ${DB_PASS}
+POSTGRES_DB: ${DB_NAME}
+POSTGRES_TZ: Europe/Bucharest
+volumes:
+- ./db/data:/var/lib/postgresql/data
+compiler-service:
+build:
+context: ./ccompiler
+dockerfile: Dockerfile
+ports:
+- "4560:4560"
+web-container:
+build:
+context: ./web
+dockerfile: Dockerfile
+env_file:
+- .env
+environment:
+DB_HOST: db-container
+COMPILER_HOST: compiler-service:4560
+LEPTOS_SITE_ADDR: ${BIND_URL}
+PUBLIC_URL: ${PUBLIC_URL}
+DB_USER: ${DB_USER}
+DB_NAME: ${DB_NAME}
+DB_PASS: ${DB_PASS}
+ports:
+- "80:80"
+depends_on:
+- db-container
+- compiler-service
 
 networks:
-  default:
-    name: z80-emu_default
+default:
+name: z80-emu_default
 \end{lstlisting}
 
 In acest fisier se pot vedea cum anumite variabile sunt definite in fisierul \code{.env} si sunt folosite pentru a configura serviciile. Aceste variabile sunt folosite pentru a seta numele bazei de date, utilizatorul si parola, precum si adresa la care va fi expus site-ul web. De asemenea, se pot vedea cum serviciile sunt legate intre ele prin intermediul retelei Docker, astfel incat aplicatia web sa poata comunica cu baza de date si cu serviciul de compilare.
@@ -2093,39 +2108,39 @@ Folosing \ac {K8s} managementul certificatului \code{SSL} si al redirectionarii 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: z80emu-ingress
-  annotations:
-    networking.gke.io/managed-certificates: z80emu-cert
+name: z80emu-ingress
+annotations:
+networking.gke.io/managed-certificates: z80emu-cert
 spec:
-  rules:
-    - host: z80emu.online
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: web-service
-                port:
-                  number: 80
+rules:
+- host: z80emu.online
+http:
+paths:
+- path: /
+pathType: Prefix
+backend:
+service:
+name: web-service
+port:
+number: 80
 \end{lstlisting}
 
 \begin{lstlisting}[language=yaml,caption={Managed Certificate pentru aplicatie},label={lst:managedcert}]
 apiVersion: networking.gke.io/v1
 kind: ManagedCertificate
 metadata:
-  name: z80emu-cert
+name: z80emu-cert
 spec:
-  domains:
-    - z80emu.online
+domains:
+- z80emu.online
 \end{lstlisting}
 
 In \cref{fig:googlecluster} se poate vedea clusterul \ac {K8s} din consola Google Cloud. Prin a accesa consola online, se pot vedea toate resursele din cluster, cum ar fi serviciile, podurile, replicaset-urile si altele. De asemenea, se pot vedea si logurile aplicatiei, ceea ce permite monitorizarea si depanarea aplicatiei in timp real.
 \begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/googlecluster.png}
-    \caption{Clusterul Kubernetes in Google Cloud Platform}
-    \label{fig:googlecluster}
+\centering
+\includegraphics[width=0.8\textwidth]{images/googlecluster.png}
+\caption{Clusterul Kubernetes in Google Cloud Platform}
+\label{fig:googlecluster}
 \end{figure}
 
 \subsubsection{Domain}
@@ -2141,21 +2156,21 @@ Pentru a putea implementa aplicatia in mod continuu si pentru a putea testa auto
 Un workflow de testare a fost creat pentru a testa libraria \code{z80emu-lib} la fiecare push. Acest workflow este definit in fisierul \code{.github/workflows/build.yml} si este folosit pentru a rula testele unitare ale librariei. In \cref{lst:libtestworkflow} este prezentat workflow-ul ce apelease \code{cargo test}. Acest workflow este declansat la fiecare push si la fiecare pull request. Acest lucru permite ca libraria sa fie testata automat si sa se asigure ca nu sunt introduse erori in codul sursa.
 \begin{lstlisting}[language=yaml,caption={Workflow de testare a librariei},label={lst:libtestworkflow}]
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+push:
+branches: [ "master" ]
+pull_request:
+branches: [ "master" ]
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+build:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+with:
+submodules: true
+- name: Build
+run: cargo build --verbose
+- name: Run tests
+run: cargo test --verbose
 \end{lstlisting}
 
 \begin{minipage}[c]{0.55\textwidth}
@@ -2163,104 +2178,104 @@ Datorita faptului ca fiecare commit de pe branchul \code{master} este testat aut
 \end{minipage}
 \hfill
 \begin{minipage}[c]{0.4\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{images/libtestcheckmark.png}
-    \captionof{figure}{Workflow de testare a librariei}
-    \label{fig:libtestcheckmark}
+\centering
+\includegraphics[width=\textwidth]{images/libtestcheckmark.png}
+\captionof{figure}{Workflow de testare a librariei}
+\label{fig:libtestcheckmark}
 \end{minipage}
 
 \subsubsection{Construirea imaginilor Docker}
 Pentru a putea construi imaginile Docker ale aplicatiei, s-a folosit un workflow de GitHub Actions care este definit in fisierul \code{.github/workflows/dockerhub.yml}. Acest workflow este folosit pentru a construi imaginile Docker ale aplicatiei si pentru a le publica pe Docker Hub. In acest workflow \cref{lst:dockerhubworkflow} se poate observa cum pentru procesul de build, parametrii de setare ai cache-ului sunt setati pentru a folosi cache-ul de la GitHub Actions, ceea ce permite ca procesul de build sa fie mai rapid si mai eficient. De asemenea, se pot observa cum imaginile sunt etichetate cu versiunea scurta a commit-ului si cu \code{latest}, ceea ce permite ca imaginile sa fie usor de identificat si de folosit.
 
 \begin{lstlisting}[language=yaml,caption={Workflow de construire a imaginilor Docker},label={lst:dockerhubworkflow}]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+steps:
+- name: Checkout repository
+uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+- name: Log in to Docker Hub
+uses: docker/login-action@v3
+with:
+username: ${{ secrets.DOCKERHUB_USERNAME }}
+password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+- name: Set up Docker Buildx
+uses: docker/setup-buildx-action@v3
 
-      - name: Get short SHA
-        run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+- name: Get short SHA
+run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
-      - name: Build and run Z80 Emulator Web
-        uses: docker/build-push-action@v6
-        with:
-          context: ./web
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:${{ env.VERSION }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
+- name: Build and run Z80 Emulator Web
+uses: docker/build-push-action@v6
+with:
+context: ./web
+push: true
+tags: |
+${{ secrets.DOCKERHUB_USERNAME }}/z80emu:${{ env.VERSION }}
+${{ secrets.DOCKERHUB_USERNAME }}/z80emu:latest
+cache-from: type=gha,scope=web
+cache-to: type=gha,mode=max,scope=web
 
-      - name: Build and run Z80 Compiler Api
-        uses: docker/build-push-action@v6
-        with:
-          context: ./ccompiler
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:${{ env.VERSION }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
-          cache-from: type=gha,scope=ccompiler
-          cache-to: type=gha,mode=max,scope=ccompiler
+- name: Build and run Z80 Compiler Api
+uses: docker/build-push-action@v6
+with:
+context: ./ccompiler
+push: true
+tags: |
+${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:${{ env.VERSION }}
+${{ secrets.DOCKERHUB_USERNAME }}/z80compiler-api:latest
+cache-from: type=gha,scope=ccompiler
+cache-to: type=gha,mode=max,scope=ccompiler
 
-      - name: Build and run Z80 Emulator Database
-        uses: docker/build-push-action@v6
-        with:
-          context: ./db
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:${{ env.VERSION }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
-          cache-from: type=gha,scope=db
-          cache-to: type=gha,mode=max,scope=db
+- name: Build and run Z80 Emulator Database
+uses: docker/build-push-action@v6
+with:
+context: ./db
+push: true
+tags: |
+${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:${{ env.VERSION }}
+${{ secrets.DOCKERHUB_USERNAME }}/z80emu-db:latest
+cache-from: type=gha,scope=db
+cache-to: type=gha,mode=max,scope=db
 \end{lstlisting}
 
 \subsubsection{Deployment}
 Acest workflow are ca scop crearea si resetarea clusterului \ac {K8s} in Google Cloud Platform. Acesta va folosi comanda \code{gcloud container clusters get-credentials} pentru a obtine credentialele clusterului si pentru a putea rula comenzi \code{kubectl} pe clusterul respectiv. In \cref{lst:k8sdeployworkflow} este prezentat workflow-ul de deployment al aplicatiei pe clusterul \ac {K8s}. Acest workflow va rula la fiecare push pe branchul \code{master} si va actualiza resursele din clusterul \ac {K8s} cu noile imagini Docker construite anterior. De asemenea, va reporni serviciile din cluster pentru a se asigura ca noile imagini sunt folosite.
 
 \begin{lstlisting}[language=yaml,caption={Workflow deployment K8s},label={lst:k8sdeployworkflow}]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+steps:
+- name: Checkout code
+uses: actions/checkout@v4
 
-      - name: Google Auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+- name: Google Auth
+uses: 'google-github-actions/auth@v2'
+with:
+credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: z80emu-462619
-          version: 'latest'
+- name: Set up gcloud CLI
+uses: google-github-actions/setup-gcloud@v2
+with:
+project_id: z80emu-462619
+version: 'latest'
 
-      - name: Install kubectl gcloud component
-        run: gcloud components install kubectl
+- name: Install kubectl gcloud component
+run: gcloud components install kubectl
 
-      - name: Get GKE credentials
-        run: gcloud container clusters get-credentials \
-         autopilot-cluster-1 --zone europe-north1 \
-         --project z80emu-462619
+- name: Get GKE credentials
+run: gcloud container clusters get-credentials \
+autopilot-cluster-1 --zone europe-north1 \
+--project z80emu-462619
 
-      - name: Update Deployment
-        run: |
-          kubectl apply -f k8s/ccompiler
-          kubectl apply -f k8s/db
-          kubectl apply -f k8s/web
+- name: Update Deployment
+run: |
+kubectl apply -f k8s/ccompiler
+kubectl apply -f k8s/db
+kubectl apply -f k8s/web
 
-      - name: Restart # In case docketimage changes to get new one
-        run: |
-          kubectl rollout restart deployment web-container
-          kubectl rollout restart deployment db-container
-          kubectl rollout restart deployment compiler-service
+- name: Restart # In case docketimage changes to get new one
+run: |
+kubectl rollout restart deployment web-container
+kubectl rollout restart deployment db-container
+kubectl rollout restart deployment compiler-service
 \end{lstlisting}
 
 \subsubsection{Update DNS}
@@ -2270,96 +2285,196 @@ Pentru a putea actualiza inregistrarile \ac {DNS} ale domeniului, s-a folosit un
 name: Update DNS Configuration
 
 on:
-  workflow_dispatch:  # Allows manual triggering
-  schedule:
-    - cron: '0 * * * *'  # Runs hourly (optional)
+workflow_dispatch:  # Allows manual triggering
+schedule:
+- cron: '0 * * * *'  # Runs hourly (optional)
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Google Auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+deploy:
+runs-on: ubuntu-latest
+steps:
+- name: Google Auth
+uses: 'google-github-actions/auth@v2'
+with:
+credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      - name: Set up gcloud CLI
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: z80emu-462619
-          version: 'latest'
+- name: Set up gcloud CLI
+uses: google-github-actions/setup-gcloud@v2
+with:
+project_id: z80emu-462619
+version: 'latest'
 
-      - name: Get GKE credentials
-        run: gcloud container clusters get-credentials \
-         autopilot-cluster-1 --zone europe-north1 \
-         --project z80emu-462619
+- name: Get GKE credentials
+run: gcloud container clusters get-credentials \
+autopilot-cluster-1 --zone europe-north1 \
+--project z80emu-462619
 
-      - name: Install kubectl gcloud component
-        run: gcloud components install kubectl
+- name: Install kubectl gcloud component
+run: gcloud components install kubectl
 
-      - name: Update Deployment
-        env:
-          SPACESHIP_KEY: ${{ secrets.SPACESHIP_KEY }}
-          SPACESHIP_SECRET: ${{ secrets.SPACESHIP_SECRET }}
-        run: |
-          # Get IP and update DNS
-          IP=$(kubectl get ingress z80emu-ingress \
-           -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          curl -X PUT "https://spaceship.dev/api/v1/dns/records/z80emu.online" \
-            -H "X-API-Key: ${SPACESHIP_KEY}" \
-            -H "X-API-Secret: ${SPACESHIP_SECRET}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "force": true,
-              "items": [
-                {
-                  "type": "A",
-                  "address": "'"${IP}"'",
-                  "name": "@",
-                  "ttl": 3600
-                }
-              ]
-            }'
-          echo "Updated DNS record with IP: ${IP}"
+- name: Update Deployment
+env:
+SPACESHIP_KEY: ${{ secrets.SPACESHIP_KEY }}
+SPACESHIP_SECRET: ${{ secrets.SPACESHIP_SECRET }}
+run: |
+# Get IP and update DNS
+IP=$(kubectl get ingress z80emu-ingress \
+-o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+curl -X PUT "https://spaceship.dev/api/v1/dns/records/z80emu.online" \
+-H "X-API-Key: ${SPACESHIP_KEY}" \
+-H "X-API-Secret: ${SPACESHIP_SECRET}" \
+-H "Content-Type: application/json" \
+-d '{
+"force": true,
+"items": [
+{
+"type": "A",
+"address": "'"${IP}"'",
+"name": "@",
+"ttl": 3600
+}
+]
+}'
+echo "Updated DNS record with IP: ${IP}"
 \end{lstlisting}
 
 \clearpage
 \section{Rezultate experimentale}
+\subsection{Testare programe Z80}
 Pentru a testa capabilitatile aplicatiei, diferite programe au fost scrise in limbajul C, compilate si apoi rulate in emulatorul Z80. Aceste programe au fost folosite pentru a verifica daca aplicatia functioneaza corect si daca poate rula programe scrise in limbajul C. De asemenea, au fost testate si capabilitatile de formatare a codului sursa si de verificare a sintaxei.
+
 Programul \code{rainbowclear.c} este un program simplu care va umple ecranul in mod continuu folosind culori diferite. Scopul acestui program este de a verifica compilarea, executarea programului cat si ecranul conectat la memoria emulatorlui. In \cref{lst:rainbowclearccode} se poate vedea codul sursa C al acestui program.
 
 \begin{lstlisting}[language=C,caption={Cod sursa C pentru \code{rainbowclear.c}},label={lst:rainbowclearccode}]
 char* DISPLAY=(char*)0x4000;
 void main() {
-    char color = 2;
-    for(;;) {
-        for(int i=0; i<0x6000; i++) {
-            DISPLAY[i]=color;
-        }
-        color+=5;
-    }
+char color = 2;
+for(;;) {
+for(int i=0; i<0x6000; i++) {
+DISPLAY[i]=color;
+}
+color+=5;
+}
 }
 \end{lstlisting}
 
 In timpul executiei acestui program \cref{fig:rainbowtestrun}, s-a facut observatia ca prin a pune un breakpoint la adresa de memorie \code{0x0030} unde se afla instructiunea \code{JR 0xDB}, executia programului va fi oprita fix dupa ce programul a terminat de umplut ecranul cu o culoare, marcand finalul unei iteratii a buclei exterioare.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{images/rainbowtestrun.png}
-    \caption{Testare program \code{rainbowclear.c}}
-    \label{fig:rainbowtestrun}
+\centering
+\includegraphics[width=0.8\textwidth]{images/rainbowtestrun.png}
+\caption{Testare program \code{rainbowclear.c}}
+\label{fig:rainbowtestrun}
 \end{figure}
+
+Un alt program \code{pulsatingcircle.c} a fost scris, acesta deseneaza un cerc pulsatoriu pe ecranul emulatorului. Acest lucru a fost realizat pentru a testa capabilitiatea compilerului de a folosii libraria \code{<math.h>} si a emula operatii trigonometrice precum \code{sine} si \code{cosine}. In \cref{lst:pulsatingcircleccode} se poate vedea codul sursa C al acestui program.
+
+\begin{lstlisting}[language=C,caption={Cod sursa C pentru \code{pulsatingcircle.c}},label={lst:pulsatingcircleccode}]
+#include <math.h>
+#include <stdint.h>
+
+#define WIDTH 192
+#define HEIGHT 128
+#define FRAME_DELAY 5000
+
+typedef uint8_t DISPLAY[HEIGHT][WIDTH];
+volatile DISPLAY *display = (DISPLAY *)0x4000;
+
+void set_pixel(uint16_t x, uint16_t y, uint8_t color) {
+if (x < WIDTH && y < HEIGHT) {
+(*display)[y][x] = color;
+}
+}
+
+void clear_display(uint8_t color) {
+for (uint16_t y = 0; y < HEIGHT; y++) {
+for (uint16_t x = 0; x < WIDTH; x++) {
+(*display)[y][x] = color;
+}
+}
+}
+
+void draw_circle(uint16_t cx, uint16_t cy, uint16_t radius, uint8_t color) {
+int16_t x0 = cx - radius;
+int16_t x1 = cx + radius;
+int16_t y0 = cy - radius;
+int16_t y1 = cy + radius;
+
+for (int16_t y = y0; y <= y1; y++) {
+for (int16_t x = x0; x <= x1; x++) {
+int16_t dx = x - cx;
+int16_t dy = y - cy;
+if (dx * dx + dy * dy <= radius * radius) {
+set_pixel(x, y, color);
+}
+}
+}
+}
+
+void frame_delay(void) {
+volatile uint16_t i;
+for (i = 0; i < FRAME_DELAY; i++);
+}
+
+void draw_loop(void) {
+const uint16_t center_x = WIDTH / 2;
+const uint16_t center_y = HEIGHT / 2;
+const uint8_t bg_color = 0x4F;
+const uint8_t circle_color = 0xAF;
+
+const uint8_t base_radius = 20;
+const uint8_t radius_range = 10;    // How much the radius pulsates
+const float pulsate_step = 0.1f;    // Pulsation speed
+
+float pulsate_phase = 0.0f;
+uint16_t prev_radius = 0;
+
+clear_display(bg_color);
+while (1) {
+float radius_sin = (sinf(pulsate_phase) + 1.0f) * 0.5f;
+uint16_t radius = base_radius + (uint16_t)(radius_sin * radius_range);
+draw_circle(center_x, center_y, prev_radius, bg_color);
+draw_circle(center_x, center_y, radius, circle_color);
+pulsate_phase += pulsate_step;
+frame_delay();
+}
+}
+
+int main(void) {
+draw_loop();
+return 0;
+}
+\end{lstlisting}
+
+Programul compilat are un curs simplu, acesta va curata ecranul dupa care va initializa un loop infinit ce va desena cercul. Deoarece Z80 este un microprocesor cu o putere limitata de procesare, pentru a economisi timp, intre cercurile generate, ecranul va curata doar cercul anterior desenat, astfel incat sa nu fie nevoie sa se curete intreg ecranul. Acest lucru permite ca cercul sa fie desenat mai rapid si sa aiba un efect de pulsare mai vizibil. \cref{fig:pulsatingcircle} arata cum arata programul in timpul executiei.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/circleprogram.png}
+\caption{Testare program \code{pulsatingcircle.c}}
+\label{fig:pulsatingcircle}
+\end{figure}
+
+\subsection{Pipeline CI/CD}
+Dupa implementarea cu success a pipeline-ului de CI/CD, acesta s-a dovedit a fi un instrument foarte util pentru a usura procesul de deployment. Deoarece acest pipeline se ocupa de testare, construire a imaginilor Docker cat si de a face update la clusterul \ac {K8s}, modificariile aplicatie pot fi aduse foarte rapid in mediul de productie. Dupa ce modificarile sunt facute, un singur push pe branchul \code{master} va declansa pipeline-ul.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{images/cicd_deploy.png}
+\caption{Pipeline CI/CD pentru aplicatie}
+\label{fig:cicddep}
+\end{figure}
+Se poate observa in \cref{fig:cicddep} cum pipeline-ul este structurat in 2 etape principale: prima etapa fiind cea de construire a imaginilor Docker iar al doilea de deployment pe clusterul \ac {K8s} din Google Cloud Platform. Deoarece in aces caz cache-ul imaginilor Docker era "cald" (existent deja, un update nefiind necesar), timpul de construire a fost mult mai mic (21 minute) comparativ cu prima executie a pipeline-ului, sau cu un cache rece(necesita update).
 
 \clearpage
 \section{Contributii}
 In cadrul acestui proiect, au fost realizate mai multe contributii semnificative, atat in ceea ce priveste dezvoltarea aplicatiei, cat si in ceea ce priveste documentarea si testarea acesteia. Printre acestea se numara:
 \begin{itemize}
-    \item Implementarea unei librarii in Rust care sa ofere functionalitati de baza pentru un emulator Z80, cum ar fi emularea memoriei, a registrilor si a instructiunilor.
-    \item Crearea unei aplicatii web folosind framework-ul Leptos, care sa permita utilizatorilor sa ruleze programe scrise in limbajul C pe un emulator Z80.
-    \item Implementarea unui serviciu de compilare in Python care sa permita verificarea sintaxei si compilarea codului sursa in limbajul C.
-    \item Crearea unei baze de date PostgreSQL pentru a stoca informatiile despre utilizatori si sesiunile acestora.
-    \item Containerizarea aplicatiei folosind Docker si implementarea acesteia pe un cluster Kubernetes in Google Cloud Platform.
-    \item Implementarea unui sistem de CI/CD folosind GitHub Actions pentru a testa automat codul si pentru a implementa aplicatia in productie.
+\item Implementarea unei librarii in Rust care sa ofere functionalitati de baza pentru un emulator Z80, cum ar fi emularea memoriei, a registrilor si a instructiunilor.
+\item Crearea unei aplicatii web folosind framework-ul Leptos, care sa permita utilizatorilor sa ruleze programe scrise in limbajul C pe un emulator Z80.
+\item Implementarea unui serviciu de compilare in Python care sa permita verificarea sintaxei si compilarea codului sursa in limbajul C.
+\item Crearea unei baze de date PostgreSQL pentru a stoca informatiile despre utilizatori si sesiunile acestora.
+\item Containerizarea aplicatiei folosind Docker si implementarea acesteia pe un cluster Kubernetes in Google Cloud Platform.
+\item Implementarea unui sistem de CI/CD folosind GitHub Actions pentru a testa automat codul si pentru a implementa aplicatia in productie.
 \end{itemize}
 
 \clearpage
