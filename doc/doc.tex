@@ -10,6 +10,7 @@
     BoldItalicFont = *-bolditalic ,
     Extension = .otf ,
     Scale = 1.0 ]
+\newfontfamily\arialfont{Liberation Sans}
 \usepackage[backend=biber]{biblatex}
 \usepackage{listings, listings-rust, docker, yaml}
 \usepackage{xcolor}
@@ -63,12 +64,84 @@
 %Cod sursa: fixed width, 8..12 size, fixed width
 
 \begin{document}
-% Title
-\title{Licenta}
-\author{Popescu Ionut-Alexandru}
-\date{\today}
 
-\maketitle
+\begin{titlepage}
+    \thispagestyle{empty}
+    {\arialfont % Entire titlepage in Arial
+    \begin{flushleft}
+        \textbf{UNIVERSITATEA NAȚIONALĂ DE ȘTIINȚĂ ȘI TEHNOLOGIE POLITEHNICA BUCUREȘTI}\\[0.1cm]
+        \textbf{CENTRUL UNIVERSITAR PITEȘTI}\\[0.1cm]
+        \textbf{FACULTATEA DE ELECTRONICĂ, COMUNICAȚII ȘI CALCULATOARE}\\[0.1cm]
+        \textbf{DEPARTAMENTUL ELECTRONICĂ, CALCULATOARE ȘI INGINERIE ELECTRICĂ}\\[0.1cm]
+        \textbf{PROGRAMUL DE STUDII UNIVERSITARE DE LICENȚĂ}\\[0.3cm]
+        \hrule
+    \end{flushleft}
+
+
+        \vspace{6cm}
+    \begin{center}
+        {\Huge \textbf{PROIECT DE DIPLOMĂ}}\\[6cm]
+
+        \noindent
+        \begin{minipage}{0.45\textwidth}
+            \textbf{Absolvent:}\\
+            Popescu Ionuț-Alexandru
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.45\textwidth}
+            \vspace{1cm}
+            \raggedleft
+            \textbf{Conducător științific:}\\
+            conf. dr. ing. Laurențiu-Mihai IONESCU
+        \end{minipage}
+
+        \vspace{2cm}
+    \end{center}
+    }
+\end{titlepage}
+\newpage
+
+\setcounter{page}{1}
+\pagestyle{plain}
+\begin{titlepage}
+    \thispagestyle{plain}
+    {\arialfont % Entire titlepage in Arial
+    \begin{flushleft}
+        \textbf{UNIVERSITATEA NAȚIONALĂ DE ȘTIINȚĂ ȘI TEHNOLOGIE POLITEHNICA BUCUREȘTI}\\[0.1cm]
+        \textbf{CENTRUL UNIVERSITAR PITEȘTI}\\[0.1cm]
+        \textbf{FACULTATEA DE ELECTRONICĂ, COMUNICAȚII ȘI CALCULATOARE}\\[0.1cm]
+        \textbf{DEPARTAMENTUL ELECTRONICĂ, CALCULATOARE ȘI INGINERIE ELECTRICĂ}\\[0.1cm]
+        \textbf{PROGRAMUL DE STUDII UNIVERSITARE DE LICENȚĂ}\\[0.3cm]
+        \hrule
+    \end{flushleft}
+
+        \vspace{6cm}
+    \begin{center}
+        {\Huge \textbf{PROIECT DE DIPLOMĂ}}\\[2cm]
+        {\LARGE \textbf{Emulator si Debugger Web pentru Zilog Z80 in Rust}}\\[5cm]
+        \noindent
+        \begin{minipage}{0.45\textwidth}
+            \textbf{Absolvent:}\\
+            Popescu Ionuț-Alexandru
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.45\textwidth}
+            \vspace{1cm}
+            \raggedleft
+            \textbf{Conducător științific:}\\
+            conf. dr. ing. Laurențiu-Mihai IONESCU
+        \end{minipage}
+
+        \vspace{2cm}
+        \vfill
+        \textbf{Pitești}\\[0.1cm]
+        \textbf{Sesiunea iunie 2025}
+    \end{center}
+    }
+\end{titlepage}
+\newpage
+\setcounter{page}{2}
+
 \renewcommand{\contentsname}{Cuprins}
 \renewcommand{\listfigurename}{Lista figurilor}
 \renewcommand{\listtablename}{Lista tabelelor}

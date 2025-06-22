@@ -9,6 +9,7 @@ RUN apk add --no-cache texmf-dist-fontsextra
 RUN apk add --no-cache texmf-dist-fontsrecommended
 RUN apk add --no-cache texlive-xetex
 RUN apk add --no-cache font-jetbrains-mono
+Run apk add --no-cache ttf-liberation
 
 WORKDIR /doc
 RUN mkdir /out
