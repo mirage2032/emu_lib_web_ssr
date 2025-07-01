@@ -2587,5 +2587,64 @@ In cadrul acestui proiect, au fost realizate mai multe contributii semnificative
 \section{Bibliografie}
 \printbibliography
 
+\clearpage
+\pagestyle{empty}
+\section*{Rezumat}
+Proiectul reprezinta un emulator si debugger Z80 accesibil Web scris complet in limbajul Rust. Motivatia principala care a dus la nasterea acestui proiect a fost insatisfactia fata de solutiile curente similare.
+
+\paragraph{Emulator}
+Datorita faptului ca acest emulator se vrea a fi cat mai accesibil si usor de extins, acesta a fost compus din doua parti. Prima parte reprezinta nucleul emulatorului, acesta continand toata structurile de date si implementarile pentru simularea microprocesorului de tip Z80.
+A doua parte este reprezentata de aplicatia web care foloseste aceasta librarie.
+Deoarece libraria de la baza proiectului este separata, aceasta permite altor programatori sa o includa in proiectele lor, extinzand astfel functionalitatiile emulatorului. Folosind aceasta librarie, dezvoltatorii pot chiar inlocui solutii existente ce au la baza microprocesoare de tip Z80 cu solutii mai recente cum ar fi Raspberry Pi ruland un emulator. Folosind interfetele deja existente definite in emulator, noi dispozitive I/O sau legate la memoria emulatorului pot fi create.
+
+\paragraph{Web}
+Pentru interfata web principalele librarii folosite au fost \code{Leptos} si \code{Axum}. Din aceste doua librarii, \code{Axum} se va ocupa de parte de backend, adica de partea de server si de gestionarea cererilor HTTP, iar \code{Leptos} se va ocupa de partea de front-end. Axum a fost folosit pentru ca este o librarie destul de veche, dovedida a fi testata si foarte fiabila, Leptos pe de alta parte este destul de recent, insa, a fost ales datori documentatiei foarte bune si a comunitatii in continua crestere.
+
+Pentru comunicarea cu baza de date \code{PostgreSQL} a fost folosita alta librarie, \code{Diesel}, aceasa facand partea de ORM(Object Relational Mapping), facand datele foarte usor accessibile prin sintaxa acesuia.
+
+Deoarece nu dorim sa oferim tuturor utilizatorilor aplicatiei access la compilatorul de C, acesta consumand resurse extra din partea noastra, un sistem de autentificare a fost adaugat.
+Tot sistemul de autentificare a fost facut de la 0. Cand un utilizator isi creaza un cont, parola acestuia va trece prin algoritmul de HASHing \code{Argon2}, iar apoi stocata in baza de date. Acest lucru se asigura ca daca baza de date a fost infiltrata de un atacator, acesta tot nu va avea access la parola utilizatorilor.
+La autentificare, serverul dupa ce verifica datele, daca acestea sunt validate, va trimite un raspuns inapoi ce va seta un \code{Cookie} continand un \code{token} ce identifica sesiunea utilizatorului.
+Aplicatia verifica existenta tokenului de autentificare la fiecare vizita, in cazul in care acesta este prezent, utilizatorul fiind redirectionat la pagina emulatorului.
+
+Odata accesata pagina principala a emulatorului, aceasta va contine toate functionalitatiile necesare pentru a dezvolta si testa un program pentru un microprocesor Z80.
+Principalele functionalitati ale emulatorlui contin:
+\begin{itemize}
+    \item Editor de cod C si Assembly si capacitatea de a il compila/asambla
+    \item Rulatul de programe Z80
+    \item Control la nivel de instructiune asupra executiei programului
+    \item Monitorizare si posibilitate de a modifica valoarea registrilor si a valorilor din memorie
+    \item Salvare si incarcare a programelor.
+    \item Vizualizare pe un display a unor regiuni din memorie. 
+\end{itemize}
+Pe display fiecare pixel este reprezentat de un byte din memorie, fiecare adresa reprezentand un pixel. Culoarea pixelului fiind reprezentata de valoarea din aceasta adresa de memorie.
+Zona de memorie legata la display incepe de la \code{0x4000} iar ecranul are o rezolutie de \code {192X128}, finalul acestei zone de memorie fiind la \code{0x9999}.
+Datorita faptului ca ecranul este conectat direct la memorie, se poate desena foarte usor pe acesta prin a seta valorile in memorie.
+
+\paragraph{Containerizare}
+Pentru a face deploy aplicatie folosind un cluster K8s, diferite containere au fost create pentru partile proiectului, toate aceste containere ruland in aceasi retea.
+Tot proiectul este format din 3 containere:
+\begin{description}
+    \item[Server Web] Singurul container accesibil din afara retelei docker doar pe portul HTTP 80
+    \item[Serviciu Compiler C] Acesta contine compilerul si un wrapper web in python pentru a ii oferi un API usor accesibil. 
+    \item[Baza de date] Aici sunt stocate datele utilizatorilor si sesiunile acestora
+\end{description}
+Deoarece serverul web este singurul accesibil din afara retelei Docker, toate cererile catre compiler sau baza de date vor trece intai prin acesta.
+
+\paragraph{Integrare Continua}
+Pentru asigurarea calitatii codului livrat, tot codul sursa al proiectului a fost tinut pe GitHub iar diferite worflowuri au fost folosite.
+Aceste workflowuri au urmatoarele responsabilitati:
+\begin{itemize}
+    \item Testarea librariei \code{z80emu-lib}. Acest lucru asigura ca orice modificare adusa codului sursa este testata si nu introduce erori.
+    \item Construirea imaginilor Docker ale aplicatiei si publicarea acestora pe Docker Hub. Acest lucru permite ca aplicatia sa fie usor de implementat si de rulat in diferite medii.
+    \item Deploymentul aplicatiei pe un cluster Kubernetes in Google Cloud Platform. Prin acest pas, noul update al proiectului va fi publicat pe internet.
+    \item Actualizarea inregistrarilor DNS ale domeniului folosit pentru aplicatie. Aici ruta DNS a domeniului \code{z80emu.online} va fi actualizata la clusterul K8S.
+\end{itemize}
+
+\paragraph{Cloud}
+Ca hosting provider Google Cloud Platform a fost ales datorita faptului ca ofera un cluster Kubernetes si ofera gratuitate noilor utilizatori pentru primele 90 de zile.
+Deoarece aplicatia este facuta sa ruleze doar prin HTTP, un Ingress, acesta deschizand un canal sigur HTTPS prin care va functiona aplicatia.
+Certificatul SSL folosit de conexiunea HTTPS este semnat de Google, acesta fiind regenerat automat la schimbari ale adresei DNS.
+Scopul principal al acestui Ingress este de a face un punct de access HTTPS, deoarece HTTP poate expune utilizatorii la atacuri de tip MITM(Man In The Middle).
 
 \end{document}
