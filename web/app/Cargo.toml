@@ -44,7 +44,7 @@ gloo-net = { version = "0.6.0", features = ["json"] }
 send_wrapper = "0.6.0"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-argon2 = { version = "0.6.0-pre.1" }
+argon2 = { version = "0.6.0-rc.0" }
 uuid = { version = "1.12.1", features = ["v4"] }
 rand = { version = "0.9.1"}
 form_urlencoded = "1.2.1"
