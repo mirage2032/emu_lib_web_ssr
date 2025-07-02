@@ -228,37 +228,6 @@ fn RunButton() -> impl IntoView {
             start();
         }
     };
-    // Effect::watch(
-    //     // Dependency getter: takes 0 arguments, returns tuple of dependencies
-    //     move || (cpu_frequency.get(), refresh_rate.get(),running.get()),
-    //     // Effect closure: takes (new_value, prev_value, context)
-    //     move |(_cpu_freq, _refresh,is_running), _prev, _ctx| {
-    //         if *is_running {
-    //             running.set(false);
-    //             set_timeout(
-    //                 move || {
-    //                     if !running.get() {
-    //                         running.set(true);
-    //                         let now = Date::now();
-    //                         step_fn(
-    //                             1,
-    //                             chunk_ticks.clone(),
-    //                             chunk_duration.clone(),
-    //                             step_ticks.clone(),
-    //                             set_frequency.clone(),
-    //                             running.clone(),
-    //                             0.0,
-    //                             now,
-    //                             0.0,
-    //                         );
-    //                     }
-    //                 },
-    //                 Duration::from_millis(0),
-    //             );
-    //         }
-    //     },
-    //     true,
-    // );
     view! {
         <input
             type="button"
@@ -514,6 +483,11 @@ fn LoadButton() -> impl IntoView {
                 id="fileupload"
                 value="Load"
                 type="file"
+                on:click=move |ev| {
+                    if let Some(target) = ev.target() {
+                        target.unchecked_ref::<HtmlInputElement>().set_value("");
+                    }
+                }
                 on:change=move |ev| {
                     if let Some(target) = ev.target() {
                         if let Some(files) = target.unchecked_ref::<HtmlInputElement>().files() {

@@ -68,7 +68,7 @@ $mc-border: #dee2e6; // Borders
       width:100%;
       border: none;
       padding: 0.2rem 0.3rem;
-      background: $color-bg;
+      background: inherit;
       color: $mc-text-light;
       -moz-appearance: textfield;
       &::-webkit-inner-spin-button,
@@ -80,7 +80,7 @@ $mc-border: #dee2e6; // Borders
     select{
       border: none;
       padding: 0.2rem 0.3rem;
-      background: $color-bg;
+      background: inherit;
       color: $mc-text-light;
     }
   }
